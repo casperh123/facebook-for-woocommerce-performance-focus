@@ -11,15 +11,10 @@
 
 require_once __DIR__ . '/includes/fbutils.php';
 
-use Automattic\WooCommerce\Admin\Features\Features as WooAdminFeatures;
 use Automattic\WooCommerce\Admin\Features\OnboardingTasks\TaskLists;
 use WooCommerce\Facebook\Admin\Tasks\Setup;
-use WooCommerce\Facebook\Admin\Notes\SettingsMoved;
 use WooCommerce\Facebook\Framework\Api\Exception as ApiException;
 use WooCommerce\Facebook\Framework\Helper;
-use WooCommerce\Facebook\Framework\Plugin\Compatibility;
-use WooCommerce\Facebook\Integrations\Bookings as BookingsIntegration;
-use WooCommerce\Facebook\Lifecycle;
 use WooCommerce\Facebook\ProductSync\ProductValidator as ProductSyncValidator;
 use WooCommerce\Facebook\Utilities\Background_Handle_Virtual_Products_Variations;
 use WooCommerce\Facebook\Utilities\Background_Remove_Duplicate_Visibility_Meta;
@@ -135,7 +130,7 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	 *
 	 * @param string $key property name
 	 * @return mixed
-	 * @since 3.0.32
+	 * @since 3.0.3
 	 */
 	public function __get( $key ) {
 		// Add warning for private properties.
@@ -167,7 +162,6 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 			add_filter( 'manage_edit-fb_product_set_columns', array( $this, 'manage_fb_product_set_columns' ) );
 
 			add_action( 'add_meta_boxes_product', array( $this, 'remove_product_fb_product_set_metabox' ), 50 );
-			add_action( 'admin_notices', array( $this, 'add_inbox_notes' ) );
 
 			// Product Set breadcrumb filters
 			add_filter( 'woocommerce_navigation_is_connected_page', array( $this, 'is_current_page_conected_filter' ), 99, 2 );
@@ -197,7 +191,6 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 		$this->product_sets_sync_handler = new WooCommerce\Facebook\ProductSets\Sync();
 		$this->commerce_handler          = new WooCommerce\Facebook\Commerce();
 		$this->fb_categories             = new WooCommerce\Facebook\Products\FBCategories();
-		$this->external_version_update   = new WooCommerce\Facebook\ExternalVersionUpdate\Update();
 
 		// Initialize AJAX handling for specific AJAX actions.
 		if ( wp_doing_ajax() && isset( $_REQUEST['action'] ) && $this->is_facebook_ajax_action( $_REQUEST['action'] ) ) {
@@ -666,41 +659,6 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 		return admin_url( 'admin.php?page=wc-facebook' );
 	}
 
-	/**
-	 * Gets the plugin's documentation URL.
-	 *
-	 * @since 1.10.0
-	 *
-	 * @return string
-	 */
-	public function get_documentation_url() {
-		return 'https://woocommerce.com/document/facebook-for-woocommerce/';
-	}
-
-
-	/**
-	 * Gets the plugin's support URL.
-	 *
-	 * @since 1.10.0
-	 *
-	 * @return string
-	 */
-	public function get_support_url() {
-		return 'https://wordpress.org/support/plugin/facebook-for-woocommerce/';
-	}
-
-
-	/**
-	 * Gets the plugin's sales page URL.
-	 *
-	 * @since 1.10.0
-	 *
-	 * @return string
-	 */
-	public function get_sales_page_url() {
-		return 'https://woocommerce.com/products/facebook/';
-	}
-
 
 	/**
 	 * Gets the plugin name.
@@ -741,16 +699,6 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 
 
 	/** Utility methods *******************************************************************************************/
-
-
-	/**
-	 * Initializes the lifecycle handler.
-	 *
-	 * @since 1.10.0
-	 */
-	protected function init_lifecycle_handler() {
-		$this->lifecycle_handler = new Lifecycle( $this );
-	}
 
 
 	/**

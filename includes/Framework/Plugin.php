@@ -60,9 +60,6 @@ abstract class Plugin {
 	/** @var Dependencies dependency handler instance */
 	private $dependency_handler;
 
-	/** @var \WooCommerce\Facebook\Lifecycle lifecycle handler instance */
-	protected $lifecycle_handler;
-
 	/** @var AdminNoticeHandler the admin notice handler class */
 	private $admin_notice_handler;
 
@@ -113,9 +110,6 @@ abstract class Plugin {
 		// build the admin notice handler instance
 		$this->init_admin_notice_handler();
 
-		// build the lifecycle handler instance
-		$this->init_lifecycle_handler();
-
 		// add the action & filter hooks
 		$this->add_hooks();
 	}
@@ -163,17 +157,6 @@ abstract class Plugin {
 	 */
 	protected function init_admin_notice_handler() {
 		$this->admin_notice_handler = new AdminNoticeHandler( $this );
-	}
-
-
-	/**
-	 * Builds the lifecycle handler instance.
-	 *
-	 * Plugins can override this with their own handler to perform install and
-	 * upgrade routines.
-	 */
-	protected function init_lifecycle_handler() {
-		$this->lifecycle_handler = new \WooCommerce\Facebook\Lifecycle( $this );
 	}
 
 
@@ -384,17 +367,6 @@ abstract class Plugin {
 			$custom_actions['configure'] = $this->get_settings_link( $this->get_id() );
 		}
 
-		// documentation url if any
-		if ( $this->get_documentation_url() ) {
-			/* translators: Docs as in Documentation */
-			$custom_actions['docs'] = sprintf( '<a href="%s" target="_blank">%s</a>', $this->get_documentation_url(), esc_html__( 'Docs', 'facebook-for-woocommerce' ) );
-		}
-
-		// support url if any
-		if ( $this->get_support_url() ) {
-			$custom_actions['support'] = sprintf( '<a href="%s">%s</a>', $this->get_support_url(), esc_html_x( 'Support', 'noun', 'facebook-for-woocommerce' ) );
-		}
-
 		// add the links to the front of the actions list
 		return array_merge( $custom_actions, $actions );
 	}
@@ -580,18 +552,6 @@ abstract class Plugin {
 
 
 	/**
-	 * Gets the lifecycle handler instance.
-	 *
-	 * @since 5.1.0
-	 *
-	 * @return \WooCommerce\Facebook\Lifecycle
-	 */
-	public function get_lifecycle_handler() {
-		return $this->lifecycle_handler;
-	}
-
-
-	/**
 	 * Gets the admin message handler.
 	 *
 	 * @return AdminMessageHandler
@@ -714,20 +674,6 @@ abstract class Plugin {
 	 */
 	public function get_sales_page_url() {
 		return '';
-	}
-
-
-	/**
-	 * Gets the plugin reviews page URL.
-	 *
-	 * Used for the 'Reviews' plugin action and review prompts.
-	 *
-	 * @since 5.1.0
-	 *
-	 * @return string
-	 */
-	public function get_reviews_url() {
-		return $this->get_sales_page_url() ? $this->get_sales_page_url() . '#comments' : '';
 	}
 
 
