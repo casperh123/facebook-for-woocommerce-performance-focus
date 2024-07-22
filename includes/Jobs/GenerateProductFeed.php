@@ -25,7 +25,6 @@ class GenerateProductFeed extends AbstractChainedJob {
 		$feed_handler = new \WC_Facebook_Product_Feed();
 		$feed_handler->create_files_to_protect_product_feed_directory();
 		$feed_handler->prepare_temporary_feed_file();
-		facebook_for_woocommerce()->get_tracker()->reset_batch_generation_time();
 	}
 
 	/**
@@ -34,7 +33,6 @@ class GenerateProductFeed extends AbstractChainedJob {
 	protected function handle_end() {
 		$feed_handler = new \WC_Facebook_Product_Feed();
 		$feed_handler->rename_temporary_feed_file_to_final_feed_file();
-		facebook_for_woocommerce()->get_tracker()->save_batch_generation_time();
 	}
 
 	/**
@@ -103,7 +101,6 @@ class GenerateProductFeed extends AbstractChainedJob {
 		if ( is_resource( $temp_feed_file ) ) {
 			fclose( $temp_feed_file );
 		}
-		facebook_for_woocommerce()->get_tracker()->increment_batch_generation_time( microtime( true ) - $start_time );
 	}
 
 	/**

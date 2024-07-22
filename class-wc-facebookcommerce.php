@@ -88,17 +88,11 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	/** @var WooCommerce\Facebook\Commerce commerce handler */
 	private $commerce_handler;
 
-	/** @var WooCommerce\Facebook\Utilities\Tracker */
-	private $tracker;
-
 	/** @var WooCommerce\Facebook\Jobs\JobManager */
 	public $job_manager;
 
 	/** @var WooCommerce\Facebook\Utilities\Heartbeat */
 	public $heartbeat;
-
-	/** @var WooCommerce\Facebook\Feed\FeedConfigurationDetection instance. */
-	private $configuration_detection;
 
 	/** @var WooCommerce\Facebook\Products\FBCategories instance. */
 	private $fb_categories;
@@ -187,7 +181,6 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 		$this->products_stock_handler    = new WooCommerce\Facebook\Products\Stock();
 		$this->products_sync_handler     = new WooCommerce\Facebook\Products\Sync();
 		$this->sync_background_handler   = new WooCommerce\Facebook\Products\Sync\Background();
-		$this->configuration_detection   = new WooCommerce\Facebook\Feed\FeedConfigurationDetection();
 		$this->product_sets_sync_handler = new WooCommerce\Facebook\ProductSets\Sync();
 		$this->commerce_handler          = new WooCommerce\Facebook\Commerce();
 		$this->fb_categories             = new WooCommerce\Facebook\Products\FBCategories();
@@ -208,7 +201,6 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 
 		$this->connection_handler = new WooCommerce\Facebook\Handlers\Connection( $this );
 		$this->webhook_handler    = new WooCommerce\Facebook\Handlers\WebHook( $this );
-		$this->tracker            = new WooCommerce\Facebook\Utilities\Tracker();
 
 		// Init jobs
 		$this->job_manager = new WooCommerce\Facebook\Jobs\JobManager();
@@ -599,16 +591,6 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 		return $this->commerce_handler;
 	}
 
-	/**
-	 * Gets tracker instance.
-	 *
-	 * @since 2.6.0
-	 *
-	 * @return WooCommerce\Facebook\Utilities\Tracker
-	 */
-	public function get_tracker() {
-		return $this->tracker;
-	}
 
 	/**
 	 * Gets the debug profiling logger instance.

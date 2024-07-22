@@ -50,20 +50,13 @@ class WC_Facebook_Product_Feed {
 
 		try {
 
-			$start_time = microtime( true );
-
 			$this->generate_productfeed_file();
-
-			$generation_time = microtime( true ) - $start_time;
-			facebook_for_woocommerce()->get_tracker()->track_feed_file_generation_time( $generation_time );
 
 			\WC_Facebookcommerce_Utils::log( 'Product feed file generated' );
 
 		} catch ( \Exception $exception ) {
 
 			\WC_Facebookcommerce_Utils::log( $exception->getMessage() );
-			// Feed generation failed - clear the generation time to track that there's an issue.
-			facebook_for_woocommerce()->get_tracker()->track_feed_file_generation_time( -1 );
 
 		}
 
