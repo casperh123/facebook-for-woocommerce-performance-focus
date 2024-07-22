@@ -6,14 +6,13 @@
  * This source code is licensed under the license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * Plugin Name: Facebook for WooCommerce
- * Plugin URI: https://github.com/woocommerce/facebook-for-woocommerce/
+ * Plugin Name: Facebook for WooCommerce (Performance Optimized)
+ * Plugin URI: https://github.com/casperh123/facebook-for-woocommerce-performance-focus
  * Description: Grow your business on Facebook! Use this official plugin to help sell more of your products using Facebook. After completing the setup, you'll be ready to create ads that promote your products and you can also create a shop section on your Page where customers can browse your products on Facebook.
- * Author: Facebook
+ * Author: Facebook, Casper Holten (Clypper Technology)
  * Author URI: https://www.facebook.com/
  * Version: 3.2.5
  * Requires at least: 5.6
- * Requires PHP: 7.4
  * Text Domain: facebook-for-woocommerce
  * Requires Plugins: woocommerce
  * Tested up to: 6.6
@@ -81,25 +80,19 @@ class WC_Facebook_Loader {
 	 */
 	private $notices = array();
 
+    /**
+     * Constructs the class.
+     *
+     * @since 1.10.0
+     */
+    protected function __construct() {
 
-	/**
-	 * Constructs the class.
-	 *
-	 * @since 1.10.0
-	 */
-	protected function __construct() {
+        register_activation_hook( __FILE__, array( $this, 'activation_check' ) );
 
-		register_activation_hook( __FILE__, array( $this, 'activation_check' ) );
-
-		add_action( 'admin_init', array( $this, 'check_environment' ) );
-
-		add_action( 'admin_notices', array( $this, 'admin_notices' ), 15 );
-
-		// If the environment check fails, initialize the plugin.
-		if ( $this->is_environment_compatible() ) {
-			add_action( 'plugins_loaded', array( $this, 'init_plugin' ) );
-		}
-	}
+        if ( $this->check_environment() ) {
+            add_action( 'plugins_loaded', array( $this, 'init_plugin' ) );
+        }
+    }
 
 
 	/**
@@ -124,68 +117,30 @@ class WC_Facebook_Loader {
 	}
 
 
-	/**
-	 * Initializes the plugin.
-	 *
-	 * @since 1.10.0
-	 */
-	public function init_plugin() {
+    /**
+     * Initializes the plugin.
+     *
+     * @since 1.10.0
+     */
+    public function init_plugin() {
+        if ( ! function_exists( 'facebook_for_woocommerce' ) ) {
+            require_once plugin_dir_path( __FILE__ ) . 'class-wc-facebookcommerce.php';
+        }
 
-		if ( ! Checker::instance()->is_compatible( __FILE__, self::PLUGIN_VERSION ) ) {
-			return;
-		}
-
-		require_once plugin_dir_path( __FILE__ ) . 'class-wc-facebookcommerce.php';
-
-		// fire it up!
-		if ( function_exists( 'facebook_for_woocommerce' ) ) {
-			facebook_for_woocommerce();
-		}
-	}
+        facebook_for_woocommerce();
+    }
 
 
-	/**
-	 * Gets the framework version in namespace form.
-	 *
-	 * @since 1.10.0
-	 *
-	 * @return string
-	 */
-	public function get_framework_version_namespace() {
-		return 'v' . str_replace( '.', '_', $this->get_framework_version() );
-	}
-
-
-	/**
+    /**
 	 * Gets the framework version used by this plugin.
 	 *
 	 * @since 1.10.0
 	 *
 	 * @return string
 	 */
-	public function get_framework_version() {
-
+	public function get_framework_version(): string
+    {
 		return self::FRAMEWORK_VERSION;
-	}
-
-
-	/**
-	 * Checks the server environment and other factors and deactivates plugins as necessary.
-	 *
-	 * Based on http://wptavern.com/how-to-prevent-wordpress-plugins-from-activating-on-sites-with-incompatible-hosting-environments
-	 *
-	 * @internal
-	 *
-	 * @since 1.10.0
-	 */
-	public function activation_check() {
-
-		if ( ! $this->is_environment_compatible() ) {
-
-			$this->deactivate_plugin();
-
-			wp_die( esc_html( self::PLUGIN_NAME . ' could not be activated. ' . $this->get_environment_message() ) );
-		}
 	}
 
 
@@ -196,15 +151,31 @@ class WC_Facebook_Loader {
 	 *
 	 * @since 1.10.0
 	 */
-	public function check_environment() {
+	public function check_environment() : bool {
 
 		if ( ! $this->is_environment_compatible() && is_plugin_active( plugin_basename( __FILE__ ) ) ) {
 
 			$this->deactivate_plugin();
+            $this->add_admin_notice( 'bad_environment', 'error', self::PLUGIN_NAME . ' has been deactivated. ' . $this->get_environment_message() );
 
-			$this->add_admin_notice( 'bad_environment', 'error', self::PLUGIN_NAME . ' has been deactivated. ' . $this->get_environment_message() );
-		}
+            return false;
+        }
+
+        return true;
 	}
+
+    /**
+     * Checks the server environment and other factors during plugin activation.
+     *
+     * @internal
+     * @since 1.10.0
+     */
+    public function activation_check() {
+        if ( ! $this->is_environment_compatible() ) {
+            $this->deactivate_plugin();
+            wp_die( esc_html( self::PLUGIN_NAME . ' could not be activated. ' . $this->get_environment_message() ) );
+        }
+    }
 
 
 	/**
@@ -283,7 +254,8 @@ class WC_Facebook_Loader {
 	 *
 	 * @return bool
 	 */
-	private function is_environment_compatible() {
+	private function is_environment_compatible(): bool
+    {
 		return version_compare( PHP_VERSION, self::MINIMUM_PHP_VERSION, '>=' );
 	}
 
@@ -310,7 +282,8 @@ class WC_Facebook_Loader {
 	 *
 	 * @return \WC_Facebook_Loader
 	 */
-	public static function instance() {
+	public static function instance(): WC_Facebook_Loader
+    {
 
 		if ( null === self::$instance ) {
 			self::$instance = new self();
@@ -318,9 +291,6 @@ class WC_Facebook_Loader {
 
 		return self::$instance;
 	}
-
-
 }
 
-// fire it up!
 WC_Facebook_Loader::instance();

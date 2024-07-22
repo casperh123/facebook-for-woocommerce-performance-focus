@@ -391,60 +391,56 @@ class WC_Facebook_Product {
 	}
 
 	public function get_fb_description() {
-		$description = '';
-
 		if ( $this->fb_description ) {
-			$description = $this->fb_description;
+			return $this->fb_description;
 		}
 
-		if ( empty( $description ) ) {
-			// Try to get description from post meta
-			$description = get_post_meta(
-				$this->id,
-				self::FB_PRODUCT_DESCRIPTION,
-				true
-			);
+		$description = get_post_meta(
+			$this->id,
+			self::FB_PRODUCT_DESCRIPTION,
+			true
+		);
+
+		if ( $description ) {
+			return $description;
 		}
 
-		// Check if the product type is a variation and no description is found yet
-		if ( empty( $description ) && WC_Facebookcommerce_Utils::is_variation_type( $this->woo_product->get_type() ) ) {
+		if ( WC_Facebookcommerce_Utils::is_variation_type( $this->woo_product->get_type() ) ) {
+
 			$description = WC_Facebookcommerce_Utils::clean_string( $this->woo_product->get_description() );
 
-			// Fallback to main description
-			if ( empty( $description ) && $this->main_description ) {
-				$description = $this->main_description;
+			if ( $description ) {
+				return $description;
+			}
+			if ( $this->main_description ) {
+				return $this->main_description;
 			}
 		}
 
-		// If no description is found from meta or variation, get from post
-		if ( empty( $description ) ) {
-			$post         = $this->get_post_data();
-			$post_content = WC_Facebookcommerce_Utils::clean_string( $post->post_content );
-			$post_excerpt = WC_Facebookcommerce_Utils::clean_string( $post->post_excerpt );
-			$post_title   = WC_Facebookcommerce_Utils::clean_string( $post->post_title );
+		$post = $this->get_post_data();
 
-			// Prioritize content, then excerpt, then title
-			if ( ! empty( $post_content ) ) {
-				$description = $post_content;
-			}
+		$post_content = WC_Facebookcommerce_Utils::clean_string(
+			$post->post_content
+		);
+		$post_excerpt = WC_Facebookcommerce_Utils::clean_string(
+			$post->post_excerpt
+		);
+		$post_title   = WC_Facebookcommerce_Utils::clean_string(
+			$post->post_title
+		);
 
-			if ( $this->sync_short_description || ( empty( $description ) && ! empty( $post_excerpt ) ) ) {
-				$description = $post_excerpt;
-			}
-
-			if ( empty( $description ) ) {
-				$description = $post_title;
-			}
+		// Sanitize description
+		if ( $post_content ) {
+			$description = $post_content;
 		}
-		/**
-		 * Filters the FB product description.
-		 *
-		 * @since x.x.x
-		 *
-		 * @param string  $description Facebook product description.
-		 * @param int     $id          WooCommerce Product ID.
-		 */
-		return apply_filters( 'facebook_for_woocommerce_fb_product_description', $description, $this->id );
+		if ( $this->sync_short_description || ( $description == '' && $post_excerpt ) ) {
+			$description = $post_excerpt;
+		}
+		if ( $description == '' ) {
+			$description = $post_title;
+		}
+
+		return $description;
 	}
 
 	/**

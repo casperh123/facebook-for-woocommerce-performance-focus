@@ -1,10 +1,10 @@
 === Facebook for WooCommerce ===
 Contributors: facebook, automattic, woothemes
 Tags: facebook, woocommerce, marketing, product catalog feed, pixel
-Requires at least: 5.6
+Requires at least: 4.4
 Tested up to: 6.6
 Stable tag: 3.2.5
-Requires PHP: 7.4
+Requires PHP: 5.6 or greater
 MySQL: 5.6 or greater
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
