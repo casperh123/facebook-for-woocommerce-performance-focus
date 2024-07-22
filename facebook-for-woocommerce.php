@@ -89,9 +89,7 @@ class WC_Facebook_Loader {
 
         register_activation_hook( __FILE__, array( $this, 'activation_check' ) );
 
-        if ( $this->check_environment() ) {
-            add_action( 'plugins_loaded', array( $this, 'init_plugin' ) );
-        }
+		add_action( 'plugins_loaded', array( $this, 'init_plugin' ) );
     }
 
 

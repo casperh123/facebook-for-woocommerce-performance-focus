@@ -157,76 +157,83 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	 * @internal
 	 */
 	public function init() {
+
+		if ( ! WC_Facebookcommerce_Utils::isWoocommerceIntegration() ) {
+			return;
+		}
+
 		add_action( 'init', array( $this, 'get_integration' ) );
 		add_action( 'init', array( $this, 'register_custom_taxonomy' ) );
-		add_action( 'add_meta_boxes_product', array( $this, 'remove_product_fb_product_set_metabox' ), 50 );
-		add_filter( 'fb_product_set_row_actions', array( $this, 'product_set_links' ) );
-		add_filter( 'manage_edit-fb_product_set_columns', array( $this, 'manage_fb_product_set_columns' ) );
+
+		if ( is_admin() && ! wp_doing_ajax()) {
+			add_filter( 'fb_product_set_row_actions', array( $this, 'product_set_links' ) );
+			add_filter( 'manage_edit-fb_product_set_columns', array( $this, 'manage_fb_product_set_columns' ) );
+
+			add_action( 'add_meta_boxes_product', array( $this, 'remove_product_fb_product_set_metabox' ), 50 );
+			add_action( 'add_meta_boxes_product', array( $this, 'remove_product_fb_product_set_metabox' ), 50 );
+			add_action( 'admin_notices', array( $this, 'add_inbox_notes' ) );
+
+			// Product Set breadcrumb filters
+			add_filter( 'woocommerce_navigation_is_connected_page', array( $this, 'is_current_page_conected_filter' ), 99, 2 );
+			add_filter( 'woocommerce_navigation_get_breadcrumbs', array( $this, 'wc_page_breadcrumbs_filter' ), 99 );
+
+			// load admin handlers, before admin_init
+			$this->admin_settings = new WooCommerce\Facebook\Admin\Settings( $this->connection_handler->is_connected() );
+		}
 
 		// Hook the setup task. The hook admin_init is not triggered when the WC fetches the tasks using the endpoint: wp-json/wc-admin/onboarding/tasks and hence hooking into init.
 		add_action( 'init', array( $this, 'add_setup_task' ), 20 );
-		add_action( 'admin_notices', array( $this, 'add_inbox_notes' ) );
-
-		// Product Set breadcrumb filters
-		add_filter( 'woocommerce_navigation_is_connected_page', array( $this, 'is_current_page_conected_filter' ), 99, 2 );
-		add_filter( 'woocommerce_navigation_get_breadcrumbs', array( $this, 'wc_page_breadcrumbs_filter' ), 99 );
 
 		add_filter(
 			'wc_' . WC_Facebookcommerce::PLUGIN_ID . '_http_request_args',
 			array( $this, 'force_user_agent_in_latin' )
 		);
 
-		if ( \WC_Facebookcommerce_Utils::isWoocommerceIntegration() ) {
-			include_once 'facebook-commerce.php';
+		include_once 'facebook-commerce.php';
 
-			require_once __DIR__ . '/includes/fbproductfeed.php';
+		require_once __DIR__ . '/includes/fbproductfeed.php';
 
-			$this->heartbeat = new Heartbeat( WC()->queue() );
-			$this->heartbeat->init();
+		$this->heartbeat = new Heartbeat( WC()->queue() );
+		$this->heartbeat->init();
 
-			$this->product_feed              = new WooCommerce\Facebook\Products\Feed();
-			$this->products_stock_handler    = new WooCommerce\Facebook\Products\Stock();
-			$this->products_sync_handler     = new WooCommerce\Facebook\Products\Sync();
-			$this->sync_background_handler   = new WooCommerce\Facebook\Products\Sync\Background();
-			$this->configuration_detection   = new WooCommerce\Facebook\Feed\FeedConfigurationDetection();
-			$this->product_sets_sync_handler = new WooCommerce\Facebook\ProductSets\Sync();
-			$this->commerce_handler          = new WooCommerce\Facebook\Commerce();
-			$this->fb_categories             = new WooCommerce\Facebook\Products\FBCategories();
-			$this->external_version_update   = new WooCommerce\Facebook\ExternalVersionUpdate\Update();
+		$this->product_feed              = new WooCommerce\Facebook\Products\Feed();
+		$this->products_stock_handler    = new WooCommerce\Facebook\Products\Stock();
+		$this->products_sync_handler     = new WooCommerce\Facebook\Products\Sync();
+		$this->sync_background_handler   = new WooCommerce\Facebook\Products\Sync\Background();
+		$this->configuration_detection   = new WooCommerce\Facebook\Feed\FeedConfigurationDetection();
+		$this->product_sets_sync_handler = new WooCommerce\Facebook\ProductSets\Sync();
+		$this->commerce_handler          = new WooCommerce\Facebook\Commerce();
+		$this->fb_categories             = new WooCommerce\Facebook\Products\FBCategories();
+		$this->external_version_update   = new WooCommerce\Facebook\ExternalVersionUpdate\Update();
 
-			if ( wp_doing_ajax() ) {
-				$this->ajax = new WooCommerce\Facebook\AJAX();
-			}
-
-			// Load integrations.
-			require_once __DIR__ . '/includes/fbwpml.php';
-			new WC_Facebook_WPML_Injector();
-			new BookingsIntegration();
-
-			if ( 'yes' !== get_option( 'wc_facebook_background_handle_virtual_products_variations_complete', 'no' ) ) {
-				$this->background_handle_virtual_products_variations = new Background_Handle_Virtual_Products_Variations();
-			}
-
-			if ( 'yes' !== get_option( 'wc_facebook_background_remove_duplicate_visibility_meta_complete', 'no' ) ) {
-				$this->background_remove_duplicate_visibility_meta = new Background_Remove_Duplicate_Visibility_Meta();
-			}
-
-			$this->connection_handler = new WooCommerce\Facebook\Handlers\Connection( $this );
-			$this->webhook_handler    = new WooCommerce\Facebook\Handlers\WebHook( $this );
-			$this->tracker            = new WooCommerce\Facebook\Utilities\Tracker();
-
-			// Init jobs
-			$this->job_manager = new WooCommerce\Facebook\Jobs\JobManager();
-			add_action( 'init', [ $this->job_manager, 'init' ] );
-
-			// Instantiate the debug tools.
-			$this->debug_tools = new DebugTools();
-
-			// load admin handlers, before admin_init
-			if ( is_admin() ) {
-				$this->admin_settings = new WooCommerce\Facebook\Admin\Settings( $this->connection_handler->is_connected() );
-			}
+		if ( wp_doing_ajax() ) {
+			$this->ajax = new WooCommerce\Facebook\AJAX();
 		}
+
+		// Load integrations.
+		require_once __DIR__ . '/includes/fbwpml.php';
+		new WC_Facebook_WPML_Injector();
+		new BookingsIntegration();
+
+		if ( 'yes' !== get_option( 'wc_facebook_background_handle_virtual_products_variations_complete', 'no' ) ) {
+			$this->background_handle_virtual_products_variations = new Background_Handle_Virtual_Products_Variations();
+		}
+
+		if ( 'yes' !== get_option( 'wc_facebook_background_remove_duplicate_visibility_meta_complete', 'no' ) ) {
+			$this->background_remove_duplicate_visibility_meta = new Background_Remove_Duplicate_Visibility_Meta();
+		}
+
+		$this->connection_handler = new WooCommerce\Facebook\Handlers\Connection( $this );
+		$this->webhook_handler    = new WooCommerce\Facebook\Handlers\WebHook( $this );
+		$this->tracker            = new WooCommerce\Facebook\Utilities\Tracker();
+
+		// Init jobs
+		$this->job_manager = new WooCommerce\Facebook\Jobs\JobManager();
+		add_action( 'init', [ $this->job_manager, 'init' ] );
+
+		// Instantiate the debug tools.
+		$this->debug_tools = new DebugTools();
+
 	}
 
 
@@ -256,7 +263,7 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 				$is_marketing_enabled = WooAdminFeatures::is_enabled( 'marketing' );
 			} else {
 				$is_marketing_enabled = is_callable( '\Automattic\WooCommerce\Admin\Loader::is_feature_enabled' )
-					&& \Automattic\WooCommerce\Admin\Loader::is_feature_enabled( 'marketing' );
+				                        && \Automattic\WooCommerce\Admin\Loader::is_feature_enabled( 'marketing' );
 			}
 
 			if ( $is_marketing_enabled && class_exists( '\Automattic\WooCommerce\Admin\Notes\Note' ) ) { // Checking for Note class is for backward compatibility.
