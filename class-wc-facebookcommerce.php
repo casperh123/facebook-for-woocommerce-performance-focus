@@ -167,7 +167,6 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 			add_filter( 'manage_edit-fb_product_set_columns', array( $this, 'manage_fb_product_set_columns' ) );
 
 			add_action( 'add_meta_boxes_product', array( $this, 'remove_product_fb_product_set_metabox' ), 50 );
-			add_action( 'add_meta_boxes_product', array( $this, 'remove_product_fb_product_set_metabox' ), 50 );
 			add_action( 'admin_notices', array( $this, 'add_inbox_notes' ) );
 
 			// Product Set breadcrumb filters
@@ -235,9 +234,10 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	 * Check if the action is a Facebook AJAX action.
 	 *
 	 * @param string $action The AJAX action.
+	 *
 	 * @return bool True if it's a Facebook AJAX action, false otherwise.
 	 */
-	private function is_facebook_ajax_action( $action ) {
+	private function is_facebook_ajax_action( string $action ): bool {
 		$facebook_ajax_actions = array(
 			'facebook_for_woocommerce_set_product_sync_bulk_action_prompt',
 			'facebook_for_woocommerce_set_excluded_terms_prompt',
@@ -266,23 +266,7 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 			0
 		);
 	}
-
-
-	/**
-	 * Gets deprecated and removed hooks.
-	 *
-	 * @since 2.1.0
-	 *
-	 * @return array
-	 */
-	protected function get_deprecated_hooks() {
-		return array(
-			'wc_facebook_page_access_token' => array(
-				'version'     => '2.1.0',
-				'replacement' => false,
-			),
-		);
-	}
+	
 
 	/**
 	 * Adds the setup task to the Tasklists.
