@@ -130,7 +130,7 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	 *
 	 * @param string $key property name
 	 * @return mixed
-	 * @since 3.0.3
+	 * @since 3.0.32
 	 */
 	public function __get( $key ) {
 		// Add warning for private properties.
