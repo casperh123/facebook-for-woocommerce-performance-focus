@@ -102,9 +102,6 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	/** @var WooCommerce\Facebook\Utilities\Heartbeat */
 	public $heartbeat;
 
-	/** @var WooCommerce\Facebook\ExternalVersionUpdate */
-	private $external_version_update;
-
 	/** @var WooCommerce\Facebook\Feed\FeedConfigurationDetection instance. */
 	private $configuration_detection;
 
@@ -201,13 +198,12 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 		$this->product_sets_sync_handler = new WooCommerce\Facebook\ProductSets\Sync();
 		$this->commerce_handler          = new WooCommerce\Facebook\Commerce();
 		$this->fb_categories             = new WooCommerce\Facebook\Products\FBCategories();
-		$this->external_version_update   = new WooCommerce\Facebook\ExternalVersionUpdate\Update();
 
 		// Initialize AJAX handling for specific AJAX actions.
 		if ( wp_doing_ajax() && isset( $_REQUEST['action'] ) && $this->is_facebook_ajax_action( $_REQUEST['action'] ) ) {
 			$this->ajax = new WooCommerce\Facebook\AJAX();
 		}
-		
+
 		if ( 'yes' !== get_option( 'wc_facebook_background_handle_virtual_products_variations_complete', 'no' ) ) {
 			$this->background_handle_virtual_products_variations = new Background_Handle_Virtual_Products_Variations();
 		}
