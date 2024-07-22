@@ -170,15 +170,11 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 			add_filter( 'manage_edit-fb_product_set_columns', array( $this, 'manage_fb_product_set_columns' ) );
 
 			add_action( 'add_meta_boxes_product', array( $this, 'remove_product_fb_product_set_metabox' ), 50 );
-			add_action( 'add_meta_boxes_product', array( $this, 'remove_product_fb_product_set_metabox' ), 50 );
 			add_action( 'admin_notices', array( $this, 'add_inbox_notes' ) );
 
 			// Product Set breadcrumb filters
 			add_filter( 'woocommerce_navigation_is_connected_page', array( $this, 'is_current_page_conected_filter' ), 99, 2 );
 			add_filter( 'woocommerce_navigation_get_breadcrumbs', array( $this, 'wc_page_breadcrumbs_filter' ), 99 );
-
-			// load admin handlers, before admin_init
-			$this->admin_settings = new WooCommerce\Facebook\Admin\Settings( $this->connection_handler->is_connected() );
 		}
 
 		// Hook the setup task. The hook admin_init is not triggered when the WC fetches the tasks using the endpoint: wp-json/wc-admin/onboarding/tasks and hence hooking into init.
@@ -211,11 +207,6 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 			$this->ajax = new WooCommerce\Facebook\AJAX();
 		}
 
-		// Load integrations.
-		require_once __DIR__ . '/includes/fbwpml.php';
-		new WC_Facebook_WPML_Injector();
-		new BookingsIntegration();
-
 		if ( 'yes' !== get_option( 'wc_facebook_background_handle_virtual_products_variations_complete', 'no' ) ) {
 			$this->background_handle_virtual_products_variations = new Background_Handle_Virtual_Products_Variations();
 		}
@@ -235,6 +226,9 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 		// Instantiate the debug tools.
 		$this->debug_tools = new DebugTools();
 
+		if ( is_admin() ) {
+			$this->admin_settings = new WooCommerce\Facebook\Admin\Settings( $this->connection_handler->is_connected() );
+		}
 	}
 
 
