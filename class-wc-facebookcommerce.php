@@ -330,10 +330,7 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 		}
 		return $last_event;
 	}
-
-	public function add_wordpress_integration() {
-		new WP_Facebook_Integration();
-	}
+	
 
 	/**
 	 * Saves errors or messages to WooCommerce Log (woocommerce/logs/plugin-id-xxx.txt)
