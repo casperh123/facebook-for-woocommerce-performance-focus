@@ -204,6 +204,7 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 			$this->ajax = new WooCommerce\Facebook\AJAX();
 		}
 
+
 		if ( 'yes' !== get_option( 'wc_facebook_background_handle_virtual_products_variations_complete', 'no' ) ) {
 			$this->background_handle_virtual_products_variations = new Background_Handle_Virtual_Products_Variations();
 		}
@@ -330,7 +331,7 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 		}
 		return $last_event;
 	}
-	
+
 
 	/**
 	 * Saves errors or messages to WooCommerce Log (woocommerce/logs/plugin-id-xxx.txt)
