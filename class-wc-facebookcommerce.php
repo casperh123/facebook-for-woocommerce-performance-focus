@@ -703,18 +703,6 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 
 
 	/**
-	 * Gets the plugin's reviews URL.
-	 *
-	 * @since 1.10.0
-	 *
-	 * @return string
-	 */
-	public function get_reviews_url() {
-		return 'https://wordpress.org/support/plugin/facebook-for-woocommerce/reviews/';
-	}
-
-
-	/**
 	 * Gets the plugin name.
 	 *
 	 * @since 1.10.0
@@ -801,7 +789,7 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	 *
 	 * @return string
 	 */
-	protected function get_current_page_id() {
+	protected function get_current_page_id(): string {
 		$current_screen_id = '';
 		$current_screen    = get_current_screen();
 		if ( ! empty( $current_screen ) ) {

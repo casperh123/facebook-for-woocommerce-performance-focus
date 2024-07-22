@@ -395,11 +395,6 @@ abstract class Plugin {
 			$custom_actions['support'] = sprintf( '<a href="%s">%s</a>', $this->get_support_url(), esc_html_x( 'Support', 'noun', 'facebook-for-woocommerce' ) );
 		}
 
-		// review url if any
-		if ( $this->get_reviews_url() ) {
-			$custom_actions['review'] = sprintf( '<a href="%s">%s</a>', $this->get_reviews_url(), esc_html_x( 'Review', 'verb', 'facebook-for-woocommerce' ) );
-		}
-
 		// add the links to the front of the actions list
 		return array_merge( $custom_actions, $actions );
 	}
