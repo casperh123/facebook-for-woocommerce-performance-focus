@@ -102,9 +102,6 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	/** @var WooCommerce\Facebook\Utilities\Heartbeat */
 	public $heartbeat;
 
-	/** @var WooCommerce\Facebook\ExternalVersionUpdate */
-	private $external_version_update;
-
 	/** @var WooCommerce\Facebook\Feed\FeedConfigurationDetection instance. */
 	private $configuration_detection;
 
@@ -170,6 +167,7 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 			add_filter( 'manage_edit-fb_product_set_columns', array( $this, 'manage_fb_product_set_columns' ) );
 
 			add_action( 'add_meta_boxes_product', array( $this, 'remove_product_fb_product_set_metabox' ), 50 );
+			add_action( 'add_meta_boxes_product', array( $this, 'remove_product_fb_product_set_metabox' ), 50 );
 			add_action( 'admin_notices', array( $this, 'add_inbox_notes' ) );
 
 			// Product Set breadcrumb filters
@@ -206,6 +204,7 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 		if ( wp_doing_ajax() && isset( $_REQUEST['action'] ) && $this->is_facebook_ajax_action( $_REQUEST['action'] ) ) {
 			$this->ajax = new WooCommerce\Facebook\AJAX();
 		}
+
 
 		if ( 'yes' !== get_option( 'wc_facebook_background_handle_virtual_products_variations_complete', 'no' ) ) {
 			$this->background_handle_virtual_products_variations = new Background_Handle_Virtual_Products_Variations();
@@ -268,23 +267,6 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 		);
 	}
 
-	/**
-	 * Add Inbox notes.
-	 */
-	public function add_inbox_notes() {
-		if ( Compatibility::is_enhanced_admin_available() ) {
-			if ( class_exists( WooAdminFeatures::class ) ) {
-				$is_marketing_enabled = WooAdminFeatures::is_enabled( 'marketing' );
-			} else {
-				$is_marketing_enabled = is_callable( '\Automattic\WooCommerce\Admin\Loader::is_feature_enabled' )
-				                        && \Automattic\WooCommerce\Admin\Loader::is_feature_enabled( 'marketing' );
-			}
-
-			if ( $is_marketing_enabled && class_exists( '\Automattic\WooCommerce\Admin\Notes\Note' ) ) { // Checking for Note class is for backward compatibility.
-				SettingsMoved::possibly_add_or_delete_note();
-			}
-		}
-	}
 
 	/**
 	 * Gets deprecated and removed hooks.
@@ -334,9 +316,6 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 		return $last_event;
 	}
 
-	public function add_wordpress_integration() {
-		new WP_Facebook_Integration();
-	}
 
 	/**
 	 * Saves errors or messages to WooCommerce Log (woocommerce/logs/plugin-id-xxx.txt)
