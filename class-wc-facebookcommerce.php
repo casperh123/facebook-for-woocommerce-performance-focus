@@ -282,22 +282,6 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 		);
 	}
 
-	/**
-	 * Get the last event from the plugin lifecycle.
-	 *
-	 * @since 2.6.29
-	 * @return array
-	 */
-	public function get_last_event_from_history() {
-		$last_event     = array();
-		$history_events = $this->lifecycle_handler->get_event_history();
-
-		if ( isset( $history_events[0] ) ) {
-			$last_event = $history_events[0];
-		}
-		return $last_event;
-	}
-
 
 	/**
 	 * Saves errors or messages to WooCommerce Log (woocommerce/logs/plugin-id-xxx.txt)
