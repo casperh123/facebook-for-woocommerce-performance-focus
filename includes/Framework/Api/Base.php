@@ -32,6 +32,9 @@ abstract class Base {
 	/** @var array request headers */
 	protected $request_headers = [];
 
+	/** @var string request user-agent */
+	protected $request_user_agent;
+
 	/** @var string request HTTP version, defaults to 1.0 */
 	protected $request_http_version = '1.0';
 
@@ -74,6 +77,7 @@ abstract class Base {
 		$this->reset_response();
 		// Save the request object.
 		$this->request = $request;
+		$start_time    = microtime( true );
 
 		// If this API requires TLS v1.2, force it.
 		if ( $this->require_tls_1_2() ) {
@@ -81,6 +85,8 @@ abstract class Base {
 		}
 		// Perform the request.
 		$response = $this->do_remote_request( $this->get_request_uri(), $this->get_request_args() );
+		// Calculate request duration.
+		$this->request_duration = round( microtime( true ) - $start_time, 5 );
 		try {
 			// Parse & validate response.
 			$response = $this->handle_response( $response );
@@ -222,6 +228,7 @@ abstract class Base {
 		$this->response_headers  = null;
 		$this->raw_response_body = null;
 		$this->response          = null;
+		$this->request_duration  = null;
 	}
 
 
