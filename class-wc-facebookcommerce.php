@@ -206,7 +206,8 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 		$this->fb_categories             = new WooCommerce\Facebook\Products\FBCategories();
 		$this->external_version_update   = new WooCommerce\Facebook\ExternalVersionUpdate\Update();
 
-		if ( wp_doing_ajax() ) {
+		// Initialize AJAX handling for specific AJAX actions.
+		if ( wp_doing_ajax() && isset( $_REQUEST['action'] ) && $this->is_facebook_ajax_action( $_REQUEST['action'] ) ) {
 			$this->ajax = new WooCommerce\Facebook\AJAX();
 		}
 
@@ -234,6 +235,25 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 		// Instantiate the debug tools.
 		$this->debug_tools = new DebugTools();
 
+	}
+
+
+	/**
+	 * Check if the action is a Facebook AJAX action.
+	 *
+	 * @param string $action The AJAX action.
+	 * @return bool True if it's a Facebook AJAX action, false otherwise.
+	 */
+	private function is_facebook_ajax_action( $action ) {
+		$facebook_ajax_actions = array(
+			'facebook_for_woocommerce_set_product_sync_bulk_action_prompt',
+			'facebook_for_woocommerce_set_excluded_terms_prompt',
+			'wc_facebook_sync_products',
+			'wc_facebook_get_sync_status',
+			WooCommerce\Facebook\AJAX::ACTION_SEARCH_PRODUCT_ATTRIBUTES,
+		);
+
+		return in_array( $action, $facebook_ajax_actions, true );
 	}
 
 
