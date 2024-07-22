@@ -132,39 +132,6 @@ class WC_Facebook_Loader {
 
 
     /**
-	 * Gets the framework version used by this plugin.
-	 *
-	 * @since 1.10.0
-	 *
-	 * @return string
-	 */
-	public function get_framework_version(): string
-    {
-		return self::FRAMEWORK_VERSION;
-	}
-
-
-	/**
-	 * Checks the environment on loading WordPress, just in case the environment changes after activation.
-	 *
-	 * @internal
-	 *
-	 * @since 1.10.0
-	 */
-	public function check_environment() : bool {
-
-		if ( ! $this->is_environment_compatible() && is_plugin_active( plugin_basename( __FILE__ ) ) ) {
-
-			$this->deactivate_plugin();
-            $this->add_admin_notice( 'bad_environment', 'error', self::PLUGIN_NAME . ' has been deactivated. ' . $this->get_environment_message() );
-
-            return false;
-        }
-
-        return true;
-	}
-
-    /**
      * Checks the server environment and other factors during plugin activation.
      *
      * @internal
@@ -191,56 +158,6 @@ class WC_Facebook_Loader {
 
 		if ( isset( $_GET['activate'] ) ) {
 			unset( $_GET['activate'] );
-		}
-	}
-
-
-	/**
-	 * Adds an admin notice to be displayed.
-	 *
-	 * @since 1.10.0
-	 *
-	 * @param string $slug    The slug for the notice.
-	 * @param string $class   The css class for the notice.
-	 * @param string $message The notice message.
-	 */
-	private function add_admin_notice( $slug, $class, $message ) {
-
-		$this->notices[ $slug ] = array(
-			'class'   => $class,
-			'message' => $message,
-		);
-	}
-
-
-	/**
-	 * Displays any admin notices added with \WC_Facebook_Loader::add_admin_notice()
-	 *
-	 * @internal
-	 *
-	 * @since 1.10.0
-	 */
-	public function admin_notices() {
-
-		foreach ( (array) $this->notices as $notice_key => $notice ) {
-
-			?>
-			<div class="<?php echo esc_attr( $notice['class'] ); ?>">
-				<p>
-				<?php
-				echo wp_kses(
-					$notice['message'],
-					array(
-						'a'      => array(
-							'href' => array(),
-						),
-						'strong' => array(),
-					)
-				);
-				?>
-				</p>
-			</div>
-			<?php
 		}
 	}
 

@@ -2,16 +2,16 @@
 
 [![PHP Coding Standards](https://github.com/woocommerce/facebook-for-woocommerce/actions/workflows/php-cs-on-changes.yml/badge.svg)](https://github.com/woocommerce/facebook-for-woocommerce/actions/workflows/php-coding-standards.yml)
 
-This is the development repository for the Facebook for WooCommerce plugin.
+This is a fork of the development repository for the Facebook for WooCommerce plugin. This fork focuses specifically on 
+stripping unnecessary code and functionality from this plugin, in an effort to increase it's performance.
 
 - [WooCommerce.com product page](https://woocommerce.com/products/facebook/)
 - [WordPress.org plugin page](https://wordpress.org/plugins/facebook-for-woocommerce/)
 - [User documentation](https://woocommerce.com/document/facebook-for-woocommerce/)
 
 ## Support
-The best place to get support is the [WordPress.org Facebook for WooCommerce forum](https://wordpress.org/support/plugin/facebook-for-woocommerce/).
 
-If you have a WooCommerce.com account, you can [search for help or submit a help request on WooCommerce.com](https://woocommerce.com/my-account/contact-support/).
+This plugin is not officially supported. You can try to write an issue, but no support is guaranteed.
 
 ### Logging
 The plugin offers logging that can help debug various problems. You can enable debug mode in the main plugin settings panel under the `Enable debug mode` section.
