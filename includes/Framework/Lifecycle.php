@@ -43,56 +43,8 @@ class Lifecycle {
 	 * @since 5.1.0
 	 */
 	protected function add_hooks() {
-		// handle activation
 		add_action( 'admin_init', array( $this, 'handle_activation' ) );
-		// handle deactivation
 		add_action( 'deactivate_' . $this->get_plugin()->get_plugin_file(), array( $this, 'handle_deactivation' ) );
-
-		if ( is_admin() && ! wp_doing_ajax() ) {
-			// initialize the plugin lifecycle
-			add_action( 'wp_loaded', array( $this, 'init' ) );
-		}
-
-		// catch any milestones triggered by action
-		add_action( 'wc_' . $this->get_plugin()->get_id() . '_milestone_reached', array( $this, 'trigger_milestone' ), 10, 3 );
-	}
-
-
-	/**
-	 * Initializes the plugin lifecycle.
-	 *
-	 * @since 5.2.0
-	 */
-	public function init() {
-		// potentially handle a new activation
-		$this->handle_activation();
-		$installed_version = $this->get_installed_version();
-		$plugin_version    = $this->get_plugin()->get_version();
-		// installed version lower than plugin version?
-		if ( version_compare( $installed_version, $plugin_version, '<' ) ) {
-			if ( ! $installed_version ) {
-				// store the upgrade event regardless if there was a routine for it
-				/**
-				 * Fires after the plugin has been installed.
-				 *
-				 * @since 5.1.0
-				 */
-				do_action( 'wc_' . $this->get_plugin()->get_id() . '_installed' );
-			} else {
-				$this->upgrade( $installed_version );
-
-				/**
-				 * Fires after the plugin has been updated.
-				 *
-				 * @since 5.1.0
-				 *
-				 * @param string $installed_version previously installed version
-				 */
-				do_action( 'wc_' . $this->get_plugin()->get_id() . '_updated', $installed_version );
-			}
-			// new version number
-			$this->set_installed_version( $plugin_version );
-		}
 	}
 
 
