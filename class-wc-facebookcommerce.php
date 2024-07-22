@@ -266,7 +266,7 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 			0
 		);
 	}
-	
+
 
 	/**
 	 * Adds the setup task to the Tasklists.
@@ -274,14 +274,12 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	 * @since 2.6.29
 	 */
 	public function add_setup_task() {
-		if ( class_exists( TaskLists::class ) ) { // This is added for backward compatibility.
-			TaskLists::add_task(
-				'extended',
-				new Setup(
-					TaskLists::get_list( 'extended' )
-				)
-			);
-		}
+		TaskLists::add_task(
+			'extended',
+			new Setup(
+				TaskLists::get_list( 'extended' )
+			)
+		);
 	}
 
 	/**
