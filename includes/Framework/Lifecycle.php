@@ -15,11 +15,6 @@ defined( 'ABSPATH' ) or exit;
  * install, upgrade, activation, and deactivation routines.
  */
 class Lifecycle {
-	/** @var array the version numbers that have an upgrade routine */
-	protected $upgrade_versions = [];
-
-	/** @var string minimum milestone version */
-	private $milestone_version;
 
 	/** @var Plugin plugin instance */
 	private $plugin;
@@ -89,49 +84,6 @@ class Lifecycle {
 		 */
 		do_action( 'wc_' . $this->get_plugin()->get_id() . '_deactivated' );
 		delete_option( 'wc_' . $this->get_plugin()->get_id() . '_is_active' );
-	}
-
-
-	/**
-	 * Performs any upgrade tasks based on the provided installed version.
-	 *
-	 * @since 5.2.0
-	 *
-	 * @param string $installed_version installed version
-	 */
-	protected function upgrade( $installed_version ) {
-		foreach ( $this->upgrade_versions as $upgrade_version ) {
-			$upgrade_method = 'upgrade_to_' . str_replace( array( '.', '-' ), '_', $upgrade_version );
-			if ( version_compare( $installed_version, $upgrade_version, '<' ) && is_callable( array( $this, $upgrade_method ) ) ) {
-				$this->get_plugin()->log( "Starting upgrade to v{$upgrade_version}" );
-				$this->$upgrade_method( $installed_version );
-				$this->get_plugin()->log( "Upgrade to v{$upgrade_version} complete" );
-			}
-		}
-	}
-
-
-	/**
-	 * Gets the currently installed plugin version.
-	 *
-	 * @since 5.2.0
-	 *
-	 * @return string
-	 */
-	protected function get_installed_version() {
-		return get_option( $this->get_plugin()->get_plugin_version_name() );
-	}
-
-
-	/**
-	 * Sets the installed plugin version.
-	 *
-	 * @since 5.2.0
-	 *
-	 * @param string $version version to set
-	 */
-	protected function set_installed_version( $version ) {
-		update_option( $this->get_plugin()->get_plugin_version_name(), $version );
 	}
 
 
