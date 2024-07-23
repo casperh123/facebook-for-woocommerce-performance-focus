@@ -1,19 +1,18 @@
 <?php
-declare(strict_types=1);
+declare( strict_types=1 );
 
 namespace WooCommerce\Facebook\API;
 
 use WooCommerce\Facebook\Framework\Api\JSONRequest;
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Base API request object.
  *
  * @since 2.0.0
  */
-class Request extends JSONRequest
-{
+class Request extends JSONRequest {
 
 	use Traits\Rate_Limited_Request;
 
@@ -29,27 +28,25 @@ class Request extends JSONRequest
 	/**
 	 * API request constructor.
 	 *
-	 * @param string $path endpoint route
-	 * @param string $method HTTP method
 	 * @since 2.0.0
 	 *
+	 * @param string $path endpoint route
+	 * @param string $method HTTP method
 	 */
-	public function __construct($path, $method)
-	{
+	public function __construct( $path, $method ) {
 		$this->method = $method;
-		$this->path = $path;
+		$this->path   = $path;
 	}
 
 
 	/**
 	 * Sets the request parameters.
 	 *
-	 * @param array $params request parameters
 	 * @since 2.0.0
 	 *
+	 * @param array $params request parameters
 	 */
-	public function set_params($params)
-	{
+	public function set_params( $params ) {
 		$this->params = $params;
 	}
 
@@ -57,12 +54,11 @@ class Request extends JSONRequest
 	/**
 	 * Sets the request data.
 	 *
-	 * @param array $data request data
 	 * @since 2.0.0
 	 *
+	 * @param array $data request data
 	 */
-	public function set_data($data)
-	{
+	public function set_data( $data ) {
 		$this->data = $data;
 	}
 
@@ -70,12 +66,11 @@ class Request extends JSONRequest
 	/**
 	 * Gets the number of times this request has been retried.
 	 *
-	 * @return int
 	 * @since 2.1.0
 	 *
+	 * @return int
 	 */
-	public function get_retry_count()
-	{
+	public function get_retry_count() {
 		return $this->retry_count;
 	}
 
@@ -85,8 +80,7 @@ class Request extends JSONRequest
 	 *
 	 * @since 2.1.0
 	 */
-	public function mark_retry()
-	{
+	public function mark_retry() {
 		$this->retry_count++;
 	}
 
@@ -94,33 +88,31 @@ class Request extends JSONRequest
 	/**
 	 * Gets the maximum number of retries to attempt if told to do so by Facebook.
 	 *
-	 * @return int
 	 * @since 2.1.0
 	 *
+	 * @return int
 	 */
-	public function get_retry_limit()
-	{
+	public function get_retry_limit() {
 		/**
 		 * Filters the maximum number of retries allowed for the request.
 		 *
-		 * @param int $retry_limit maximum number of retries
-		 * @param Request $request request object
 		 * @since 2.1.0
 		 *
+		 * @param int $retry_limit maximum number of retries
+		 * @param Request $request request object
 		 */
-		return (int)apply_filters('wc_facebook_api_request_retry_limit', $this->retry_limit, $this);
+		return (int) apply_filters( 'wc_facebook_api_request_retry_limit', $this->retry_limit, $this );
 	}
 
 
 	/**
 	 * Response codes that should trigger a retry for this request.
 	 *
-	 * @return int[]
 	 * @since 2.1.0
 	 *
+	 * @return int[]
 	 */
-	public function get_retry_codes()
-	{
+	public function get_retry_codes() {
 		return $this->retry_codes;
 	}
 }

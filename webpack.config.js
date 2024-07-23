@@ -1,5 +1,5 @@
 // Load the default @wordpress/scripts config object
-const defaultConfig = require('@wordpress/scripts/config/webpack.config');
+const defaultConfig = require( '@wordpress/scripts/config/webpack.config' );
 
 // Legacy jQuery UI powered admin files
 const jQueryUIAdminFileNames = [
@@ -16,9 +16,9 @@ const jQueryUIAdminFileNames = [
 
 const jQueryUIAdminFileEntries = {};
 
-jQueryUIAdminFileNames.forEach((name) => {
-	jQueryUIAdminFileEntries[`admin/${name}`] = `./assets/js/admin/${name}.js`;
-});
+jQueryUIAdminFileNames.forEach( ( name ) => {
+	jQueryUIAdminFileEntries[ `admin/${ name }` ] = `./assets/js/admin/${ name }.js`;
+} );
 
 module.exports = {
 	...defaultConfig,

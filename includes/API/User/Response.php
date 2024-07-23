@@ -1,9 +1,9 @@
 <?php
-declare(strict_types=1);
+declare( strict_types=1 );
 
 namespace WooCommerce\Facebook\API\User;
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
 use WooCommerce\Facebook\API;
 
@@ -13,6 +13,4 @@ use WooCommerce\Facebook\API;
  * @property-read string id Facebook User ID.
  * @property-read string name Facebook User Name.
  */
-class Response extends API\Response
-{
-}
+class Response extends API\Response {}

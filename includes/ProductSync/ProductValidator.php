@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare( strict_types=1 );
 
 namespace WooCommerce\Facebook\ProductSync;
 
@@ -8,7 +8,7 @@ use WC_Facebookcommerce_Integration;
 use WC_Product;
 use WooCommerce\Facebook\Products;
 
-if (!class_exists('WC_Facebookcommerce_Utils')) {
+if ( ! class_exists( 'WC_Facebookcommerce_Utils' ) ) {
 	include_once '../fbutils.php';
 }
 
@@ -19,8 +19,7 @@ if (!class_exists('WC_Facebookcommerce_Utils')) {
  *
  * @since 2.5.0
  */
-class ProductValidator
-{
+class ProductValidator {
 
 	/**
 	 * The meta key used to flag whether a product should be synced in Facebook
@@ -89,24 +88,23 @@ class ProductValidator
 	 * ProductValidator constructor.
 	 *
 	 * @param WC_Facebookcommerce_Integration $integration The FB integration instance.
-	 * @param WC_Product $product The product to validate. Accepts both variations and variable products.
+	 * @param WC_Product                      $product     The product to validate. Accepts both variations and variable products.
 	 */
-	public function __construct(WC_Facebookcommerce_Integration $integration, WC_Product $product)
-	{
-		$this->product = $product;
-		$this->product_parent = null;
+	public function __construct( WC_Facebookcommerce_Integration $integration, WC_Product $product ) {
+		$this->product           = $product;
+		$this->product_parent    = null;
 		$this->fb_product_parent = null;
 
-		if ($product->get_parent_id()) {
-			$parent_product = wc_get_product($product->get_parent_id());
-			if ($parent_product instanceof WC_Product) {
-				$this->product_parent = $parent_product;
-				$this->fb_product_parent = new WC_Facebook_Product($parent_product);
+		if ( $product->get_parent_id() ) {
+			$parent_product = wc_get_product( $product->get_parent_id() );
+			if ( $parent_product instanceof WC_Product ) {
+				$this->product_parent    = $parent_product;
+				$this->fb_product_parent = new WC_Facebook_Product( $parent_product );
 			}
 		}
 
-		$this->facebook_product = new WC_Facebook_Product($this->product, $this->fb_product_parent);
-		$this->integration = $integration;
+		$this->facebook_product = new WC_Facebook_Product( $this->product, $this->fb_product_parent );
+		$this->integration      = $integration;
 	}
 
 	/**
@@ -116,12 +114,11 @@ class ProductValidator
 	 * @return mixed
 	 * @since 3.0.32
 	 */
-	public function __get($key)
-	{
+	public function __get( $key ) {
 		// Add warning for private properties.
-		if ('facebook_product' === $key) {
+		if ( 'facebook_product' === $key ) {
 			/* translators: %s property name. */
-			_doing_it_wrong(__FUNCTION__, sprintf(esc_html__('The %s property is protected and should not be accessed outside its class.', 'facebook-for-woocommerce'), esc_html($key)), '3.0.32');
+			_doing_it_wrong( __FUNCTION__, sprintf( esc_html__( 'The %s property is protected and should not be accessed outside its class.', 'facebook-for-woocommerce' ), esc_html( $key ) ), '3.0.32' );
 			return $this->$key;
 		}
 
@@ -133,8 +130,7 @@ class ProductValidator
 	 *
 	 * @throws ProductExcludedException If product should not be synced.
 	 */
-	public function validate()
-	{
+	public function validate() {
 		$this->validate_sync_enabled_globally();
 		$this->validate_product_status();
 		$this->validate_product_stock_status();
@@ -149,12 +145,11 @@ class ProductValidator
 	/**
 	 * Validate whether the product should be synced to Facebook but skip the status check for backwards compatibility.
 	 *
-	 * @throws ProductExcludedException If product should not be synced.
 	 * @internal Do not use this as it will likely be removed.
 	 *
+	 * @throws ProductExcludedException If product should not be synced.
 	 */
-	public function validate_but_skip_status_check()
-	{
+	public function validate_but_skip_status_check() {
 		$this->validate_sync_enabled_globally();
 		$this->validate_product_stock_status();
 		$this->validate_product_sync_field();
@@ -168,11 +163,10 @@ class ProductValidator
 	/**
 	 * Validate whether the product should be synced to Facebook but skip the sync field check.
 	 *
-	 * @throws ProductExcludedException|ProductInvalidException If product should not be synced.
 	 * @since 3.0.6
+	 * @throws ProductExcludedException|ProductInvalidException If product should not be synced.
 	 */
-	public function validate_but_skip_sync_field()
-	{
+	public function validate_but_skip_sync_field() {
 		$this->validate_sync_enabled_globally();
 		$this->validate_product_stock_status();
 		$this->validate_product_price();
@@ -187,13 +181,12 @@ class ProductValidator
 	 *
 	 * @return bool
 	 */
-	public function passes_all_checks(): bool
-	{
+	public function passes_all_checks(): bool {
 		try {
 			$this->validate();
-		} catch (ProductExcludedException $e) {
+		} catch ( ProductExcludedException $e ) {
 			return false;
-		} catch (ProductInvalidException $e) {
+		} catch ( ProductInvalidException $e ) {
 			return false;
 		}
 
@@ -205,13 +198,12 @@ class ProductValidator
 	 *
 	 * @return bool
 	 */
-	public function passes_product_terms_check(): bool
-	{
+	public function passes_product_terms_check(): bool {
 		try {
 			$this->validate_product_terms();
-		} catch (ProductExcludedException $e) {
+		} catch ( ProductExcludedException $e ) {
 			return false;
-		} catch (ProductInvalidException $e) {
+		} catch ( ProductInvalidException $e ) {
 			return false;
 		}
 
@@ -223,13 +215,12 @@ class ProductValidator
 	 *
 	 * @return bool
 	 */
-	public function passes_product_sync_field_check(): bool
-	{
+	public function passes_product_sync_field_check(): bool {
 		try {
 			$this->validate_product_sync_field();
-		} catch (ProductExcludedException $e) {
+		} catch ( ProductExcludedException $e ) {
 			return false;
-		} catch (ProductInvalidException $e) {
+		} catch ( ProductInvalidException $e ) {
 			return false;
 		}
 
@@ -241,13 +232,12 @@ class ProductValidator
 	 *
 	 * @return bool
 	 */
-	public function passes_all_checks_except_sync_field(): bool
-	{
+	public function passes_all_checks_except_sync_field(): bool {
 		try {
 			$this->validate_but_skip_sync_field();
-		} catch (ProductExcludedException $e) {
+		} catch ( ProductExcludedException $e ) {
 			return false;
-		} catch (ProductInvalidException $e) {
+		} catch ( ProductInvalidException $e ) {
 			return false;
 		}
 
@@ -259,10 +249,9 @@ class ProductValidator
 	 *
 	 * @throws ProductExcludedException If product should not be synced.
 	 */
-	protected function validate_sync_enabled_globally()
-	{
-		if (!$this->integration->is_product_sync_enabled()) {
-			throw new ProductExcludedException(__('Product sync is globally disabled.', 'facebook-for-woocommerce'));
+	protected function validate_sync_enabled_globally() {
+		if ( ! $this->integration->is_product_sync_enabled() ) {
+			throw new ProductExcludedException( __( 'Product sync is globally disabled.', 'facebook-for-woocommerce' ) );
 		}
 	}
 
@@ -271,12 +260,11 @@ class ProductValidator
 	 *
 	 * @throws ProductExcludedException If product should not be synced.
 	 */
-	protected function validate_product_status()
-	{
+	protected function validate_product_status() {
 		$product = $this->product_parent ? $this->product_parent : $this->product;
 
-		if ('publish' !== $product->get_status()) {
-			throw new ProductExcludedException(__('Product is not published.', 'facebook-for-woocommerce'));
+		if ( 'publish' !== $product->get_status() ) {
+			throw new ProductExcludedException( __( 'Product is not published.', 'facebook-for-woocommerce' ) );
 		}
 	}
 
@@ -285,10 +273,9 @@ class ProductValidator
 	 *
 	 * @throws ProductExcludedException If product should not be synced.
 	 */
-	protected function validate_product_stock_status()
-	{
-		if ('yes' === get_option('woocommerce_hide_out_of_stock_items') && !$this->product->is_in_stock()) {
-			throw new ProductExcludedException(__('Product must be in stock.', 'facebook-for-woocommerce'));
+	protected function validate_product_stock_status() {
+		if ( 'yes' === get_option( 'woocommerce_hide_out_of_stock_items' ) && ! $this->product->is_in_stock() ) {
+			throw new ProductExcludedException( __( 'Product must be in stock.', 'facebook-for-woocommerce' ) );
 		}
 	}
 
@@ -299,12 +286,11 @@ class ProductValidator
 	 *
 	 * @throws ProductExcludedException If product should not be synced.
 	 */
-	protected function validate_product_visibility()
-	{
+	protected function validate_product_visibility() {
 		$product = $this->product_parent ? $this->product_parent : $this->product;
 
-		if (!$product->is_visible()) {
-			throw new ProductExcludedException(__('This product cannot be synced to Facebook because it is hidden from your store catalog.', 'facebook-for-woocommerce'));
+		if ( ! $product->is_visible() ) {
+			throw new ProductExcludedException( __( 'This product cannot be synced to Facebook because it is hidden from your store catalog.', 'facebook-for-woocommerce' ) );
 		}
 	}
 
@@ -313,21 +299,20 @@ class ProductValidator
 	 *
 	 * @throws ProductExcludedException If product should not be synced.
 	 */
-	protected function validate_product_terms()
-	{
+	protected function validate_product_terms() {
 		$product = $this->product_parent ? $this->product_parent : $this->product;
 
 		$excluded_categories = $this->integration->get_excluded_product_category_ids();
-		if ($excluded_categories) {
-			if (!empty(array_intersect($product->get_category_ids(), $excluded_categories))) {
-				throw new ProductExcludedException(__('Product excluded because of categories.', 'facebook-for-woocommerce'));
+		if ( $excluded_categories ) {
+			if ( ! empty( array_intersect( $product->get_category_ids(), $excluded_categories ) ) ) {
+				throw new ProductExcludedException( __( 'Product excluded because of categories.', 'facebook-for-woocommerce' ) );
 			}
 		}
 
 		$excluded_tags = $this->integration->get_excluded_product_tag_ids();
-		if ($excluded_tags) {
-			if (!empty(array_intersect($product->get_tag_ids(), $excluded_tags))) {
-				throw new ProductExcludedException(__('Product excluded because of tags.', 'facebook-for-woocommerce'));
+		if ( $excluded_tags ) {
+			if ( ! empty( array_intersect( $product->get_tag_ids(), $excluded_tags ) ) ) {
+				throw new ProductExcludedException( __( 'Product excluded because of tags.', 'facebook-for-woocommerce' ) );
 			}
 		}
 	}
@@ -337,25 +322,24 @@ class ProductValidator
 	 *
 	 * @throws ProductExcludedException If product should not be synced.
 	 */
-	protected function validate_product_sync_field()
-	{
-		$invalid_exception = new ProductExcludedException(__('Sync disabled in product field.', 'facebook-for-woocommerce'));
+	protected function validate_product_sync_field() {
+		$invalid_exception = new ProductExcludedException( __( 'Sync disabled in product field.', 'facebook-for-woocommerce' ) );
 
 		/**
 		 * Filters whether a product should be synced to FB.
 		 *
-		 * @param WC_Product $product the product object.
 		 * @since 2.6.26
 		 *
+		 * @param WC_Product $product the product object.
 		 */
-		if (!apply_filters('wc_facebook_should_sync_product', true, $this->product)) {
-			throw new ProductExcludedException(__('Product excluded by wc_facebook_should_sync_product filter.', 'facebook-for-woocommerce'));
+		if ( ! apply_filters( 'wc_facebook_should_sync_product', true, $this->product ) ) {
+			throw new ProductExcludedException( __( 'Product excluded by wc_facebook_should_sync_product filter.', 'facebook-for-woocommerce' ) );
 		}
 
-		if ($this->product->is_type('variable')) {
-			foreach ($this->product->get_children() as $child_id) {
-				$child_product = wc_get_product($child_id);
-				if ($child_product && 'no' !== $child_product->get_meta(self::SYNC_ENABLED_META_KEY)) {
+		if ( $this->product->is_type( 'variable' ) ) {
+			foreach ( $this->product->get_children() as $child_id ) {
+				$child_product = wc_get_product( $child_id );
+				if ( $child_product && 'no' !== $child_product->get_meta( self::SYNC_ENABLED_META_KEY ) ) {
 					// At least one product is "sync-enabled" so bail before exception.
 					return;
 				}
@@ -364,7 +348,7 @@ class ProductValidator
 			// Variable product has no variations with sync enabled so it shouldn't be synced.
 			throw $invalid_exception;
 		} else {
-			if ('no' === $this->product->get_meta(self::SYNC_ENABLED_META_KEY)) {
+			if ( 'no' === $this->product->get_meta( self::SYNC_ENABLED_META_KEY ) ) {
 				throw $invalid_exception;
 			}
 		}
@@ -376,17 +360,16 @@ class ProductValidator
 	 *
 	 * @throws ProductExcludedException If product should not be synced.
 	 */
-	protected function validate_product_price()
-	{
+	protected function validate_product_price() {
 		$primary_product = $this->product_parent ? $this->product_parent : $this->product;
 
 		// Variable and simple products are allowed to have no price.
-		if (in_array($primary_product->get_type(), ['simple', 'variable'], true)) {
+		if ( in_array( $primary_product->get_type(), [ 'simple', 'variable' ], true ) ) {
 			return;
 		}
 
-		if (!Products::get_product_price($this->product)) {
-			throw new ProductExcludedException(__('If product is not simple, variable or variation it must have a price.', 'facebook-for-woocommerce'));
+		if ( ! Products::get_product_price( $this->product ) ) {
+			throw new ProductExcludedException( __( 'If product is not simple, variable or variation it must have a price.', 'facebook-for-woocommerce' ) );
 		}
 	}
 
@@ -396,8 +379,7 @@ class ProductValidator
 	 *
 	 * @throws ProductInvalidException If product description does not meet the requirements.
 	 */
-	protected function validate_product_description()
-	{
+	protected function validate_product_description() {
 		/*
 		 * First step is to select the description that we want to evaluate.
 		 * Main description is the one provided for the product in the Facebook.
@@ -412,11 +394,11 @@ class ProductValidator
 		 * - Max length 5000.
 		 * - Min length 30 ( tested and not required, will not enforce until this will become a hard requirement )
 		 */
-		if (\WC_Facebookcommerce_Utils::is_all_caps($description)) {
-			throw new ProductInvalidException(__('Product description is all capital letters. Please change the description to sentence case in order to allow synchronization of your product.', 'facebook-for-woocommerce'));
+		if ( \WC_Facebookcommerce_Utils::is_all_caps( $description ) ) {
+			throw new ProductInvalidException( __( 'Product description is all capital letters. Please change the description to sentence case in order to allow synchronization of your product.', 'facebook-for-woocommerce' ) );
 		}
-		if (strlen($description) > self::MAX_DESCRIPTION_LENGTH) {
-			throw new ProductInvalidException(__('Product description is too long. Maximum allowed length is 5000 characters.', 'facebook-for-woocommerce'));
+		if ( strlen( $description ) > self::MAX_DESCRIPTION_LENGTH ) {
+			throw new ProductInvalidException( __( 'Product description is too long. Maximum allowed length is 5000 characters.', 'facebook-for-woocommerce' ) );
 		}
 	}
 
@@ -426,16 +408,15 @@ class ProductValidator
 	 *
 	 * @throws ProductInvalidException If product title does not meet the requirements.
 	 */
-	protected function validate_product_title()
-	{
+	protected function validate_product_title() {
 		$title = $this->product->get_title();
 
 		/*
 		 * Requirements:
 		 * - Max length 150.
 		 */
-		if (mb_strlen($title, 'UTF-8') > self::MAX_TITLE_LENGTH) {
-			throw new ProductInvalidException(__('Product title is too long. Maximum allowed length is 150 characters.', 'facebook-for-woocommerce'));
+		if ( mb_strlen( $title, 'UTF-8' ) > self::MAX_TITLE_LENGTH ) {
+			throw new ProductInvalidException( __( 'Product title is too long. Maximum allowed length is 150 characters.', 'facebook-for-woocommerce' ) );
 		}
 	}
 
@@ -444,10 +425,9 @@ class ProductValidator
 	 *
 	 * @throws ProductInvalidException If product variation violates some requirements.
 	 */
-	protected function validate_variation_structure()
-	{
+	protected function validate_variation_structure() {
 		// Check if we are dealing with a variation.
-		if (!$this->product->is_type('variation')) {
+		if ( ! $this->product->is_type( 'variation' ) ) {
 			return;
 		}
 		$attributes = $this->product->get_attributes();
@@ -459,8 +439,8 @@ class ProductValidator
 		);
 
 		// No more than MAX_NUMBER_OF_ATTRIBUTES_IN_VARIATION ar allowed to be used.
-		if ($used_attributes_count > self::MAX_NUMBER_OF_ATTRIBUTES_IN_VARIATION) {
-			throw new ProductInvalidException(__('Too many attributes selected for product. Use 4 or less.', 'facebook-for-woocommerce'));
+		if ( $used_attributes_count > self::MAX_NUMBER_OF_ATTRIBUTES_IN_VARIATION ) {
+			throw new ProductInvalidException( __( 'Too many attributes selected for product. Use 4 or less.', 'facebook-for-woocommerce' ) );
 		}
 	}
 

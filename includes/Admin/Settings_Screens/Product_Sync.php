@@ -106,9 +106,9 @@ class Product_Sync extends Abstract_Settings_Screen {
 	/**
 	 * Gets the message for Default Google Product Category modal.
 	 *
-	 * @return string
-	 *@since 2.1.0
+	 * @since 2.1.0
 	 *
+	 * @return string
 	 */
 	private function get_default_google_product_category_modal_message() {
 		return wp_kses_post( __( 'Products and categories that inherit this global setting (i.e. they do not have a specific Google product category set) will use the new default immediately. Are you sure you want to proceed?', 'facebook-for-woocommerce' ) );
@@ -118,9 +118,9 @@ class Product_Sync extends Abstract_Settings_Screen {
 	/**
 	 * Gets the message for Default Google Product Category modal when the selection is empty.
 	 *
-	 * @return string
-	 *@since 2.1.0
+	 * @since 2.1.0
 	 *
+	 * @return string
 	 */
 	private function get_default_google_product_category_modal_message_empty() {
 		return sprintf(
@@ -135,9 +135,9 @@ class Product_Sync extends Abstract_Settings_Screen {
 	/**
 	 * Gets the markup for the buttons used in the Default Google Product Category modal.
 	 *
-	 * @return string
-	 *@since 2.1.0
+	 * @since 2.1.0
 	 *
+	 * @return string
 	 */
 	private function get_default_google_product_category_modal_buttons() {
 		ob_start();
@@ -158,11 +158,11 @@ class Product_Sync extends Abstract_Settings_Screen {
 	/**
 	 * Renders the custom title.
 	 *
-	 * @param array $field field data
-	 *@since 2.0.0
-	 *
 	 * @internal
 	 *
+	 * @since 2.0.0
+	 *
+	 * @param array $field field data
 	 */
 	public function render_title( $field ) {
 		?>
@@ -207,10 +207,10 @@ class Product_Sync extends Abstract_Settings_Screen {
 	/**
 	 * Disables sync for products that belong to any of the given categories or tags.
 	 *
+	 * @since 2.0.0
+	 *
 	 * @param array $product_cat_ids IDs of excluded categories
 	 * @param array $product_tag_ids IDs of excluded tags
-	 *@since 2.0.0
-	 *
 	 */
 	private function disable_sync_for_excluded_products( $product_cat_ids, $product_tag_ids ) {
 		// disable sync for all products belonging to excluded categories
@@ -233,9 +233,9 @@ class Product_Sync extends Abstract_Settings_Screen {
 	/**
 	 * Gets the screen settings.
 	 *
-	 * @return array
-	 *@since 2.0.0
+	 * @since 2.0.0
 	 *
+	 * @return array
 	 */
 	public function get_settings() {
 		$term_query = new \WP_Term_Query(
@@ -322,11 +322,12 @@ class Product_Sync extends Abstract_Settings_Screen {
 	/**
 	 * Renders the Google category field markup.
 	 *
-	 * @param array $field field data
-	 *@since 2.1.0
-	 *
 	 * @internal
- */
+
+	 * @since 2.1.0
+	 *
+	 * @param array $field field data
+	 */
 	public function render_google_product_category_field( $field ) {
 		$category_field = new Google_Product_Category_Field();
 		?>
@@ -347,9 +348,9 @@ class Product_Sync extends Abstract_Settings_Screen {
 	/**
 	 * Gets the "disconnected" message.
 	 *
-	 * @return string
-	 *@since 2.0.0
+	 * @since 2.0.0
 	 *
+	 * @return string
 	 */
 	public function get_disconnected_message() {
 		return sprintf(

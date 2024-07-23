@@ -10,25 +10,23 @@
 
 namespace WooCommerce\Facebook\API\Catalog\Send_Item_Updates;
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Send_Item_Updates API response object
  *
  * @since 2.0.0
  */
-class Response extends \WooCommerce\Facebook\API\Response
-{
+class Response extends \WooCommerce\Facebook\API\Response {
 
 	/**
 	 * Gets the handles field from the response.
 	 *
-	 * @return array|null
 	 * @since 2.0.0
 	 *
+	 * @return array|null
 	 */
-	public function get_handles()
-	{
+	public function get_handles() {
 		return $this->handles;
 	}
 }

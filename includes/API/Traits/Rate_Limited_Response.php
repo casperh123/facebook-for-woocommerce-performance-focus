@@ -10,15 +10,14 @@
 
 namespace WooCommerce\Facebook\API\Traits;
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Rate limited response trait.
  *
  * @since 2.0.0
  */
-trait Rate_Limited_Response
-{
+trait Rate_Limited_Response {
 
 
 	/**
@@ -32,24 +31,23 @@ trait Rate_Limited_Response
 	 * @param array $headers response headers
 	 * @return array
 	 */
-	private function get_usage_data($headers)
-	{
+	private function get_usage_data( $headers ) {
 
 		$usage_data = array();
 
-		if (!empty($headers['X-Business-Use-Case-Usage'])) {
+		if ( ! empty( $headers['X-Business-Use-Case-Usage'] ) ) {
 
 			$usage_data = $headers['X-Business-Use-Case-Usage'];
 
-		} elseif (!empty($headers['x-business-use-case-usage'])) {
+		} elseif ( ! empty( $headers['x-business-use-case-usage'] ) ) {
 
 			$usage_data = $headers['x-business-use-case-usage'];
 
-		} elseif (!empty($headers['X-App-Usage'])) {
+		} elseif ( ! empty( $headers['X-App-Usage'] ) ) {
 
 			$usage_data = $headers['X-App-Usage'];
 
-		} elseif (!empty($headers['x-app-usage'])) {
+		} elseif ( ! empty( $headers['x-app-usage'] ) ) {
 
 			$usage_data = $headers['x-app-usage'];
 		}
@@ -61,68 +59,64 @@ trait Rate_Limited_Response
 	/**
 	 * Gets the percentage of calls made by the app over a rolling one hour period.
 	 *
-	 * @param array $headers response headers
-	 * @return int
 	 * @since 2.0.0
 	 *
+	 * @param array $headers response headers
+	 * @return int
 	 */
-	public function get_rate_limit_usage($headers)
-	{
+	public function get_rate_limit_usage( $headers ) {
 
-		$usage_data = $this->get_usage_data($headers);
+		$usage_data = $this->get_usage_data( $headers );
 
-		return isset($usage_data['call_count']) ? (int)$usage_data['call_count'] : 0;
+		return isset( $usage_data['call_count'] ) ? (int) $usage_data['call_count'] : 0;
 	}
 
 
 	/**
 	 * Gets the percentage of total time allotted for query processing.
 	 *
-	 * @param array $headers response headers
-	 * @return int
 	 * @since 2.0.0
 	 *
+	 * @param array $headers response headers
+	 * @return int
 	 */
-	public function get_rate_limit_total_time($headers)
-	{
+	public function get_rate_limit_total_time( $headers ) {
 
-		$usage_data = $this->get_usage_data($headers);
+		$usage_data = $this->get_usage_data( $headers );
 
-		return isset($usage_data['total_time']) ? (int)$usage_data['total_time'] : 0;
+		return isset( $usage_data['total_time'] ) ? (int) $usage_data['total_time'] : 0;
 	}
 
 
 	/**
 	 * Gets the percentage of CPU time allotted for query processing.
 	 *
-	 * @param array $headers response headers
-	 * @return int
 	 * @since 2.0.0
 	 *
+	 * @param array $headers response headers
+	 * @return int
 	 */
-	public function get_rate_limit_total_cpu_time($headers)
-	{
+	public function get_rate_limit_total_cpu_time( $headers ) {
 
-		$usage_data = $this->get_usage_data($headers);
+		$usage_data = $this->get_usage_data( $headers );
 
-		return isset($usage_data['total_cputime']) ? (int)$usage_data['total_cputime'] : 0;
+		return isset( $usage_data['total_cputime'] ) ? (int) $usage_data['total_cputime'] : 0;
 	}
 
 
 	/**
 	 * Gets the number of seconds until calls will no longer be throttled.
 	 *
-	 * @param array $headers response headers
-	 * @return int|null
 	 * @since 2.0.0
 	 *
+	 * @param array $headers response headers
+	 * @return int|null
 	 */
-	public function get_rate_limit_estimated_time_to_regain_access($headers)
-	{
+	public function get_rate_limit_estimated_time_to_regain_access( $headers ) {
 
-		$usage_data = $this->get_usage_data($headers);
+		$usage_data = $this->get_usage_data( $headers );
 
-		return !empty($usage_data['estimated_time_to_regain_access']) ? (int)$usage_data['estimated_time_to_regain_access'] : null;
+		return ! empty( $usage_data['estimated_time_to_regain_access'] ) ? (int) $usage_data['estimated_time_to_regain_access'] : null;
 	}
 
 

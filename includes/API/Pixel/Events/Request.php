@@ -10,7 +10,7 @@
 
 namespace WooCommerce\Facebook\API\Pixel\Events;
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
 use WooCommerce\Facebook\API;
 use WooCommerce\Facebook\Events\Event;
@@ -20,8 +20,7 @@ use WooCommerce\Facebook\Events\Event;
  *
  * @since 2.0.0
  */
-class Request extends API\Request
-{
+class Request extends API\Request {
 
 
 	/** @var Event[] events to send */
@@ -31,67 +30,65 @@ class Request extends API\Request
 	/**
 	 * Request constructor.
 	 *
-	 * @param string $pixel_id
+	 * @param string  $pixel_id
 	 * @param Event[] $events events to send
 	 */
-	public function __construct($pixel_id, array $events)
-	{
+	public function __construct( $pixel_id, array $events ) {
 
 		$this->events = $events;
 
-		parent::__construct("/{$pixel_id}/events", 'POST');
+		parent::__construct( "/{$pixel_id}/events", 'POST' );
 	}
 
 
 	/**
 	 * Gets the request data.
 	 *
-	 * @return array
 	 * @since 2.0.0
 	 *
+	 * @return array
 	 */
-	public function get_data()
-	{
+	public function get_data() {
 
 		$data = array(
-			'data' => array(),
+			'data'          => array(),
 			'partner_agent' => Event::get_platform_identifier(),
 		);
 
-		foreach ($this->events as $event) {
+		foreach ( $this->events as $event ) {
 
-			if (!$event instanceof Event) {
+			if ( ! $event instanceof Event ) {
 				continue;
 			}
 
 			$event_data = $event->get_data();
 
-			if (isset($event_data['user_data']['click_id'])) {
+			if ( isset( $event_data['user_data']['click_id'] ) ) {
 
 				$event_data['user_data']['fbc'] = $event_data['user_data']['click_id'];
 
-				unset($event_data['user_data']['click_id']);
+				unset( $event_data['user_data']['click_id'] );
 			}
 
-			if (isset($event_data['user_data']['browser_id'])) {
+			if ( isset( $event_data['user_data']['browser_id'] ) ) {
 
 				$event_data['user_data']['fbp'] = $event_data['user_data']['browser_id'];
 
-				unset($event_data['user_data']['browser_id']);
+				unset( $event_data['user_data']['browser_id'] );
 			}
 
-			$data['data'][] = array_filter($event_data);
+			$data['data'][] = array_filter( $event_data );
 		}
 
 		/**
 		 * Filters the Pixel event API request data.
 		 *
-		 * @param array $data request data
-		 * @param Request $request request object
 		 * @since 2.0.0
 		 *
+		 * @param array $data request data
+		 * @param Request $request request object
 		 */
-		return apply_filters('wc_facebook_api_pixel_event_request_data', $data, $this);
+		return apply_filters( 'wc_facebook_api_pixel_event_request_data', $data, $this );
 	}
 
 

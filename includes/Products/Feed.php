@@ -1,6 +1,5 @@
 <?php
 // phpcs:ignoreFile
-
 /**
  * Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
  *
@@ -12,7 +11,7 @@
 
 namespace WooCommerce\Facebook\Products;
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
 use WooCommerce\Facebook\Framework\Helper;
 use WooCommerce\Facebook\Utilities\Heartbeat;
@@ -25,8 +24,7 @@ use WooCommerce\Facebook\Framework\Plugin\Exception as PluginException;
  *
  * @since 1.11.0
  */
-class Feed
-{
+class Feed {
 
 
 	/** @var string the action callback for generating a feed */
@@ -44,8 +42,7 @@ class Feed
 	 *
 	 * @since 1.11.0
 	 */
-	public function __construct()
-	{
+	public function __construct() {
 		// add the necessary action and filter hooks
 		$this->add_hooks();
 	}
@@ -56,16 +53,15 @@ class Feed
 	 *
 	 * @since 1.11.0
 	 */
-	private function add_hooks()
-	{
+	private function add_hooks() {
 		// schedule the recurring feed generation
-		add_action(Heartbeat::HOURLY, array($this, 'schedule_feed_generation'));
+		add_action( Heartbeat::HOURLY, array( $this, 'schedule_feed_generation' ) );
 
 		// regenerate the product feed
-		add_action(self::GENERATE_FEED_ACTION, array($this, 'regenerate_feed'));
+		add_action( self::GENERATE_FEED_ACTION, array( $this, 'regenerate_feed' ) );
 
 		// handle the feed data request
-		add_action('woocommerce_api_' . self::REQUEST_FEED_ACTION, array($this, 'handle_feed_data_request'));
+		add_action( 'woocommerce_api_' . self::REQUEST_FEED_ACTION, array( $this, 'handle_feed_data_request' ) );
 	}
 
 
@@ -76,55 +72,54 @@ class Feed
 	 *
 	 * @since 1.11.0
 	 */
-	public function handle_feed_data_request()
-	{
-		\WC_Facebookcommerce_Utils::log('Facebook is requesting the product feed.');
+	public function handle_feed_data_request() {
+		\WC_Facebookcommerce_Utils::log( 'Facebook is requesting the product feed.' );
 
 		$feed_handler = new \WC_Facebook_Product_Feed();
-		$file_path = $feed_handler->get_file_path();
+		$file_path    = $feed_handler->get_file_path();
 
 		// regenerate if the file doesn't exist
-		if (!empty($_GET['regenerate']) || !file_exists($file_path)) {
+		if ( ! empty( $_GET['regenerate'] ) || ! file_exists( $file_path ) ) {
 			$feed_handler->generate_feed();
 		}
 
 		try {
 			// bail early if the feed secret is not included or is not valid
-			if (self::get_feed_secret() !== Helper::get_requested_value('secret')) {
-				throw new PluginException('Invalid feed secret provided.', 401);
+			if ( self::get_feed_secret() !== Helper::get_requested_value( 'secret' ) ) {
+				throw new PluginException( 'Invalid feed secret provided.', 401 );
 			}
 
 			// bail early if the file can't be read
-			if (!is_readable($file_path)) {
-				throw new PluginException('File is not readable.', 404);
+			if ( ! is_readable( $file_path ) ) {
+				throw new PluginException( 'File is not readable.', 404 );
 			}
 
 			// set the download headers
-			header('Content-Type: text/csv; charset=utf-8');
-			header('Content-Description: File Transfer');
-			header('Content-Disposition: attachment; filename="' . basename($file_path) . '"');
-			header('Expires: 0');
-			header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-			header('Pragma: public');
-			header('Content-Length:' . filesize($file_path));
+			header( 'Content-Type: text/csv; charset=utf-8' );
+			header( 'Content-Description: File Transfer' );
+			header( 'Content-Disposition: attachment; filename="' . basename( $file_path ) . '"' );
+			header( 'Expires: 0' );
+			header( 'Cache-Control: must-revalidate, post-check=0, pre-check=0' );
+			header( 'Pragma: public' );
+			header( 'Content-Length:' . filesize( $file_path ) );
 
-			$file = @fopen($file_path, 'rb');
-			if (!$file) {
-				throw new PluginException('Could not open feed file.', 500);
+			$file = @fopen( $file_path, 'rb' );
+			if ( ! $file ) {
+				throw new PluginException( 'Could not open feed file.', 500 );
 			}
 
 			// fpassthru might be disabled in some hosts (like Flywheel)
-			if ($this->is_fpassthru_disabled() || !@fpassthru($file)) {
-				\WC_Facebookcommerce_Utils::log('fpassthru is disabled: getting file contents');
-				$contents = @stream_get_contents($file);
-				if (!$contents) {
-					throw new PluginException('Could not get feed file contents.', 500);
+			if ( $this->is_fpassthru_disabled() || ! @fpassthru( $file ) ) {
+				\WC_Facebookcommerce_Utils::log( 'fpassthru is disabled: getting file contents' );
+				$contents = @stream_get_contents( $file );
+				if ( ! $contents ) {
+					throw new PluginException( 'Could not get feed file contents.', 500 );
 				}
 				echo $contents; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
-		} catch (\Exception $exception) {
-			\WC_Facebookcommerce_Utils::log('Could not serve product feed. ' . $exception->getMessage() . ' (' . $exception->getCode() . ')');
-			status_header($exception->getCode());
+		} catch ( \Exception $exception ) {
+			\WC_Facebookcommerce_Utils::log( 'Could not serve product feed. ' . $exception->getMessage() . ' (' . $exception->getCode() . ')' );
+			status_header( $exception->getCode() );
 		}
 		exit;
 	}
@@ -138,10 +133,9 @@ class Feed
 	 * @since 1.11.0
 	 * @since 2.6.6 Enable new feed generation code if requested.
 	 */
-	public function regenerate_feed()
-	{
+	public function regenerate_feed() {
 		// Maybe use new ( experimental ), feed generation framework.
-		if (facebook_for_woocommerce()->get_integration()->is_new_style_feed_generation_enabled()) {
+		if ( facebook_for_woocommerce()->get_integration()->is_new_style_feed_generation_enabled() ) {
 			$generate_feed_job = facebook_for_woocommerce()->job_manager->generate_product_feed_job;
 			$generate_feed_job->queue_start();
 		} else {
@@ -157,30 +151,29 @@ class Feed
 	 *
 	 * @since 1.11.0
 	 */
-	public function schedule_feed_generation()
-	{
-		$integration = facebook_for_woocommerce()->get_integration();
+	public function schedule_feed_generation() {
+		$integration   = facebook_for_woocommerce()->get_integration();
 		$configured_ok = $integration && $integration->is_configured();
 		// Only schedule feed job if store has not opted out of product sync.
 		$store_allows_sync = $configured_ok && $integration->is_product_sync_enabled();
 		// Only schedule if has not opted out of feed generation (e.g. large stores).
 		$store_allows_feed = $configured_ok && $integration->is_legacy_feed_file_generation_enabled();
-		if (!$store_allows_sync || !$store_allows_feed) {
-			as_unschedule_all_actions(self::GENERATE_FEED_ACTION);
+		if ( ! $store_allows_sync || ! $store_allows_feed ) {
+			as_unschedule_all_actions( self::GENERATE_FEED_ACTION );
 			return;
 		}
 
 		/**
 		 * Filters the frequency with which the product feed data is generated.
 		 *
-		 * @param int $interval the frequency with which the product feed data is generated, in seconds. Defaults to every 15 minutes.
+		 * @since 1.11.0
 		 * @since 2.5.0 Feed generation interval increased to 24h.
 		 *
-		 * @since 1.11.0
+		 * @param int $interval the frequency with which the product feed data is generated, in seconds. Defaults to every 15 minutes.
 		 */
-		$interval = apply_filters('wc_facebook_feed_generation_interval', DAY_IN_SECONDS);
-		if (!as_next_scheduled_action(self::GENERATE_FEED_ACTION)) {
-			as_schedule_recurring_action(time(), max(2, $interval), self::GENERATE_FEED_ACTION, array(), facebook_for_woocommerce()->get_id_dasherized());
+		$interval = apply_filters( 'wc_facebook_feed_generation_interval', DAY_IN_SECONDS );
+		if ( ! as_next_scheduled_action( self::GENERATE_FEED_ACTION ) ) {
+			as_schedule_recurring_action( time(), max( 2, $interval ), self::GENERATE_FEED_ACTION, array(), facebook_for_woocommerce()->get_id_dasherized() );
 		}
 	}
 
@@ -190,16 +183,15 @@ class Feed
 	 *
 	 * Helper method, do not open to public.
 	 *
-	 * @return bool
 	 * @since 1.11.0
 	 *
+	 * @return bool
 	 */
-	private function is_fpassthru_disabled()
-	{
+	private function is_fpassthru_disabled() {
 		$disabled = false;
-		if (function_exists('ini_get')) {
-			$disabled_functions = @ini_get('disable_functions');
-			$disabled = is_string($disabled_functions) && in_array('fpassthru', explode(',', $disabled_functions), false);
+		if ( function_exists( 'ini_get' ) ) {
+			$disabled_functions = @ini_get( 'disable_functions' );
+			$disabled = is_string( $disabled_functions ) && in_array( 'fpassthru', explode( ',', $disabled_functions ), false );
 		}
 		return $disabled;
 	}
@@ -208,18 +200,17 @@ class Feed
 	/**
 	 * Gets the URL for retrieving the product feed data.
 	 *
-	 * @return string
 	 * @since 1.11.0
 	 *
+	 * @return string
 	 */
-	public static function get_feed_data_url()
-	{
+	public static function get_feed_data_url() {
 		$query_args = [
 			'wc-api' => self::REQUEST_FEED_ACTION,
 			'secret' => self::get_feed_secret(),
 		];
 		// nosemgrep: audit.php.wp.security.xss.query-arg
-		return add_query_arg($query_args, home_url('/'));
+		return add_query_arg( $query_args, home_url( '/' ) );
 	}
 
 
@@ -228,16 +219,15 @@ class Feed
 	 *
 	 * Generates a new secret and stores it in the database if no value is set.
 	 *
-	 * @return string
 	 * @since 1.11.0
 	 *
+	 * @return string
 	 */
-	public static function get_feed_secret()
-	{
-		$secret = get_option(self::OPTION_FEED_URL_SECRET, '');
-		if (!$secret) {
-			$secret = wp_hash('products-feed-' . time());
-			update_option(self::OPTION_FEED_URL_SECRET, $secret);
+	public static function get_feed_secret() {
+		$secret = get_option( self::OPTION_FEED_URL_SECRET, '' );
+		if ( ! $secret ) {
+			$secret = wp_hash( 'products-feed-' . time() );
+			update_option( self::OPTION_FEED_URL_SECRET, $secret );
 		}
 		return $secret;
 	}

@@ -5,7 +5,7 @@ namespace WooCommerce\Facebook\Jobs;
 
 use WC_Facebookcommerce;
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Trait LoggingTrait
@@ -14,8 +14,7 @@ defined('ABSPATH') || exit;
  *
  * @since 2.5.0
  */
-trait LoggingTrait
-{
+trait LoggingTrait {
 
 	/**
 	 * Get the name/slug of the job.
@@ -29,11 +28,10 @@ trait LoggingTrait
 	 *
 	 * @param string $message
 	 */
-	protected function log(string $message)
-	{
+	protected function log( string $message ) {
 		facebook_for_woocommerce()->log(
 			$message,
-			sprintf('%s_%s', WC_Facebookcommerce::PLUGIN_ID, $this->get_name())
+			sprintf( '%s_%s', WC_Facebookcommerce::PLUGIN_ID, $this->get_name() )
 		);
 	}
 }

@@ -10,7 +10,7 @@
 
 namespace WooCommerce\Facebook\API\FBE\Installation;
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
 use WooCommerce\Facebook\API;
 
@@ -19,19 +19,17 @@ use WooCommerce\Facebook\API;
  *
  * @since 2.0.0
  */
-class Request extends API\Request
-{
+class Request extends API\Request {
 
 	/**
 	 * API request constructor.
 	 *
-	 * @param string $path desired path
-	 * @param string $method request method
 	 * @since 2.0.0
 	 *
+	 * @param string $path desired path
+	 * @param string $method request method
 	 */
-	public function __construct($path, $method)
-	{
-		parent::__construct("/fbe_business/{$path}", $method);
+	public function __construct( $path, $method ) {
+		parent::__construct( "/fbe_business/{$path}", $method );
 	}
 }

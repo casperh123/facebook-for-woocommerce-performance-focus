@@ -27,25 +27,23 @@ require_once __DIR__ . '/vendor/autoload.php';
 use Automattic\WooCommerce\Grow\Tools\CompatChecker\v0_0_1\Checker;
 use Automattic\WooCommerce\Utilities\FeaturesUtil;
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
 // HPOS compatibility declaration.
 add_action(
 	'before_woocommerce_init',
-	function () {
-		if (class_exists(FeaturesUtil::class)) {
-			FeaturesUtil::declare_compatibility('custom_order_tables', plugin_basename(__FILE__), true);
+	function() {
+		if ( class_exists( FeaturesUtil::class ) ) {
+			FeaturesUtil::declare_compatibility( 'custom_order_tables', plugin_basename( __FILE__ ), true );
 		}
 	}
 );
-
 /**
  * The plugin loader class.
  *
  * @since 1.10.0
  */
-class WC_Facebook_Loader
-{
+class WC_Facebook_Loader {
 
 	/**
 	 * @var string the plugin version. This must be in the main plugin file to be automatically bumped by Woorelease.
@@ -55,8 +53,14 @@ class WC_Facebook_Loader
 	// Minimum PHP version required by this plugin.
 	const MINIMUM_PHP_VERSION = '7.4.0';
 
+	// Minimum WordPress version required by this plugin.
+	const MINIMUM_WP_VERSION = '4.4';
+
 	// Minimum WooCommerce version required by this plugin.
 	const MINIMUM_WC_VERSION = '5.3';
+
+	// SkyVerge plugin framework version used by this plugin.
+	const FRAMEWORK_VERSION = '5.10.0';
 
 	// The plugin name, for displaying notices.
 	const PLUGIN_NAME = 'Facebook for WooCommerce';
@@ -69,19 +73,24 @@ class WC_Facebook_Loader
 	 */
 	private static $instance;
 
-
 	/**
-	 * Constructs the class.
+	 * Admin notices to add.
 	 *
-	 * @since 1.10.0
+	 * @var array Array of admin notices.
 	 */
-	protected function __construct()
-	{
+	private $notices = array();
 
-		register_activation_hook(__FILE__, array($this, 'activation_check'));
+    /**
+     * Constructs the class.
+     *
+     * @since 1.10.0
+     */
+    protected function __construct() {
 
-		add_action('plugins_loaded', array($this, 'init_plugin'));
-	}
+        register_activation_hook( __FILE__, array( $this, 'activation_check' ) );
+
+		add_action( 'plugins_loaded', array( $this, 'init_plugin' ) );
+    }
 
 
 	/**
@@ -89,10 +98,9 @@ class WC_Facebook_Loader
 	 *
 	 * @since 1.10.0
 	 */
-	public function __clone()
-	{
+	public function __clone() {
 
-		wc_doing_it_wrong(__FUNCTION__, sprintf('You cannot clone instances of %s.', get_class($this)), '1.10.0');
+		wc_doing_it_wrong( __FUNCTION__, sprintf( 'You cannot clone instances of %s.', get_class( $this ) ), '1.10.0' );
 	}
 
 
@@ -101,41 +109,38 @@ class WC_Facebook_Loader
 	 *
 	 * @since 1.10.0
 	 */
-	public function __wakeup()
-	{
+	public function __wakeup() {
 
-		wc_doing_it_wrong(__FUNCTION__, sprintf('You cannot unserialize instances of %s.', get_class($this)), '1.10.0');
+		wc_doing_it_wrong( __FUNCTION__, sprintf( 'You cannot unserialize instances of %s.', get_class( $this ) ), '1.10.0' );
 	}
 
 
-	/**
-	 * Initializes the plugin.
-	 *
-	 * @since 1.10.0
-	 */
-	public function init_plugin()
-	{
-		if (!function_exists('facebook_for_woocommerce')) {
-			require_once plugin_dir_path(__FILE__) . 'class-wc-facebookcommerce.php';
-		}
+    /**
+     * Initializes the plugin.
+     *
+     * @since 1.10.0
+     */
+    public function init_plugin() {
+        if ( ! function_exists( 'facebook_for_woocommerce' ) ) {
+            require_once plugin_dir_path( __FILE__ ) . 'class-wc-facebookcommerce.php';
+        }
 
-		facebook_for_woocommerce();
-	}
+        facebook_for_woocommerce();
+    }
 
 
-	/**
-	 * Checks the server environment and other factors during plugin activation.
-	 *
-	 * @internal
-	 * @since 1.10.0
-	 */
-	public function activation_check()
-	{
-		if (!$this->is_environment_compatible()) {
-			$this->deactivate_plugin();
-			wp_die(esc_html(self::PLUGIN_NAME . ' could not be activated. ' . $this->get_environment_message()));
-		}
-	}
+    /**
+     * Checks the server environment and other factors during plugin activation.
+     *
+     * @internal
+     * @since 1.10.0
+     */
+    public function activation_check() {
+        if ( ! $this->is_environment_compatible() ) {
+            $this->deactivate_plugin();
+            wp_die( esc_html( self::PLUGIN_NAME . ' could not be activated. ' . $this->get_environment_message() ) );
+        }
+    }
 
 
 	/**
@@ -145,13 +150,12 @@ class WC_Facebook_Loader
 	 *
 	 * @since 1.10.0
 	 */
-	protected function deactivate_plugin()
-	{
+	protected function deactivate_plugin() {
 
-		deactivate_plugins(plugin_basename(__FILE__));
+		deactivate_plugins( plugin_basename( __FILE__ ) );
 
-		if (isset($_GET['activate'])) {
-			unset($_GET['activate']);
+		if ( isset( $_GET['activate'] ) ) {
+			unset( $_GET['activate'] );
 		}
 	}
 
@@ -161,27 +165,26 @@ class WC_Facebook_Loader
 	 *
 	 * Override this method to add checks for more than just the PHP version.
 	 *
-	 * @return bool
 	 * @since 1.10.0
 	 *
+	 * @return bool
 	 */
 	private function is_environment_compatible(): bool
-	{
-		return version_compare(PHP_VERSION, self::MINIMUM_PHP_VERSION, '>=');
+    {
+		return version_compare( PHP_VERSION, self::MINIMUM_PHP_VERSION, '>=' );
 	}
 
 
 	/**
 	 * Gets the message for display when the environment is incompatible with this plugin.
 	 *
-	 * @return string
 	 * @since 1.10.0
 	 *
+	 * @return string
 	 */
-	private function get_environment_message()
-	{
+	private function get_environment_message() {
 
-		return sprintf('The minimum PHP version required for this plugin is %1$s. You are running %2$s.', self::MINIMUM_PHP_VERSION, PHP_VERSION);
+		return sprintf( 'The minimum PHP version required for this plugin is %1$s. You are running %2$s.', self::MINIMUM_PHP_VERSION, PHP_VERSION );
 	}
 
 
@@ -190,14 +193,14 @@ class WC_Facebook_Loader
 	 *
 	 * Ensures only one instance can be loaded.
 	 *
-	 * @return \WC_Facebook_Loader
 	 * @since 1.10.0
 	 *
+	 * @return \WC_Facebook_Loader
 	 */
 	public static function instance(): WC_Facebook_Loader
-	{
+    {
 
-		if (null === self::$instance) {
+		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
 

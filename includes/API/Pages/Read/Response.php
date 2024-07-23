@@ -1,9 +1,9 @@
 <?php
-declare(strict_types=1);
+declare( strict_types=1 );
 
 namespace WooCommerce\Facebook\API\Pages\Read;
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
 use WooCommerce\Facebook\API;
 
@@ -14,6 +14,4 @@ use WooCommerce\Facebook\API;
  * @property-read string $name Facebook Page Name.
  * @property-read string $link Facebook Page URL.
  */
-class Response extends API\Response
-{
-}
+class Response extends API\Response {}

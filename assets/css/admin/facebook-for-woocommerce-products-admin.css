@@ -14,7 +14,6 @@
 #woocommerce-product-data .fb-product-image-source-field .wc-radios li {
 	margin-bottom: 0;
 }
-
 #woocommerce-product-data .fb-product-image-source-field .wc-radios li:last-child {
 	padding-bottom: 0;
 }
@@ -50,7 +49,6 @@
 	position: relative;
 	width: 113px;
 }
-
 #woocommerce-product-data .wc_facebook_commerce_enabled_field label .woocommerce-help-tip,
 #woocommerce-product-data .wc_facebook_commerce_fields label .woocommerce-help-tip {
 	margin: 0;

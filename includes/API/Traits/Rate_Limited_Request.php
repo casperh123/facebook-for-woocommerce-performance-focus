@@ -10,25 +10,23 @@
 
 namespace WooCommerce\Facebook\API\Traits;
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Rate limited request trait.
  *
  * @since 2.0.0
  */
-trait Rate_Limited_Request
-{
+trait Rate_Limited_Request {
 
 	/**
 	 * Gets the ID of this request for rate limiting purposes.
 	 *
-	 * @return string
 	 * @since 2.0.0
 	 *
+	 * @return string
 	 */
-	public static function get_rate_limit_id()
-	{
+	public static function get_rate_limit_id() {
 		return 'graph_api_request';
 	}
 }

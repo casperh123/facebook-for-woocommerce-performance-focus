@@ -12,27 +12,25 @@ namespace WooCommerce\Facebook\API;
 
 use WooCommerce\Facebook\Framework\Api\JSONResponse;
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Base API response object
  *
  * @since 2.0.0
  */
-class Response extends JSONResponse
-{
+class Response extends JSONResponse {
 
 	use Traits\Rate_Limited_Response;
 
 	/**
 	 * Gets the response ID.
 	 *
-	 * @return string
 	 * @since 2.0.0
 	 *
+	 * @return string
 	 */
-	public function get_id()
-	{
+	public function get_id() {
 		return $this->id;
 	}
 
@@ -46,21 +44,19 @@ class Response extends JSONResponse
 	 *
 	 * @return boolean
 	 */
-	public function has_api_error()
-	{
-		return (bool)$this->error;
+	public function has_api_error() {
+		return (bool) $this->error;
 	}
 
 
 	/**
 	 * Gets the API error type.
 	 *
-	 * @return string|null
 	 * @since 2.0.0
 	 *
+	 * @return string|null
 	 */
-	public function get_api_error_type()
-	{
+	public function get_api_error_type() {
 		return $this->error['type'] ?? null;
 	}
 
@@ -68,12 +64,11 @@ class Response extends JSONResponse
 	/**
 	 * Gets the API error message.
 	 *
-	 * @return string|null
 	 * @since 2.0.0
 	 *
+	 * @return string|null
 	 */
-	public function get_api_error_message()
-	{
+	public function get_api_error_message() {
 		return $this->error['message'] ?? null;
 	}
 
@@ -81,12 +76,11 @@ class Response extends JSONResponse
 	/**
 	 * Gets the API error code.
 	 *
-	 * @return int|null
 	 * @since 2.0.0
 	 *
+	 * @return int|null
 	 */
-	public function get_api_error_code()
-	{
+	public function get_api_error_code() {
 		return $this->error['code'] ?? null;
 	}
 
@@ -94,12 +88,11 @@ class Response extends JSONResponse
 	/**
 	 * Gets the user error message.
 	 *
-	 * @return string|null
 	 * @since 2.1.0
 	 *
+	 * @return string|null
 	 */
-	public function get_user_error_message()
-	{
+	public function get_user_error_message() {
 		return $this->error['error_user_msg'] ?? null;
 	}
 }

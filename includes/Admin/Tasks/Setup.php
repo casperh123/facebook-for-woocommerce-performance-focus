@@ -9,23 +9,21 @@
 
 namespace WooCommerce\Facebook\Admin\Tasks;
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
 use Automattic\WooCommerce\Admin\Features\OnboardingTasks\Task;
 
 /**
  * Setup Task class.
  */
-class Setup extends Task
-{
+class Setup extends Task {
 
 	/**
 	 * Get the ID of the task.
 	 *
 	 * @return string
 	 */
-	public function get_id()
-	{
+	public function get_id() {
 		return 'setup-facebook';
 	}
 
@@ -34,9 +32,8 @@ class Setup extends Task
 	 *
 	 * @return string
 	 */
-	public function get_title()
-	{
-		return __('Advertise your products across Meta\'s platforms, including Facebook, Instagram, and WhatsApp', 'facebook-for-woocommerce');
+	public function get_title() {
+		return __( 'Advertise your products across Meta\'s platforms, including Facebook, Instagram, and WhatsApp', 'facebook-for-woocommerce' );
 	}
 
 	/**
@@ -44,8 +41,7 @@ class Setup extends Task
 	 *
 	 * @return string
 	 */
-	public function get_content()
-	{
+	public function get_content() {
 		return '';
 	}
 
@@ -54,9 +50,8 @@ class Setup extends Task
 	 *
 	 * @return string
 	 */
-	public function get_time()
-	{
-		return esc_html__('20 minutes', 'facebook-for-woocommerce');
+	public function get_time() {
+		return esc_html__( '20 minutes', 'facebook-for-woocommerce' );
 	}
 
 	/**
@@ -64,8 +59,7 @@ class Setup extends Task
 	 *
 	 * @return string
 	 */
-	public function get_action_url()
-	{
+	public function get_action_url() {
 		return facebook_for_woocommerce()->get_settings_url();
 	}
 
@@ -74,8 +68,7 @@ class Setup extends Task
 	 *
 	 * @return bool
 	 */
-	public function is_complete()
-	{
+	public function is_complete() {
 		return facebook_for_woocommerce()->get_connection_handler()->is_connected();
 	}
 
@@ -84,9 +77,8 @@ class Setup extends Task
 	 *
 	 * @return string
 	 */
-	public function get_parent_id()
-	{
-		if (method_exists(get_parent_class($this), 'get_parent_id')) {
+	public function get_parent_id() {
+		if ( method_exists( get_parent_class( $this ), 'get_parent_id' ) ) {
 			return parent::get_parent_id();
 		}
 

@@ -1,6 +1,5 @@
 <?php
 // phpcs:ignoreFile
-
 /**
  * Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
  *
@@ -12,15 +11,14 @@
 
 namespace WooCommerce\Facebook\Products;
 
-defined('ABSPATH') or exit;
+defined( 'ABSPATH' ) or exit;
 
 /**
  * The product sync handler.
  *
  * @since 2.0.0
  */
-class Sync
-{
+class Sync {
 
 
 	/** @var string the prefix used in the array indexes */
@@ -41,8 +39,7 @@ class Sync
 	 *
 	 * @since 2.0.0
 	 */
-	public function __construct()
-	{
+	public function __construct() {
 
 		$this->add_hooks();
 	}
@@ -53,14 +50,13 @@ class Sync
 	 *
 	 * @since 2.0.0
 	 */
-	public function add_hooks()
-	{
+	public function add_hooks() {
 
-		add_action('shutdown', array($this, 'schedule_sync'));
+		add_action( 'shutdown', array( $this, 'schedule_sync' ) );
 
 		// stock update actions
-		add_action('woocommerce_product_set_stock', array($this, 'handle_stock_update'));
-		add_action('woocommerce_variation_set_stock', array($this, 'handle_stock_update'));
+		add_action( 'woocommerce_product_set_stock', array( $this, 'handle_stock_update' ) );
+		add_action( 'woocommerce_variation_set_stock', array( $this, 'handle_stock_update' ) );
 	}
 
 
@@ -76,29 +72,27 @@ class Sync
 	 *
 	 * @since 2.0.0
 	 */
-	public function create_or_update_all_products()
-	{
+	public function create_or_update_all_products() {
 		$profiling_logger = facebook_for_woocommerce()->get_profiling_logger();
-		$profiling_logger->start('create_or_update_all_products');
+		$profiling_logger->start( 'create_or_update_all_products' );
 
 		// Queue up these IDs for sync. they will only be included in the final requests if they should be synced.
-		$this->create_or_update_products(\WC_Facebookcommerce_Utils::get_all_product_ids_for_sync());
+		$this->create_or_update_products( \WC_Facebookcommerce_Utils::get_all_product_ids_for_sync() );
 
-		$profiling_logger->stop('create_or_update_all_products');
+		$profiling_logger->stop( 'create_or_update_all_products' );
 	}
 
 
 	/**
 	 * Adds the given product IDs to the requests array to be updated.
 	 *
-	 * @param int[] $product_ids
 	 * @since 2.0.0
 	 *
+	 * @param int[] $product_ids
 	 */
-	public function create_or_update_products(array $product_ids)
-	{
-		foreach ($product_ids as $product_id) {
-			$this->requests[$this->get_product_index($product_id)] = self::ACTION_UPDATE;
+	public function create_or_update_products( array $product_ids ) {
+		foreach ( $product_ids as $product_id ) {
+			$this->requests[ $this->get_product_index( $product_id ) ] = self::ACTION_UPDATE;
 		}
 	}
 
@@ -106,15 +100,14 @@ class Sync
 	/**
 	 * Adds the given retailer IDs to the requests array to be deleted.
 	 *
-	 * @param int[] $retailer retailer IDs to delete
 	 * @since 2.0.0
 	 *
+	 * @param int[] $retailer retailer IDs to delete
 	 */
-	public function delete_products(array $retailer_ids)
-	{
+	public function delete_products( array $retailer_ids ) {
 
-		foreach ($retailer_ids as $retailer_id) {
-			$this->requests[$this->get_product_index($retailer_id)] = self::ACTION_DELETE;
+		foreach ( $retailer_ids as $retailer_id ) {
+			$this->requests[ $this->get_product_index( $retailer_id ) ] = self::ACTION_DELETE;
 		}
 	}
 
@@ -122,42 +115,40 @@ class Sync
 	/**
 	 * Adds the products with stock changes to the requests array to be updated.
 	 *
-	 * @param \WC_Product $product product object
 	 * @since 2.1.0
 	 *
+	 * @param \WC_Product $product product object
 	 */
-	public function handle_stock_update(\WC_Product $product)
-	{
+	public function handle_stock_update( \WC_Product $product ) {
 
 		// bail if not connected
-		if (!facebook_for_woocommerce()->get_connection_handler()->is_connected()) {
+		if ( ! facebook_for_woocommerce()->get_connection_handler()->is_connected() ) {
 			return;
 		}
 
 		// bail if admin and not AJAX
-		if (is_admin() && !wp_doing_ajax()) {
+		if ( is_admin() && ! wp_doing_ajax() ) {
 			return;
 		}
 
 		// add the product to the list of products to be updated
-		$this->create_or_update_products(array($product->get_id()));
+		$this->create_or_update_products( array( $product->get_id() ) );
 	}
 
 
 	/**
 	 * Creates a background job to sync the products in the requests array.
 	 *
-	 * @return \stdClass|object|null
 	 * @since 2.0.0
 	 *
+	 * @return \stdClass|object|null
 	 */
-	public function schedule_sync()
-	{
+	public function schedule_sync() {
 
-		if (!empty($this->requests)) {
+		if ( ! empty( $this->requests ) ) {
 
 			$job_handler = facebook_for_woocommerce()->get_products_sync_background_handler();
-			$job = $job_handler->create_job(array('requests' => $this->requests));
+			$job         = $job_handler->create_job( array( 'requests' => $this->requests ) );
 
 			$job_handler->dispatch();
 
@@ -169,13 +160,12 @@ class Sync
 	/**
 	 * Gets the prefixed product ID used as the array index.
 	 *
-	 * @param $product_id
-	 * @return string
 	 * @since 2.0.0
 	 *
+	 * @param $product_id
+	 * @return string
 	 */
-	private function get_product_index($product_id)
-	{
+	private function get_product_index( $product_id ) {
 
 		return self::PRODUCT_INDEX_PREFIX . $product_id;
 	}
@@ -184,12 +174,11 @@ class Sync
 	/**
 	 * Determines whether a sync is currently in progress.
 	 *
-	 * @return bool
 	 * @since 2.0.0
 	 *
+	 * @return bool
 	 */
-	public static function is_sync_in_progress()
-	{
+	public static function is_sync_in_progress() {
 
 		$jobs = facebook_for_woocommerce()->get_products_sync_background_handler()->get_jobs(
 			array(
@@ -197,7 +186,7 @@ class Sync
 			)
 		);
 
-		return !empty($jobs);
+		return ! empty( $jobs );
 	}
 
 

@@ -14,7 +14,7 @@ namespace WooCommerce\Facebook\API\Traits;
 
 use stdClass;
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Helper methods to traverse Graph API paged results.
@@ -23,8 +23,7 @@ defined('ABSPATH') || exit;
  *
  * @since 2.0.0
  */
-trait Paginated_Response
-{
+trait Paginated_Response {
 
 	/** @var int number of pages retrieved from this response */
 	private $pages_retrieved = 1;
@@ -35,72 +34,66 @@ trait Paginated_Response
 	/**
 	 * Sets the number of pages retrieved from this response.
 	 *
-	 * @param int $pages_retrieved
 	 * @since 2.0.0
 	 *
+	 * @param int $pages_retrieved
 	 */
-	public function set_pages_retrieved($pages_retrieved)
-	{
+	public function set_pages_retrieved( $pages_retrieved ) {
 		$this->pages_retrieved = $pages_retrieved;
 	}
 
 	/**
 	 * Gets the number of pages retrieved from this response.
 	 *
-	 * @return int
 	 * @since 2.0.0
 	 *
+	 * @return int
 	 */
-	public function get_pages_retrieved()
-	{
+	public function get_pages_retrieved() {
 		return $this->pages_retrieved;
 	}
 
 	/**
 	 * Gets the response data.
 	 *
-	 * @return array
 	 * @since 2.0.0
 	 *
+	 * @return array
 	 */
-	public function get_data()
-	{
+	public function get_data() {
 		return $this->response_data['data'] ?? [];
 	}
 
 	/**
 	 * Gets the pagination data.
 	 *
-	 * @return object
 	 * @since 2.0.0
 	 *
+	 * @return object
 	 */
-	public function get_pagination_data()
-	{
+	public function get_pagination_data() {
 		return $this->response_data['paging'] ?? new stdClass();
 	}
 
 	/**
 	 * Gets the API endpoint for the next page of results.
 	 *
-	 * @return string
 	 * @since 2.0.0
 	 *
+	 * @return string
 	 */
-	public function get_next_page_endpoint()
-	{
+	public function get_next_page_endpoint() {
 		return $this->get_pagination_data()->next ?? '';
 	}
 
 	/**
 	 * Gets the API endpoint for the previous page of results.
 	 *
-	 * @return string
 	 * @since 2.0.0
 	 *
+	 * @return string
 	 */
-	public function get_previous_page_endpoint()
-	{
+	public function get_previous_page_endpoint() {
 		return $this->get_pagination_data()->previous ?? '';
 	}
 }
