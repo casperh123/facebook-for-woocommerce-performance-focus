@@ -345,59 +345,6 @@ class WC_Facebookcommerce_Pixel {
 		}
 
 
-		/**
-		 * Prints the JavaScript code to track a conditional event.
-		 *
-		 * The tracking code will be executed when the given JavaScript event is triggered.
-		 *
-		 * @param string $event_name    Name of the event.
-		 * @param array  $params        Custom event parameters.
-		 * @param string $listener      Name of the JavaScript event to listen for.
-		 * @param string $jsonified_pii JavaScript code representing an object of data for Advanced Matching.
-		 * @return string
-		 */
-		public function inject_conditional_event( $event_name, $params, $listener, $jsonified_pii = '' ) {
-
-			// phpcs:ignore WordPress.XSS.EscapeOutput.OutputNotEscaped
-			return $this->get_conditional_event_script( $event_name, self::build_params( $params, $event_name ), $listener, $jsonified_pii );
-		}
-
-
-		/**
-		 * Gets the JavaScript code to track a conditional event that is only triggered one time wrapped in <script> tag.
-		 *
-		 * @internal
-		 *
-		 * @since 1.10.2
-		 *
-		 * @param string $event_name     The name of the event to track.
-		 * @param array  $params         Custom event parameters.
-		 * @param string $listened_event Name of the JavaScript event to listen for.
-		 * @return string
-		 */
-		public function get_conditional_one_time_event_script( $event_name, $params, $listened_event ) {
-
-			$code = $this->get_event_code( $event_name, $params );
-
-			ob_start();
-
-			?>
-			<!-- Facebook Pixel Event Code -->
-			<script <?php echo self::get_script_attributes(); // phpcs:ignore WordPress.Security.EscapeOutput.Output ?>>
-				function handle<?php echo $event_name; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>Event() {
-					<?php echo $code; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-					// Some weird themes (hi, Basel) are running this script twice, so two listeners are added and we need to remove them after running one.
-					jQuery( document.body ).off( '<?php echo esc_js( $listened_event ); ?>', handle<?php echo $event_name; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>Event );
-				}
-
-				jQuery( document.body ).one( '<?php echo esc_js( $listened_event ); ?>', handle<?php echo $event_name; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>Event );
-			</script>
-			<!-- End Facebook Pixel Event Code -->
-			<?php
-
-			return ob_get_clean();
-		}
-
 
 		/**
 		 * Builds an event.
@@ -635,27 +582,6 @@ class WC_Facebookcommerce_Pixel {
 
 			$fb_options[ self::ACCESS_TOKEN_KEY ] = $access_token;
 			update_option( self::SETTINGS_KEY, $fb_options );
-		}
-
-		/**
-		 * Get WooCommerce/Wordpress information.
-		 */
-		private static function get_version_info() {
-			global $wp_version;
-
-			if ( WC_Facebookcommerce_Utils::isWoocommerceIntegration() ) {
-				return array(
-					'source'        => 'woocommerce',
-					'version'       => WC()->version,
-					'pluginVersion' => WC_Facebookcommerce_Utils::PLUGIN_VERSION,
-				);
-			}
-
-			return array(
-				'source'        => 'wordpress',
-				'version'       => $wp_version,
-				'pluginVersion' => WC_Facebookcommerce_Utils::PLUGIN_VERSION,
-			);
 		}
 
 		/**

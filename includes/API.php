@@ -103,74 +103,6 @@ class API extends Base {
 
 
 	/**
-	 * Validates a response after it has been parsed and instantiated.
-	 *
-	 * Throws an exception if a rate limit or general API error is included in the response.
-	 *
-	 * @since 2.0.0
-	 *
-	 * @throws ApiException
-	 */
-	protected function do_post_parse_response_validation() {
-		/** @var API\Response $response */
-		$response = $this->get_response();
-		$request  = $this->get_request();
-		if ( $response && $response->has_api_error() ) {
-			$code    = $response->get_api_error_code();
-			$message = sprintf( '%s: %s', $response->get_api_error_type(), $response->get_user_error_message() ?: $response->get_api_error_message() );
-			/**
-			 * Graph API
-			 *
-			 * 4 - API Too Many Calls
-			 * 17 - API User Too Many Calls
-			 * 32 - Page-level throttling
-			 * 613 - Custom-level throttling
-			 *
-			 * Marketing API (Catalog Batch API)
-			 *
-			 * 80004 - There have been too many calls to this ad-account
-			 *
-			 * @link https://developers.facebook.com/docs/graph-api/using-graph-api/error-handling#errorcodes
-			 * @link https://developers.facebook.com/docs/graph-api/using-graph-api/error-handling#rate-limiting-error-codes
-			 * @link https://developers.facebook.com/docs/marketing-api/reference/product-catalog/batch/#validation-rules
-			 */
-			if ( in_array( $code, array( 4, 17, 32, 613, 80001, 80004 ), true ) ) {
-				$delay_in_seconds = $this->calculate_rate_limit_delay( $response, $this->get_response_headers() );
-				if ( $delay_in_seconds > 0 ) {
-					$rate_limit_id = $request::get_rate_limit_id();
-					$timestamp     = time() + $delay_in_seconds;
-					$this->set_rate_limit_delay( $rate_limit_id, $timestamp );
-					$this->handle_throttled_request( $rate_limit_id, $timestamp );
-				} else {
-					throw new API\Exceptions\Request_Limit_Reached( $message, $code );
-				}
-			}
-
-			/**
-			 * Handle invalid token errors
-			 *
-			 * @link https://developers.facebook.com/docs/graph-api/using-graph-api/error-handling#errorcodes
-			 */
-			if ( ( $code >= 200 && $code < 300 ) || in_array( $code, array( 10, 102, 190 ), false ) ) {
-				set_transient( 'wc_facebook_connection_invalid', time(), DAY_IN_SECONDS );
-			} else {
-				// this was an unrelated error, so the OAuth connection may still be valid
-				delete_transient( 'wc_facebook_connection_invalid' );
-			}
-			// if the code indicates a retry and we've not hit the retry limit, perform the request again
-			if ( in_array( $code, $request->get_retry_codes(), false ) && $request->get_retry_count() < $request->get_retry_limit() ) {
-				$request->mark_retry();
-				$this->response = $this->perform_request( $request );
-				return;
-			}
-			throw new ApiException( $message, $code );
-		}
-		// if we get this far we're connected, so delete any invalid connection flag
-		delete_transient( 'wc_facebook_connection_invalid' );
-	}
-
-
-	/**
 	 * Handles a throttled API request.
 	 *
 	 * @since 2.1.0
@@ -201,22 +133,6 @@ class API extends Base {
 	public function get_installation_ids( string $external_business_id ): API\FBE\Installation\Read\Response {
 		$request = new API\FBE\Installation\Read\Request( $external_business_id );
 		$this->set_response_handler( API\FBE\Installation\Read\Response::class );
-		return $this->perform_request( $request );
-	}
-
-
-	/**
-	 * Gets a Page object from Facebook.
-	 *
-	 * @since 2.0.0
-	 *
-	 * @param string $page_id page ID
-	 * @return API\Response|API\Pages\Read\Response
-	 * @throws ApiException
-	 */
-	public function get_page( $page_id ): API\Pages\Read\Response {
-		$request = new API\Pages\Read\Request( $page_id );
-		$this->set_response_handler( API\Pages\Read\Response::class );
 		return $this->perform_request( $request );
 	}
 
@@ -276,21 +192,6 @@ class API extends Base {
 	public function get_business_configuration( $external_business_id ) {
 		$request = new API\FBE\Configuration\Request( $external_business_id, 'GET' );
 		$this->set_response_handler( API\FBE\Configuration\Read\Response::class );
-		return $this->perform_request( $request );
-	}
-
-	/**
-	 * Updates the plugin version configuration.
-	 *
-	 * @param string $external_business_id external business ID
-	 * @param string $plugin_version The plugin version.
-	 * @return API\Response|API\FBE\Configuration\Update\Response
-	 * @throws WooCommerce\Facebook\Framework\Api\Exception
-	 */
-	public function update_plugin_version_configuration( string $external_business_id, string $plugin_version ): API\FBE\Configuration\Update\Response {
-		$request = new API\FBE\Configuration\Update\Request( $external_business_id );
-		$request->set_plugin_version( $plugin_version );
-		$this->set_response_handler( API\FBE\Configuration\Update\Response::class );
 		return $this->perform_request( $request );
 	}
 
@@ -367,23 +268,6 @@ class API extends Base {
 	public function get_product_group_products( string $product_group_id, int $limit = 1000 ): API\ProductCatalog\ProductGroups\Read\Response {
 		$request = new API\ProductCatalog\ProductGroups\Read\Request( $product_group_id, $limit );
 		$this->set_response_handler( API\ProductCatalog\ProductGroups\Read\Response::class );
-		return $this->perform_request( $request );
-	}
-
-
-	/**
-	 * Finds a Product Item using the Catalog ID and the Retailer ID of the product or product variation.
-	 *
-	 * @since 2.0.0
-	 *
-	 * @param string $catalog_id catalog ID
-	 * @param string $retailer_id retailer ID of the product
-	 * @return Response
-	 * @throws ApiException
-	 */
-	public function find_product_item( $catalog_id, $retailer_id ) {
-		$request = new \WooCommerce\Facebook\API\Catalog\Product_Item\Find\Request( $catalog_id, $retailer_id );
-		$this->set_response_handler( \WooCommerce\Facebook\API\Catalog\Product_Item\Response::class );
 		return $this->perform_request( $request );
 	}
 
@@ -500,19 +384,6 @@ class API extends Base {
 	public function read_feeds( string $product_catalog_id ): API\ProductCatalog\ProductFeeds\ReadAll\Response {
 		$request = new API\ProductCatalog\ProductFeeds\ReadAll\Request( $product_catalog_id );
 		$this->set_response_handler( API\ProductCatalog\ProductFeeds\ReadAll\Response::class );
-		return $this->perform_request( $request );
-	}
-
-
-	/**
-	 * @param string $product_feed_id Facebook Product Feed ID.
-	 * @return Response
-	 * @throws ApiException
-	 * @throws API\Exceptions\Request_Limit_Reached
-	 */
-	public function read_feed( string $product_feed_id ) {
-		$request = new API\ProductCatalog\ProductFeeds\Read\Request( $product_feed_id );
-		$this->set_response_handler( API\ProductCatalog\ProductFeeds\Read\Response::class );
 		return $this->perform_request( $request );
 	}
 

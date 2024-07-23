@@ -517,18 +517,6 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 
 
 	/**
-	 * Gets the background remove duplicate visibility meta data handler instance.
-	 *
-	 * @since 2.0.3
-	 *
-	 * @return Background_Remove_Duplicate_Visibility_Meta
-	 */
-	public function get_background_remove_duplicate_visibility_meta_instance() {
-		return $this->background_remove_duplicate_visibility_meta;
-	}
-
-
-	/**
 	 * Gets the products sync handler.
 	 *
 	 * @since 2.0.0

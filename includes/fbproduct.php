@@ -300,7 +300,7 @@ class WC_Facebook_Product {
 					)
 				);
 			}
-        }
+		}
 
 		return $video_urls;
 	}
@@ -375,7 +375,7 @@ class WC_Facebook_Product {
 	public function get_use_parent_image() {
 		if ( $this->fb_use_parent_image === null ) {
 			$variant_image_setting     =
-			get_post_meta( $this->id, self::FB_VARIANT_IMAGE, true );
+				get_post_meta( $this->id, self::FB_VARIANT_IMAGE, true );
 			$this->fb_use_parent_image = ( $variant_image_setting ) ? true : false;
 		}
 		return $this->fb_use_parent_image;
@@ -494,12 +494,12 @@ class WC_Facebook_Product {
 				'price' => $price,
 			);
 			return get_option( 'woocommerce_tax_display_shop' ) === 'incl'
-				  ? wc_get_price_including_tax( $woo_product, $args )
-				  : wc_get_price_excluding_tax( $woo_product, $args );
+				? wc_get_price_including_tax( $woo_product, $args )
+				: wc_get_price_excluding_tax( $woo_product, $args );
 		} else {
 			return get_option( 'woocommerce_tax_display_shop' ) === 'incl'
-				  ? $woo_product->get_price_including_tax( 1, $price )
-				  : $woo_product->get_price_excluding_tax( 1, $price );
+				? $woo_product->get_price_including_tax( 1, $price )
+				: $woo_product->get_price_excluding_tax( 1, $price );
 		}
 	}
 
@@ -569,7 +569,7 @@ class WC_Facebook_Product {
 		// Use product_url for external/bundle product setting.
 		$product_type = $this->get_type();
 		if ( ! $product_type || ! isset( self::$use_checkout_url[ $product_type ] ) ) {
-				$checkout_url = $product_url;
+			$checkout_url = $product_url;
 		} elseif ( wc_get_cart_url() ) {
 			$char = '?';
 			// Some merchant cart pages are actually a querystring
@@ -616,7 +616,7 @@ class WC_Facebook_Product {
 
 		if ( ! $retailer_id ) {
 			$retailer_id =
-			WC_Facebookcommerce_Utils::get_fb_retailer_id( $this );
+				WC_Facebookcommerce_Utils::get_fb_retailer_id( $this );
 		}
 		$image_urls = $this->get_all_image_urls();
 
@@ -634,7 +634,7 @@ class WC_Facebook_Product {
 			$id = $this->get_parent_id();
 		}
 		$categories =
-		WC_Facebookcommerce_Utils::get_product_categories( $id );
+			WC_Facebookcommerce_Utils::get_product_categories( $id );
 
 		// Get brand attribute.
 		$brand = get_post_meta( $id, Products::ENHANCED_CATALOG_ATTRIBUTES_META_KEY_PREFIX . 'brand', true );
@@ -722,37 +722,29 @@ class WC_Facebook_Product {
 			$product_data['checkout_url'] = $checkout_url;
 		}
 
-		// IF using WPML, set the product to hidden unless it is in the
-		// default language. WPML >= 3.2 Supported.
-		if ( defined( 'ICL_LANGUAGE_CODE' ) ) {
-			if ( class_exists( 'WC_Facebook_WPML_Injector' ) && WC_Facebook_WPML_Injector::should_hide( $id ) ) {
-				$product_data['visibility'] = \WC_Facebookcommerce_Integration::FB_SHOP_PRODUCT_HIDDEN;
-			}
+		// Exclude variations that are "virtual" products from export to Facebook &&
+		// No Visibility Option for Variations
+		// get_virtual() returns true for "unassembled bundles", so we exclude
+		// bundles from this check.
+		if ( true === $this->get_virtual() && 'bundle' !== $this->get_type() ) {
+			$product_data['visibility'] = \WC_Facebookcommerce_Integration::FB_SHOP_PRODUCT_HIDDEN;
 		}
-
-			// Exclude variations that are "virtual" products from export to Facebook &&
-			// No Visibility Option for Variations
-			// get_virtual() returns true for "unassembled bundles", so we exclude
-			// bundles from this check.
-			if ( true === $this->get_virtual() && 'bundle' !== $this->get_type() ) {
-				$product_data['visibility'] = \WC_Facebookcommerce_Integration::FB_SHOP_PRODUCT_HIDDEN;
-			}
 
 		if ( self::PRODUCT_PREP_TYPE_FEED !== $type_to_prepare_for ) {
 			$this->prepare_variants_for_item( $product_data );
 		} elseif (
-		WC_Facebookcommerce_Utils::is_all_caps( $product_data['description'] )
+			WC_Facebookcommerce_Utils::is_all_caps( $product_data['description'] )
 		) {
 			$product_data['description'] =
-			mb_strtolower( $product_data['description'] );
+				mb_strtolower( $product_data['description'] );
 		}
 
 		/**
-		   * Filters the generated product data.
-		   *
-		   * @param int   $id           Woocommerce product id
-		   * @param array $product_data An array of product data
-		   */
+		 * Filters the generated product data.
+		 *
+		 * @param int   $id           Woocommerce product id
+		 * @param array $product_data An array of product data
+		 */
 		return apply_filters(
 			'facebook_for_woocommerce_integration_prepare_product',
 			$product_data,
@@ -812,7 +804,7 @@ class WC_Facebook_Product {
 		$matched_attributes = array();
 		$sanitized_keys     = array_map(
 			function( $key ) {
-					return \WC_Facebookcommerce_Utils::sanitize_variant_name( $key, false );
+				return \WC_Facebookcommerce_Utils::sanitize_variant_name( $key, false );
 			},
 			array_keys( $product->get_attributes() )
 		);
@@ -885,8 +877,8 @@ class WC_Facebook_Product {
 					// Reset checkout url since checkout_url (build from query data will
 					// be invalid in this case.
 					if ( count( $option_values ) === 1 && empty( $option_values[0] ) ) {
-							$option_values[0]             = 'any';
-							$product_data['checkout_url'] = $product_data['url'];
+						$option_values[0]             = 'any';
+						$product_data['checkout_url'] = $product_data['url'];
 					}
 				}
 

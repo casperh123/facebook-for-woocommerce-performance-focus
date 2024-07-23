@@ -26,15 +26,6 @@ require_once 'facebook-commerce-pixel-event.php';
 
 class WC_Facebookcommerce_Integration extends WC_Integration {
 
-
-	/**
-	 * The WordPress option name where the page access token is stored.
-	 *
-	 * @var string option name.
-	 * @deprecated 2.1.0
-	 */
-	const OPTION_PAGE_ACCESS_TOKEN = 'wc_facebook_page_access_token';
-
 	/** @var string the WordPress option name where the product catalog ID is stored */
 	const OPTION_PRODUCT_CATALOG_ID = 'wc_facebook_product_catalog_id';
 
@@ -83,9 +74,6 @@ class WC_Facebookcommerce_Integration extends WC_Integration {
 	/** @var string the product description mode setting ID */
 	const SETTING_PRODUCT_DESCRIPTION_MODE = 'wc_facebook_product_description_mode';
 
-	/** @var string the scheduled resync offset setting ID */
-	const SETTING_SCHEDULED_RESYNC_OFFSET = 'scheduled_resync_offset';
-
 	/** @var string the "debug mode" setting ID */
 	const SETTING_ENABLE_DEBUG_MODE = 'wc_facebook_enable_debug_mode';
 
@@ -125,9 +113,6 @@ class WC_Facebookcommerce_Integration extends WC_Integration {
 	/** @var bool|null whether the feed has been migrated from FBE 1 to FBE 1.5 */
 	private $feed_migrated;
 
-	/** @var array the page name and url */
-	private $page;
-
 	/** Legacy properties *********************************************************************************************/
 
 
@@ -142,16 +127,10 @@ class WC_Facebookcommerce_Integration extends WC_Integration {
 	/** @var string the API flag to set a product as not visible in the Facebook shop */
 	public const FB_SHOP_PRODUCT_HIDDEN = 'hidden';
 
-	/** @var string @deprecated  */
-	public const FB_CART_URL = 'fb_cart_url';
-
 	public const FB_MESSAGE_DISPLAY_TIME = 180;
 
 	// Number of days to query tip.
 	public const FB_TIP_QUERY = 1;
-
-	// TODO: this constant is no longer used and can probably be removed {WV 2020-01-21}.
-	public const FB_VARIANT_IMAGE = 'fb_image';
 
 	public const FB_ADMIN_MESSAGE_PREPEND = '<b>Facebook for WooCommerce</b><br/>';
 
@@ -160,12 +139,6 @@ class WC_Facebookcommerce_Integration extends WC_Integration {
 	public const FB_SYNC_TIMEOUT     = 30;
 	public const FB_PRIORITY_MID     = 9;
 
-	/**
-	 * Facebook exception test mode switch.
-	 *
-	 * @var bool
-	 */
-	private $test_mode = false;
 
 	/** @var WC_Facebookcommerce */
 	private $facebook_for_woocommerce;
@@ -1604,56 +1577,6 @@ class WC_Facebookcommerce_Integration extends WC_Integration {
 		wp_die();
 	}
 
-	/**
-	 * Check Feed Upload Status (FBE v2.0)
-	 * TODO: When migrating to FBE v2.0, remove above function and rename
-	 * below function to ajax_check_feed_upload_status()
-	 **/
-	public function ajax_check_feed_upload_status_v2() {
-		\WC_Facebookcommerce_Utils::check_woo_ajax_permissions( 'check feed upload status', true );
-		check_ajax_referer( 'wc_facebook_settings_jsx' );
-		if ( $this->is_configured() ) {
-			$response = [
-				'connected' => true,
-				'status'    => 'in progress',
-			];
-
-			if ( ! empty( $this->get_upload_id() ) ) {
-
-				if ( ! isset( $this->fbproductfeed ) ) {
-
-					if ( ! class_exists( 'WC_Facebook_Product_Feed' ) ) {
-						include_once 'includes/fbproductfeed.php';
-					}
-
-					$this->fbproductfeed = new \WC_Facebook_Product_Feed();
-				}
-
-				$status = $this->fbproductfeed->is_upload_complete( $this->settings );
-
-				$response['status'] = $status;
-			} else {
-				$response = [
-					'connected' => true,
-					'status'    => 'error',
-				];
-			}
-
-			if ( 'complete' === $response['status'] ) {
-				update_option(
-					$this->get_option_key(),
-					apply_filters(
-						'woocommerce_settings_api_sanitized_fields_' . $this->id,
-						$this->settings
-					)
-				);
-			}
-		} else {
-			$response = [ 'connected' => false ];
-		}
-		printf( json_encode( $response ) );
-		wp_die();
-	}
 
 	/**
 	 * Display custom success message (sugar).

@@ -12,6 +12,7 @@
 namespace WooCommerce\Facebook;
 
 use WooCommerce\Facebook\Admin\Enhanced_Catalog_Attribute_Fields;
+use WooCommerce\Facebook\Admin\Product_Sets;
 use WooCommerce\Facebook\Framework\Helper;
 use Automattic\WooCommerce\Utilities\OrderUtil;
 

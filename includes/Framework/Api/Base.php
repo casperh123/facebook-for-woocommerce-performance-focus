@@ -475,7 +475,7 @@ abstract class Base {
 		if ( ! Helper::str_starts_with($url, 'https://') ) {
 			return;
 		}
-		
+
 		// Set SSL version and enable HTTP/2 if supported
 		curl_setopt($handle, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_3);
 		curl_setopt($handle, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2TLS);

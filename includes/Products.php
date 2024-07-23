@@ -52,9 +52,6 @@ class Products {
 	/** @var string the meta key prefix used to store the Enhanced Catalog Attributes for the product */
 	const ENHANCED_CATALOG_ATTRIBUTES_META_KEY_PREFIX = '_wc_facebook_enhanced_catalog_attributes_';
 
-	/** @var string the meta key used to store the product gender */
-	const GENDER_META_KEY = '_wc_facebook_gender';
-
 	/** @var string the meta key used to store the name of the color attribute for a product */
 	const COLOR_ATTRIBUTE_META_KEY = '_wc_facebook_color_attribute';
 
@@ -243,21 +240,6 @@ class Products {
 	 */
 	public static function is_sync_enabled_for_product( \WC_Product $product ) {
 		return facebook_for_woocommerce()->get_product_sync_validator( $product )->passes_product_sync_field_check();
-	}
-
-
-	/**
-	 * Determines whether the product's terms would make it excluded to be synced from Facebook.
-	 *
-	 * @since 1.10.0
-	 *
-	 * @deprecated use \WooCommerce\Facebook\ProductSync\ProductValidator::passes_product_terms_check() instead
-	 *
-	 * @param \WC_Product $product product object
-	 * @return bool if true, product should be excluded from sync, if false, product can be included in sync (unless manually excluded by individual product meta)
-	 */
-	public static function is_sync_excluded_for_product_terms( \WC_Product $product ) {
-		return ! facebook_for_woocommerce()->get_product_sync_validator( $product )->passes_product_terms_check();
 	}
 
 
@@ -609,50 +591,6 @@ class Products {
 
 
 	/**
-	 * Gets the stored gender for the product (`female`, `male`, or `unisex`).
-	 *
-	 * Defaults to `unisex` if not otherwise set.
-	 *
-	 * If the product is a variation, it will get this value from its parent.
-	 *
-	 * @since 2.1.0
-	 *
-	 * @param \WC_Product $product the product object
-	 * @return string
-	 */
-	public static function get_product_gender( \WC_Product $product ) {
-
-		if ( $product->is_type( 'variation' ) ) {
-			$parent_product = wc_get_product( $product->get_parent_id() );
-			$gender         = $parent_product instanceof \WC_Product ? $parent_product->get_meta( self::GENDER_META_KEY ) : null;
-		} else {
-			$gender = $product->get_meta( self::GENDER_META_KEY );
-		}
-
-		if ( ! in_array( $gender, array( 'female', 'male', 'unisex' ) ) ) {
-			$gender = 'unisex';
-		}
-
-		return $gender;
-	}
-
-
-	/**
-	 * Updates the stored gender for the product.
-	 *
-	 * @since 2.1.0
-	 *
-	 * @param \WC_Product $product the product object
-	 * @param string      $gender the gender (`female`, `male`, or `unisex`)
-	 */
-	public static function update_product_gender( \WC_Product $product, $gender ) {
-
-		$product->update_meta_data( self::GENDER_META_KEY, $gender );
-		$product->save_meta_data();
-	}
-
-
-	/**
 	 * Gets the configured color attribute.
 	 *
 	 * @since 2.1.0
@@ -692,58 +630,6 @@ class Products {
 		}
 
 		return $attribute_name;
-	}
-
-	/**
-	 * Updates the configured color attribute.
-	 *
-	 * @since 2.1.0
-	 *
-	 * @param \WC_Product $product the product object
-	 * @param string      $attribute_name the attribute to be used to store the color
-	 * @throws PluginException
-	 */
-	public static function update_product_color_attribute( \WC_Product $product, $attribute_name ) {
-
-		// check if the name matches an available attribute
-		if ( ! empty( $attribute_name ) && ! self::product_has_attribute( $product, $attribute_name ) ) {
-			throw new PluginException( "The provided attribute name $attribute_name does not match any of the available attributes for the product {$product->get_name()}" );
-		}
-
-		if ( $attribute_name !== self::get_product_color_attribute( $product ) && in_array( $attribute_name, self::get_distinct_product_attributes( $product ) ) ) {
-			throw new PluginException( "The provided attribute $attribute_name is already used for the product {$product->get_name()}" );
-		}
-
-		$product->update_meta_data( self::COLOR_ATTRIBUTE_META_KEY, $attribute_name );
-		$product->save_meta_data();
-	}
-
-
-	/**
-	 * Gets the stored color for a product.
-	 *
-	 * If the product is a variation and it doesn't have the color attribute, falls back to the parent.
-	 *
-	 * @since 2.1.0
-	 *
-	 * @param \WC_Product $product the product object
-	 * @return string
-	 */
-	public static function get_product_color( \WC_Product $product ) {
-
-		$color_value     = '';
-		$color_attribute = self::get_product_color_attribute( $product );
-
-		if ( ! empty( $color_attribute ) ) {
-			$color_value = $product->get_attribute( $color_attribute );
-		}
-
-		if ( empty( $color_value ) && $product->is_type( 'variation' ) ) {
-			$parent_product = wc_get_product( $product->get_parent_id() );
-			$color_value    = $parent_product instanceof \WC_Product ? self::get_product_color( $parent_product ) : '';
-		}
-
-		return $color_value;
 	}
 
 
@@ -791,59 +677,6 @@ class Products {
 
 
 	/**
-	 * Updates the configured size attribute.
-	 *
-	 * @since 2.1.0
-	 *
-	 * @param \WC_Product $product the product object
-	 * @param string      $attribute_name the attribute to be used to store the size
-	 * @throws PluginException
-	 */
-	public static function update_product_size_attribute( \WC_Product $product, $attribute_name ) {
-
-		// check if the name matches an available attribute
-		if ( ! empty( $attribute_name ) && ! self::product_has_attribute( $product, $attribute_name ) ) {
-			throw new PluginException( "The provided attribute name $attribute_name does not match any of the available attributes for the product {$product->get_name()}" );
-		}
-
-		if ( $attribute_name !== self::get_product_size_attribute( $product ) && in_array( $attribute_name, self::get_distinct_product_attributes( $product ) ) ) {
-			throw new PluginException( "The provided attribute $attribute_name is already used for the product {$product->get_name()}" );
-		}
-
-		$product->update_meta_data( self::SIZE_ATTRIBUTE_META_KEY, $attribute_name );
-		$product->save_meta_data();
-	}
-
-
-	/**
-	 * Gets the stored size for a product.
-	 *
-	 * If the product is a variation and it doesn't have the size attribute, falls back to the parent.
-	 *
-	 * @since 2.1.0
-	 *
-	 * @param \WC_Product $product the product object
-	 * @return string
-	 */
-	public static function get_product_size( \WC_Product $product ) {
-
-		$size_value     = '';
-		$size_attribute = self::get_product_size_attribute( $product );
-
-		if ( ! empty( $size_attribute ) ) {
-			$size_value = $product->get_attribute( $size_attribute );
-		}
-
-		if ( empty( $size_value ) && $product->is_type( 'variation' ) ) {
-			$parent_product = wc_get_product( $product->get_parent_id() );
-			$size_value     = $parent_product instanceof \WC_Product ? self::get_product_size( $parent_product ) : '';
-		}
-
-		return $size_value;
-	}
-
-
-	/**
 	 * Gets the configured pattern attribute.
 	 *
 	 * @since 2.1.0
@@ -883,56 +716,6 @@ class Products {
 		}
 
 		return $attribute_name;
-	}
-
-
-	/**
-	 * Updates the configured pattern attribute.
-	 *
-	 * @since 2.1.0
-	 *
-	 * @param \WC_Product $product the product object
-	 * @param string      $attribute_name the attribute to be used to store the pattern
-	 * @throws PluginException
-	 */
-	public static function update_product_pattern_attribute( \WC_Product $product, $attribute_name ) {
-		// check if the name matches an available attribute
-		if ( ! empty( $attribute_name ) && ! self::product_has_attribute( $product, $attribute_name ) ) {
-			throw new PluginException( "The provided attribute name $attribute_name does not match any of the available attributes for the product {$product->get_name()}" );
-		}
-		if ( $attribute_name !== self::get_product_pattern_attribute( $product ) && in_array( $attribute_name, self::get_distinct_product_attributes( $product ) ) ) {
-			throw new PluginException( "The provided attribute $attribute_name is already used for the product {$product->get_name()}" );
-		}
-		$product->update_meta_data( self::PATTERN_ATTRIBUTE_META_KEY, $attribute_name );
-		$product->save_meta_data();
-	}
-
-
-	/**
-	 * Gets the stored pattern for a product.
-	 *
-	 * If the product is a variation and it doesn't have the pattern attribute, falls back to the parent.
-	 *
-	 * @since 2.1.0
-	 *
-	 * @param \WC_Product $product the product object
-	 * @return string
-	 */
-	public static function get_product_pattern( \WC_Product $product ) {
-
-		$pattern_value     = '';
-		$pattern_attribute = self::get_product_pattern_attribute( $product );
-
-		if ( ! empty( $pattern_attribute ) ) {
-			$pattern_value = $product->get_attribute( $pattern_attribute );
-		}
-
-		if ( empty( $pattern_value ) && $product->is_type( 'variation' ) ) {
-			$parent_product = wc_get_product( $product->get_parent_id() );
-			$pattern_value  = $parent_product instanceof \WC_Product ? self::get_product_pattern( $parent_product ) : '';
-		}
-
-		return $pattern_value;
 	}
 
 
@@ -1023,7 +806,6 @@ class Products {
 		$product->save_meta_data();
 	}
 
-
 	/**
 	 * Gets and cleans the submitted values for enhanced catalog attributes from the request.
 	 *
@@ -1082,7 +864,6 @@ class Products {
 		return $found;
 	}
 
-
 	/**
 	 * Gets the attributes that are set for the product's color, size, and pattern.
 	 *
@@ -1101,74 +882,4 @@ class Products {
 			)
 		);
 	}
-
-
-	/**
-	 * Gets a product by its Facebook product ID, from the `fb_product_item_id` or `fb_product_group_id`.
-	 *
-	 * @since 2.1.0
-	 *
-	 * @param string $fb_product_id Facebook product ID
-	 * @return \WC_Product|null
-	 */
-	public static function get_product_by_fb_product_id( $fb_product_id ) {
-
-		$product = null;
-
-		// try to by the `fb_product_item_id` meta
-		$products = wc_get_products(
-			array(
-				'limit'      => 1,
-				'meta_key'   => \WC_Facebookcommerce_Integration::FB_PRODUCT_ITEM_ID,
-				'meta_value' => $fb_product_id,
-			)
-		);
-
-		if ( ! empty( $products ) ) {
-			$product = current( $products );
-		}
-
-		if ( empty( $product ) ) {
-			// try to by the `fb_product_group_id` meta
-			$products = wc_get_products(
-				array(
-					'limit'      => 1,
-					'meta_key'   => \WC_Facebookcommerce_Integration::FB_PRODUCT_GROUP_ID,
-					'meta_value' => $fb_product_id,
-				)
-			);
-
-			if ( ! empty( $products ) ) {
-				$product = current( $products );
-			}
-		}
-
-		return ! empty( $product ) ? $product : null;
-	}
-
-
-	/**
-	 * Gets a product by its Facebook retailer ID.
-	 *
-	 * @see \WC_Facebookcommerce_Utils::get_fb_retailer_id().
-	 *
-	 * @since 2.1.0
-	 *
-	 * @param string $fb_retailer_id Facebook retailer ID
-	 * @return \WC_Product|null
-	 */
-	public static function get_product_by_fb_retailer_id( $fb_retailer_id ) {
-
-		if ( strpos( $fb_retailer_id, \WC_Facebookcommerce_Utils::FB_RETAILER_ID_PREFIX ) !== false ) {
-			$product_id = str_replace( \WC_Facebookcommerce_Utils::FB_RETAILER_ID_PREFIX, '', $fb_retailer_id );
-		} else {
-			$product_id = substr( $fb_retailer_id, strrpos( $fb_retailer_id, '_' ) + 1 );
-		}
-
-		$product = wc_get_product( $product_id );
-
-		return ! empty( $product ) ? $product : null;
-	}
-
-
 }
