@@ -189,11 +189,163 @@ class Admin {
 				);
 			}
 
+			add_filter( 'woocommerce_product_data_tabs', array( $this, 'add_product_settings_tab' ) );
+			add_action( 'woocommerce_product_data_panels', array( $this, 'add_product_settings_tab_content' ) );
+
 			if ( facebook_for_woocommerce()->is_plugin_settings() ) {
 				wp_enqueue_style( 'woocommerce_admin_styles' );
 				wp_enqueue_script( 'wc-enhanced-select' );
 			}
 		}//end if
+	}
+
+	/**
+	 * Adds a new tab to the Product edit page.
+	 *
+	 * @internal
+	 *
+	 * @since 1.10.0
+	 *
+	 * @param array $tabs product tabs
+	 * @return array
+	 */
+	public function add_product_settings_tab( $tabs ) {
+
+		$tabs['fb_commerce_tab'] = array(
+			'label'  => __( 'Facebook', 'facebook-for-woocommerce' ),
+			'target' => 'facebook_options',
+			'class'  => array( 'show_if_simple', 'show_if_variable', 'show_if_external' ),
+		);
+
+		return $tabs;
+	}
+
+	/**
+	 * Adds content to the new Facebook tab on the Product edit page.
+	 *
+	 * @internal
+	 *
+	 * @since 1.10.0
+	 */
+	public function add_product_settings_tab_content() {
+		global $post;
+
+
+		// all products have sync enabled unless explicitly disabled
+		$sync_enabled = 'no' !== get_post_meta( $post->ID, Products::SYNC_ENABLED_META_KEY, true );
+		$is_visible   = ( $visibility = get_post_meta( $post->ID, Products::VISIBILITY_META_KEY, true ) ) ? wc_string_to_bool( $visibility ) : true;
+		$product 	  = wc_get_product( $post );
+
+		$description  = get_post_meta( $post->ID, \WC_Facebookcommerce_Integration::FB_PRODUCT_DESCRIPTION, true );
+		$price        = get_post_meta( $post->ID, \WC_Facebook_Product::FB_PRODUCT_PRICE, true );
+		$image_source = get_post_meta( $post->ID, Products::PRODUCT_IMAGE_SOURCE_META_KEY, true );
+		$image        = get_post_meta( $post->ID, \WC_Facebook_Product::FB_PRODUCT_IMAGE, true );
+
+		if ( $sync_enabled ) {
+			$sync_mode = $is_visible ? self::SYNC_MODE_SYNC_AND_SHOW : self::SYNC_MODE_SYNC_AND_HIDE;
+		} else {
+			$sync_mode = self::SYNC_MODE_SYNC_DISABLED;
+		}
+
+		// 'id' attribute needs to match the 'target' parameter set above
+		?>
+		<div id='facebook_options' class='panel woocommerce_options_panel'>
+			<div class='options_group hide_if_variable'>
+				<?php
+
+				woocommerce_wp_select(
+					array(
+						'id'      => 'wc_facebook_sync_mode',
+						'label'   => __( 'Facebook sync', 'facebook-for-woocommerce' ),
+						'options' => array(
+							self::SYNC_MODE_SYNC_AND_SHOW => __( 'Sync and show in catalog', 'facebook-for-woocommerce' ),
+							self::SYNC_MODE_SYNC_AND_HIDE => __( 'Sync and hide in catalog', 'facebook-for-woocommerce' ),
+							self::SYNC_MODE_SYNC_DISABLED => __( 'Do not sync', 'facebook-for-woocommerce' ),
+						),
+						'value'   => $sync_mode,
+					)
+				);
+
+				woocommerce_wp_textarea_input(
+					array(
+						'id'          => \WC_Facebookcommerce_Integration::FB_PRODUCT_DESCRIPTION,
+						'label'       => __( 'Facebook Description', 'facebook-for-woocommerce' ),
+						'desc_tip'    => true,
+						'description' => __( 'Custom (plain-text only) description for product on Facebook. If blank, product description will be used. If product description is blank, shortname will be used.', 'facebook-for-woocommerce' ),
+						'cols'        => 40,
+						'rows'        => 20,
+						'value'       => $description,
+						'class'       => 'short enable-if-sync-enabled',
+					)
+				);
+
+				woocommerce_wp_radio(
+					array(
+						'id'            => 'fb_product_image_source',
+						'label'         => __( 'Facebook Product Image', 'facebook-for-woocommerce' ),
+						'desc_tip'      => true,
+						'description'   => __( 'Choose the product image that should be synced to the Facebook catalog for this product. If using a custom image, please enter an absolute URL (e.g. https://domain.com/image.jpg).', 'facebook-for-woocommerce' ),
+						'options'       => array(
+							Products::PRODUCT_IMAGE_SOURCE_PRODUCT => __( 'Use WooCommerce image', 'facebook-for-woocommerce' ),
+							Products::PRODUCT_IMAGE_SOURCE_CUSTOM  => __( 'Use custom image', 'facebook-for-woocommerce' ),
+						),
+						'value'         => $image_source ?: Products::PRODUCT_IMAGE_SOURCE_PRODUCT,
+						'class'         => 'short enable-if-sync-enabled js-fb-product-image-source',
+						'wrapper_class' => 'fb-product-image-source-field',
+					)
+				);
+
+				woocommerce_wp_text_input(
+					array(
+						'id'    => \WC_Facebook_Product::FB_PRODUCT_IMAGE,
+						'label' => __( 'Custom Image URL', 'facebook-for-woocommerce' ),
+						'value' => $image,
+						'class' => sprintf( 'enable-if-sync-enabled product-image-source-field show-if-product-image-source-%s', Products::PRODUCT_IMAGE_SOURCE_CUSTOM ),
+					)
+				);
+
+				woocommerce_wp_text_input(
+					array(
+						'id'          => \WC_Facebook_Product::FB_PRODUCT_PRICE,
+						'label'       => sprintf(
+						/* translators: Placeholders %1$s - WC currency symbol */
+							__( 'Facebook Price (%1$s)', 'facebook-for-woocommerce' ),
+							get_woocommerce_currency_symbol()
+						),
+						'desc_tip'    => true,
+						'description' => __( 'Custom price for product on Facebook. Please enter in monetary decimal (.) format without thousand separators and currency symbols. If blank, product price will be used.', 'facebook-for-woocommerce' ),
+						'cols'        => 40,
+						'rows'        => 60,
+						'value'       => $price,
+						'class'       => 'enable-if-sync-enabled',
+					)
+				);
+
+				woocommerce_wp_hidden_input(
+					array(
+						'id'    => \WC_Facebook_Product::FB_REMOVE_FROM_SYNC,
+						'value' => '',
+					)
+				);
+				?>
+			</div>
+			<?php
+			$commerce_handler = facebook_for_woocommerce()->get_commerce_handler();
+			?>
+			<?php if ( $commerce_handler->is_connected() && $commerce_handler->is_available() ) : ?>
+				<div class='wc-facebook-commerce-options-group options_group'>
+					<?php
+					if ( $product instanceof \WC_Product ) {
+						\WooCommerce\Facebook\Admin\Products::render_commerce_fields( $product );
+					}
+					?>
+				</div>
+			<?php endif; ?>
+			<div class='wc-facebook-commerce-options-group options_group'>
+				<?php \WooCommerce\Facebook\Admin\Products::render_google_product_category_fields_and_enhanced_attributes( $product ); ?>
+			</div>
+		</div>
+		<?php
 	}
 
 
