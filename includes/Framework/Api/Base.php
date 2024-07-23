@@ -77,25 +77,16 @@ abstract class Base {
 		$this->reset_response();
 		// Save the request object.
 		$this->request = $request;
-		$start_time    = microtime( true );
 
 		// If this API requires TLS v1.2, force it.
 		if ( $this->require_tls_1_2() ) {
 			add_action( 'http_api_curl', array( $this, 'set_tls_1_2_request' ), 10, 3 );
 		}
+
 		// Perform the request.
 		$response = $this->do_remote_request( $this->get_request_uri(), $this->get_request_args() );
-		// Calculate request duration.
-		$this->request_duration = round( microtime( true ) - $start_time, 5 );
-		try {
-			// Parse & validate response.
-			$response = $this->handle_response( $response );
-		} catch ( PluginException $e ) {
-			// Alert other actors that a request has been made.
-			$this->broadcast_request();
-			throw $e;
-		}
-		return $response;
+
+		return $this->handle_response( $response );
 	}
 
 
@@ -146,11 +137,7 @@ abstract class Base {
 		// parse the response body and tie it to the request
 		$this->response = $this->get_parsed_response( $this->raw_response_body );
 
-		// fire do_action() so other actors can act on request/response data,
-		// primarily used for logging
-		$this->broadcast_request();
-
-		return $this->response;
+		return $this ->response;
 	}
 
 
@@ -164,56 +151,6 @@ abstract class Base {
 	protected function get_parsed_response( $raw_response_body ) {
 		$handler_class = $this->get_response_handler();
 		return new $handler_class( $raw_response_body );
-	}
-
-
-	/**
-	 * Alert other actors that a request has been performed. This is primarily used
-	 * for request logging.
-	 *
-	 * @since 2.2.0
-	 */
-	protected function broadcast_request() {
-		$request_data = [
-			'method'     => $this->get_request_method(),
-			'uri'        => $this->get_request_uri(),
-			'user-agent' => $this->get_request_user_agent(),
-			'headers'    => $this->get_sanitized_request_headers(),
-			'body'       => $this->get_sanitized_request_body(),
-			'duration'   => $this->get_request_duration() . 's', // seconds
-		];
-
-		$response_data = [
-			'code'    => $this->get_response_code(),
-			'message' => $this->get_response_message(),
-			'headers' => $this->get_response_headers(),
-			'body'    => $this->get_sanitized_response_body() ? $this->get_sanitized_response_body() : $this->get_raw_response_body(),
-		];
-
-		/**
-		 * API Base Request Performed Action.
-		 *
-		 * Fired when an API request is performed via this base class. Plugins can
-		 * hook into this to log request/response data.
-		 *
-		 * @since 2.2.0
-		 * @param array $request_data {
-		 *     @type string $method request method, e.g. POST
-		 *     @type string $uri request URI
-		 *     @type string $user-agent
-		 *     @type string $headers request headers
-		 *     @type string $body request body
-		 *     @type string $duration in seconds
-		 * }
-		 * @param array $response data {
-		 *     @type string $code response HTTP code
-		 *     @type string $message response message
-		 *     @type string $headers response HTTP headers
-		 *     @type string $body response body
-		 * }
-		 * @param \WooCommerce\Facebook\Framework\Api\Base $this instance
-		 */
-		do_action( 'wc_' . $this->get_api_id() . '_api_request_performed', $request_data, $response_data, $this );
 	}
 
 
@@ -368,21 +305,6 @@ abstract class Base {
 
 
 	/**
-	 * Gets the sanitized request body, for logging.
-	 *
-	 * @since 4.5.0
-	 * @return string
-	 */
-	protected function get_sanitized_request_body() {
-		// GET & HEAD requests don't support a body
-		if ( in_array( strtoupper( $this->get_request_method() ), [ 'GET', 'HEAD' ], true ) ) {
-			return '';
-		}
-		return ( $this->get_request() && $this->get_request()->to_string_safe() ) ? $this->get_request()->to_string_safe() : '';
-	}
-
-
-	/**
 	 * Get the request HTTP version, 1.1 by default
 	 *
 	 * @since 2.2.0
@@ -405,27 +327,6 @@ abstract class Base {
 
 
 	/**
-	 * Get sanitized request headers suitable for logging, stripped of any
-	 * confidential information
-	 *
-	 * The `Authorization` header is sanitized automatically.
-	 *
-	 * Child classes that implement any custom authorization headers should
-	 * override this method to perform sanitization.
-	 *
-	 * @since 2.2.0
-	 * @return array
-	 */
-	protected function get_sanitized_request_headers() {
-		$headers = $this->get_request_headers();
-		if ( ! empty( $headers['Authorization'] ) ) {
-			$headers['Authorization'] = str_repeat( '*', strlen( $headers['Authorization'] ) );
-		}
-		return $headers;
-	}
-
-
-	/**
 	 * Get the request user agent, defaults to:
 	 *
 	 * Dasherized-Plugin-Name/Plugin-Version (WooCommerce/WC-Version; WordPress/WP-Version)
@@ -436,20 +337,6 @@ abstract class Base {
 	protected function get_request_user_agent() {
 		return sprintf( '%s/%s (WooCommerce/%s; WordPress/%s)', str_replace( ' ', '-', $this->get_plugin()->get_plugin_name() ), $this->get_plugin()->get_version(), WC_VERSION, $GLOBALS['wp_version'] );
 	}
-
-
-	/**
-	 * Get the request duration in seconds, rounded to the 5th decimal place
-	 *
-	 * @since 2.2.0
-	 * @return string
-	 */
-	protected function get_request_duration() {
-		return $this->request_duration;
-	}
-
-
-	/** Response Getters ******************************************************/
 
 
 	/**
@@ -464,28 +351,6 @@ abstract class Base {
 
 
 	/**
-	 * Get the response code
-	 *
-	 * @since 2.2.0
-	 * @return string
-	 */
-	protected function get_response_code() {
-		return $this->response_code;
-	}
-
-
-	/**
-	 * Get the response message
-	 *
-	 * @since 2.2.0
-	 * @return string
-	 */
-	protected function get_response_message() {
-		return $this->response_message;
-	}
-
-
-	/**
 	 * Get the response headers
 	 *
 	 * @since 2.2.0
@@ -494,32 +359,6 @@ abstract class Base {
 	protected function get_response_headers() {
 		return $this->response_headers;
 	}
-
-
-	/**
-	 * Get the raw response body, prior to any parsing or sanitization
-	 *
-	 * @since 2.2.0
-	 * @return string
-	 */
-	protected function get_raw_response_body() {
-		return $this->raw_response_body;
-	}
-
-
-	/**
-	 * Get the sanitized response body, provided by the response class
-	 * to_string_safe() method
-	 *
-	 * @since 2.2.0
-	 * @return string|null
-	 */
-	protected function get_sanitized_response_body() {
-		return is_callable( array( $this->get_response(), 'to_string_safe' ) ) ? $this->get_response()->to_string_safe() : null;
-	}
-
-
-	/** Misc Getters ******************************************************/
 
 
 	/**
@@ -590,46 +429,6 @@ abstract class Base {
 	abstract protected function get_plugin();
 
 
-	/** Setters ***************************************************************/
-
-
-	/**
-	 * Set a request header
-	 *
-	 * @since 2.2.0
-	 * @param string $name header name
-	 * @param string $value header value
-	 */
-	protected function set_request_header( $name, $value ) {
-		$this->request_headers[ $name ] = $value;
-	}
-
-
-	/**
-	 * Set multiple request headers at once
-	 *
-	 * @since 4.3.0
-	 * @param array $headers
-	 */
-	protected function set_request_headers( array $headers ) {
-		foreach ( $headers as $name => $value ) {
-			$this->request_headers[ $name ] = $value;
-		}
-	}
-
-
-	/**
-	 * Set HTTP basic auth for the request
-	 *
-	 * @since 2.2.0
-	 * @param string $username
-	 * @param string $password
-	 */
-	protected function set_http_basic_auth( $username, $password ) {
-		$this->request_headers['Authorization'] = sprintf( 'Basic %s', base64_encode( "{$username}:{$password}" ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-	}
-
-
 	/**
 	 * Set the Content-Type request header
 	 *
@@ -694,25 +493,5 @@ abstract class Base {
 	 */
 	public function require_tls_1_2() {
 		return false;
-	}
-
-
-	/**
-	 * Determines if TLS 1.2 is available.
-	 *
-	 * @since 4.6.5
-	 *
-	 * @return bool
-	 */
-	public function is_tls_1_2_available() {
-		/**
-		 * Filters whether TLS 1.2 is available.
-		 *
-		 * @since 4.7.1
-		 *
-		 * @param bool $is_available whether TLS 1.2 is available
-		 * @param Base $api API class instance
-		 */
-		return (bool) apply_filters( 'wc_' . $this->get_plugin()->get_id() . '_api_is_tls_1_2_available', $this->get_plugin()->is_tls_1_2_available(), $this );
 	}
 }

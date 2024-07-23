@@ -376,7 +376,6 @@ abstract class Plugin {
 	 * Automatically log API requests/responses when using SV_WC_API_Base
 	 *
 	 * @since 2.2.0
-	 * @see Base::broadcast_request()
 	 */
 	public function add_api_request_logging() {
 		if ( ! has_action( 'wc_' . $this->get_id() . '_api_request_performed' ) ) {
@@ -389,7 +388,7 @@ abstract class Plugin {
 	 * Log API requests/responses
 	 *
 	 * @since 2.2.0
-	 * @param array $request request data, see SV_WC_API_Base::broadcast_request() for format
+	 * @param array $request request data
 	 * @param array $response response data
 	 * @param string|null $log_id log to write data to
 	 */
