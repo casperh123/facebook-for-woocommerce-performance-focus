@@ -2666,12 +2666,6 @@ class WC_Facebookcommerce_Integration extends WC_Integration {
 				true
 			);
 		}
-		$warning_msg = get_transient( 'facebook_plugin_api_warning' );
-		if ( $warning_msg ) {
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo $this->get_message_html( $warning_msg, 'warning' );
-			delete_transient( 'facebook_plugin_api_warning' );
-		}
 	}
 
 	/**
