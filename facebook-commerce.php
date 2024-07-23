@@ -2672,41 +2672,6 @@ class WC_Facebookcommerce_Integration extends WC_Integration {
 			echo $this->get_message_html( $warning_msg, 'warning' );
 			delete_transient( 'facebook_plugin_api_warning' );
 		}
-		$success_msg = get_transient( 'facebook_plugin_api_success' );
-		if ( $success_msg ) {
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo $this->get_message_html( $success_msg, 'success' );
-			delete_transient( 'facebook_plugin_api_success' );
-		}
-		$info_msg = get_transient( 'facebook_plugin_api_info' );
-		if ( $info_msg ) {
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo $this->get_message_html( $info_msg, 'info' );
-			delete_transient( 'facebook_plugin_api_info' );
-		}
-		$sticky_msg = get_transient( 'facebook_plugin_api_sticky' );
-		if ( $sticky_msg ) {
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo $this->get_message_html( $sticky_msg, 'info' );
-			// transient must be deleted elsewhere, or wait for timeout
-		}
-	}
-
-	/**
-	 * Admin Panel Options
-	 */
-	public function admin_options() {
-		$this->facebook_for_woocommerce->get_message_handler()->show_messages();
-
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		printf(
-			'<div id="integration-settings" %s>%s</div>',
-			! $this->is_configured() ? 'style="display: none"' : '',
-			sprintf(
-				'<table class="form-table">%s</table>',
-				$this->generate_settings_html( $this->get_form_fields() )
-			)
-		);
 	}
 
 	/**

@@ -2933,30 +2933,6 @@ class WCFacebookCommerceIntegrationTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests admin options renders html.
-	 *
-	 * @return void
-	 */
-	public function test_admin_options() {
-		$message_handler = $this->createMock( AdminMessageHandler::class );
-		$message_handler->expects( $this->once() )
-			->method( 'show_messages' );
-
-		$this->facebook_for_woocommerce->expects( $this->once() )
-			->method( 'get_message_handler' )
-			->willReturn( $message_handler );
-
-		ob_start();
-		$this->integration->admin_options();
-		$output = ob_get_clean();
-
-		$this->assertEquals(
-			'<div id="integration-settings" style="display: none"><table class="form-table"></table></div>',
-			$output
-		);
-	}
-
-	/**
 	 * Tests delete product item calls facebook graph api.
 	 *
 	 * @return void
