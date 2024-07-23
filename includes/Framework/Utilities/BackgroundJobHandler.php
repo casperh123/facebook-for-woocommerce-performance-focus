@@ -6,7 +6,6 @@
 namespace WooCommerce\Facebook\Framework\Utilities;
 
 use WooCommerce\Facebook\Framework\Plugin\Compatibility;
-use WooCommerce\Facebook\Framework\Helper;
 
 defined('ABSPATH') || exit;
 
@@ -36,8 +35,6 @@ defined('ABSPATH') || exit;
  */
 abstract class BackgroundJobHandler extends AsyncRequest
 {
-
-
 	/** @var string async request prefix */
 	protected $prefix = 'sv_wp';
 
@@ -56,9 +53,6 @@ abstract class BackgroundJobHandler extends AsyncRequest
 	/** @var string cron interval identifier */
 	protected $cron_interval_identifier;
 
-	/** @var string debug message, used by the system status tool */
-	protected $debug_message;
-
 
 	/**
 	 * Initiate new background job handler
@@ -70,26 +64,6 @@ abstract class BackgroundJobHandler extends AsyncRequest
 		parent::__construct();
 		$this->cron_hook_identifier = $this->identifier . '_cron';
 		$this->cron_interval_identifier = $this->identifier . '_cron_interval';
-		$this->add_hooks();
-	}
-
-
-	/**
-	 * Adds the necessary action and filter hooks.
-	 *
-	 * @since 4.8.0
-	 */
-	protected function add_hooks()
-	{
-		// cron healthcheck
-		add_action($this->cron_hook_identifier, [$this, 'handle_cron_healthcheck']);
-		/* phpcs:ignore WordPress.WP.CronInterval.ChangeDetected */
-		add_filter('cron_schedules', [$this, 'schedule_cron_healthcheck']);
-
-		// debugging & testing
-		add_action("wp_ajax_nopriv_{$this->identifier}_test", [$this, 'handle_connection_test_response']);
-		add_filter('woocommerce_debug_tools', [$this, 'add_debug_tool']);
-		add_filter('gettext', [$this, 'translate_success_message'], 10, 3);
 	}
 
 
@@ -106,64 +80,6 @@ abstract class BackgroundJobHandler extends AsyncRequest
 
 		// perform remote post
 		return parent::dispatch();
-	}
-
-
-	/**
-	 * Maybe processes job queue.
-	 *
-	 * Checks whether data exists within the job queue and that the background process is not already running.
-	 *
-	 * @throws \Exception Upon error.
-	 * @since 4.4.0
-	 *
-	 */
-	public function maybe_handle()
-	{
-
-		if ($this->is_process_running()) {
-			// background process already running
-			wp_die();
-		}
-
-		if ($this->is_queue_empty()) {
-			// no data to process
-			wp_die();
-		}
-
-		/**
-		 * WC core does 2 things here that can interfere with our nonce check:
-		 *
-		 * 1. WooCommerce starts a session due to our GET request to dispatch a job
-		 *  However, this happens *after* we've generated a nonce without a session (in CRON context)
-		 * 2. it then filters nonces for logged-out users indiscriminately without checking the nonce action; if
-		 *  there is a session created (and now the server does have one), it tries to filter every.single.nonce
-		 *  for logged-out users to use the customer session ID instead of 0 for user ID. We *want* to check
-		 *  against a UID of 0 (since that's how the nonce was created), so we temporarily pause the
-		 *  logged-out nonce hijacking before standing aside.
-		 *
-		 * @see \WC_Session_Handler::init() when the action is hooked
-		 * @see \WC_Session_Handler::nonce_user_logged_out() WC < 5.3 callback
-		 * @see \WC_Session_Handler::maybe_update_nonce_user_logged_out() WC >= 5.3 callback
-		 */
-		if (Compatibility::is_wc_version_gte('5.3')) {
-			$callback = [WC()->session, 'maybe_update_nonce_user_logged_out'];
-			$arguments = 2;
-		} else {
-			$callback = [WC()->session, 'nonce_user_logged_out'];
-			$arguments = 1;
-		}
-
-		remove_filter('nonce_user_logged_out', $callback);
-
-		check_ajax_referer($this->identifier, 'nonce');
-
-		// sorry, later nonce users! please play again
-		add_filter('nonce_user_logged_out', $callback, 10, $arguments);
-
-		$this->handle();
-
-		wp_die();
 	}
 
 
@@ -196,25 +112,6 @@ abstract class BackgroundJobHandler extends AsyncRequest
 		);
 
 		return intval($count) === 0;
-	}
-
-
-	/**
-	 * Check whether background process is running or not
-	 *
-	 * Check whether the current process is already running
-	 * in a background process.
-	 *
-	 * @return bool True if processing is running, false otherwise
-	 * @since 4.4.0
-	 */
-	protected function is_process_running()
-	{
-		// add a random artificial delay to prevent a race condition if 2 or more processes are trying to
-		// process the job queue at the very same moment in time and neither of them have yet set the lock
-		// before the others are calling this method
-		usleep(wp_rand(100000, 300000));
-		return (bool)get_transient("{$this->identifier}_process_lock");
 	}
 
 
@@ -796,35 +693,6 @@ abstract class BackgroundJobHandler extends AsyncRequest
 
 
 	/**
-	 * Delete a job
-	 *
-	 * @param \stdClass|object|string $job Job instance or ID
-	 * @return false on failure
-	 * @since 4.4.2
-	 *
-	 */
-	public function delete_job($job)
-	{
-		global $wpdb;
-		if (is_string($job)) {
-			$job = $this->get_job($job);
-		}
-		if (!$job) {
-			return false;
-		}
-		$wpdb->delete($wpdb->options, ['option_name' => "{$this->identifier}_job_{$job->id}"]);
-		/**
-		 * Runs after a job is deleted.
-		 *
-		 * @param \stdClass|object $job the job that was deleted from database
-		 * @since 4.4.2
-		 *
-		 */
-		do_action("{$this->identifier}_job_deleted", $job);
-	}
-
-
-	/**
 	 * Handle job queue completion
 	 *
 	 * Override if applicable, but ensure that the below actions are
@@ -836,56 +704,6 @@ abstract class BackgroundJobHandler extends AsyncRequest
 	{
 		// unschedule the cron healthcheck
 		$this->clear_scheduled_event();
-	}
-
-
-	/**
-	 * Schedule cron healthcheck
-	 *
-	 * @param array $schedules
-	 * @return array
-	 * @since 4.4.0
-	 */
-	public function schedule_cron_healthcheck($schedules)
-	{
-		$interval = property_exists($this, 'cron_interval') ? $this->cron_interval : 5;
-		/**
-		 * Filter cron health check interval
-		 *
-		 * @param int $interval Interval in minutes
-		 * @since 4.4.0
-		 */
-		$interval = apply_filters("{$this->identifier}_cron_interval", $interval);
-		// adds every 5 minutes to the existing schedules.
-		$schedules[$this->identifier . '_cron_interval'] = [
-			'interval' => MINUTE_IN_SECONDS * $interval,
-			/* translators: %d - interval in minutes. */
-			'display' => sprintf(__('Every %d Minutes', 'facebook-for-woocommerce'), $interval),
-		];
-		return $schedules;
-	}
-
-
-	/**
-	 * Handle cron healthcheck
-	 *
-	 * Restart the background process if not already running
-	 * and data exists in the queue.
-	 *
-	 * @since 4.4.0
-	 */
-	public function handle_cron_healthcheck()
-	{
-		if ($this->is_process_running()) {
-			// background process already running
-			exit;
-		}
-		if ($this->is_queue_empty()) {
-			// no data to process
-			$this->clear_scheduled_event();
-			exit;
-		}
-		$this->dispatch();
 	}
 
 
@@ -968,119 +786,5 @@ abstract class BackgroundJobHandler extends AsyncRequest
 			['option_value' => wp_json_encode($job)],
 			['option_name' => "{$this->identifier}_job_{$job->id}"]
 		);
-	}
-
-
-	/** Debug & Testing Methods ***********************************************/
-
-
-	/**
-	 * Tests the background handler's connection.
-	 *
-	 * @return bool
-	 * @since 4.8.0
-	 *
-	 */
-	public function test_connection()
-	{
-		$test_url = add_query_arg('action', "{$this->identifier}_test", admin_url('admin-ajax.php'));
-		$result = wp_safe_remote_get($test_url);
-		$body = !is_wp_error($result) ? wp_remote_retrieve_body($result) : null;
-		// some servers may add a UTF8-BOM at the beginning of the response body, so we check if our test
-		// string is included in the body, as an equal check would produce a false negative test result
-		return $body && Helper::str_exists($body, '[TEST_LOOPBACK]');
-	}
-
-
-	/**
-	 * Handles the connection test request.
-	 *
-	 * @since 4.8.0
-	 */
-	public function handle_connection_test_response()
-	{
-		echo '[TEST_LOOPBACK]';
-		exit;
-	}
-
-
-	/**
-	 * Adds the WooCommerce debug tool.
-	 *
-	 * @param array $tools WooCommerce core tools
-	 * @return array
-	 * @since 4.8.0
-	 *
-	 */
-	public function add_debug_tool($tools)
-	{
-		// this key is not unique to the plugin to avoid duplicate tools
-		$tools['sv_wc_background_job_test'] = [
-			'name' => __('Background Processing Test', 'facebook-for-woocommerce'),
-			'button' => __('Run Test', 'facebook-for-woocommerce'),
-			'desc' => __('This tool will test whether your server is capable of processing background jobs.', 'facebook-for-woocommerce'),
-			'callback' => [$this, 'run_debug_tool'],
-		];
-
-		return $tools;
-	}
-
-
-	/**
-	 * Runs the test connection debug tool.
-	 *
-	 * @return string
-	 * @since 4.8.0
-	 *
-	 */
-	public function run_debug_tool()
-	{
-		if ($this->test_connection()) {
-			$this->debug_message = esc_html__('Success! You should be able to process background jobs.', 'facebook-for-woocommerce');
-			$result = true;
-		} else {
-			$this->debug_message = esc_html__('Could not connect. Please ask your hosting company to ensure your server has loopback connections enabled.', 'facebook-for-woocommerce');
-			$result = false;
-		}
-
-		return $result;
-	}
-
-
-	/**
-	 * Translate the tool success message.
-	 *
-	 * This can be removed in favor of returning the message string in `run_debug_tool()`
-	 *  when WC 3.1 is required, though that means the message will always be "success" styled.
-	 *
-	 * @param string $translated the text to output
-	 * @param string $original the original text
-	 * @param string $domain the textdomain
-	 * @return string the updated text
-	 * @since 4.8.0
-	 *
-	 */
-	public function translate_success_message($translated, $original, $domain)
-	{
-		if ('woocommerce' === $domain && ('Tool ran.' === $original || 'There was an error calling %s' === $original)) {
-			$translated = $this->debug_message;
-		}
-		return $translated;
-	}
-
-
-	/** Helper Methods ********************************************************/
-
-
-	/**
-	 * Gets the job handler identifier.
-	 *
-	 * @return string
-	 * @since 4.8.0
-	 *
-	 */
-	public function get_identifier()
-	{
-		return $this->identifier;
 	}
 }
