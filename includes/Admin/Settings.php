@@ -41,13 +41,6 @@ class Settings {
 	private $screens;
 
 	/**
-	 * Whether the new Woo nav should be used.
-	 *
-	 * @var bool
-	 */
-	public $use_woo_nav;
-
-	/**
 	 * Settings constructor.
 	 *
 	 * @param bool $is_connected is the state of the plugin connection to the Facebook Marketing API
@@ -91,20 +84,7 @@ class Settings {
 	public function add_menu_item() {
 		$root_menu_item       = 'woocommerce';
 		$is_marketing_enabled = false;
-		$this->use_woo_nav    = class_exists( WooAdminFeatures::class )
-			&& class_exists( WooAdminMenu::class )
-			&& WooAdminFeatures::is_enabled( 'navigation' );
-		if ( Compatibility::is_enhanced_admin_available() ) {
-			if ( class_exists( WooAdminFeatures::class ) ) {
-				$is_marketing_enabled = WooAdminFeatures::is_enabled( 'marketing' );
-			} else {
-				$is_marketing_enabled = is_callable( '\Automattic\WooCommerce\Admin\Loader::is_feature_enabled' )
-					&& \Automattic\WooCommerce\Admin\Loader::is_feature_enabled( 'marketing' );
-			}
-			if ( $is_marketing_enabled ) {
-				$root_menu_item = 'woocommerce-marketing';
-			}
-		}
+
 		add_submenu_page(
 			$root_menu_item,
 			__( 'Facebook for WooCommerce', 'facebook-for-woocommerce' ),
@@ -114,7 +94,8 @@ class Settings {
 			[ $this, 'render' ],
 			5
 		);
-		$this->connect_to_enhanced_admin( $is_marketing_enabled ? 'marketing_page_wc-facebook' : 'woocommerce_page_wc-facebook' );
+
+		$this->connect_to_enhanced_admin( 'woocommerce_page_wc-facebook' );
 		$this->register_woo_nav_menu_items();
 
 		if ( $is_marketing_enabled ) {
@@ -201,7 +182,6 @@ class Settings {
 		}
 	}
 
-
 	/**
 	 * Renders the settings page.
 	 *
@@ -216,13 +196,11 @@ class Settings {
 		$screen = $this->get_screen( $current_tab );
 		?>
 		<div class="wrap woocommerce">
-			<?php if ( ! $this->use_woo_nav ) : ?>
 				<nav class="nav-tab-wrapper woo-nav-tab-wrapper">
 					<?php foreach ( $tabs as $id => $label ) : ?>
 						<a href="<?php echo esc_html( admin_url( 'admin.php?page=' . self::PAGE_ID . '&tab=' . esc_attr( $id ) ) ); ?>" class="nav-tab <?php echo $current_tab === $id ? 'nav-tab-active' : ''; ?>"><?php echo esc_html( $label ); ?></a>
 					<?php endforeach; ?>
 				</nav>
-			<?php endif; ?>
 			<?php facebook_for_woocommerce()->get_message_handler()->show_messages(); ?>
 			<?php if ( $screen ) : ?>
 				<h1 class="screen-reader-text"><?php echo esc_html( $screen->get_title() ); ?></h1>
@@ -338,9 +316,6 @@ class Settings {
 	 * @since 2.3.3
 	 */
 	private function register_woo_nav_menu_items() {
-		if ( ! $this->use_woo_nav ) {
-			return;
-		}
 		WooAdminMenu::add_plugin_category(
 			array(
 				'id'         => 'facebook-for-woocommerce',
