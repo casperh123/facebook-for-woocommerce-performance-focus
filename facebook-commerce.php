@@ -254,10 +254,6 @@ class WC_Facebookcommerce_Integration extends WC_Integration {
 				[ $this, 'ajax_reset_all_fb_products' ],
 				self::FB_PRIORITY_MID
 			);
-			add_action(
-				'wp_ajax_ajax_display_test_result',
-				[ $this, 'ajax_display_test_result' ]
-			);
 
 			// Don't duplicate product FBID meta.
 			add_filter( 'woocommerce_duplicate_product_exclude_meta', [ $this, 'fb_duplicate_product_reset_meta' ] );
@@ -2902,33 +2898,6 @@ class WC_Facebookcommerce_Integration extends WC_Integration {
 		}
 
 		return null;
-	}
-
-	/**
-	 * Display test result.
-	 **/
-	public function ajax_display_test_result() {
-		WC_Facebookcommerce_Utils::check_woo_ajax_permissions( 'test result', true );
-		check_ajax_referer( 'wc_facebook_settings_jsx' );
-		$response  = [
-			'pass' => 'true',
-		];
-		$test_pass = get_option( 'fb_test_pass', null );
-		if ( ! isset( $test_pass ) ) {
-			$response['pass'] = 'in progress';
-		} elseif ( $test_pass === 0 ) {
-			$response['pass']        = 'false';
-			$response['debug_info']  = get_transient( 'facebook_plugin_test_fail' );
-			$response['stack_trace'] =
-			get_transient( 'facebook_plugin_test_stack_trace' );
-			$response['stack_trace'] =
-			preg_replace( "/\n/", '<br>', $response['stack_trace'] );
-			delete_transient( 'facebook_plugin_test_fail' );
-			delete_transient( 'facebook_plugin_test_stack_trace' );
-		}
-		delete_option( 'fb_test_pass' );
-		printf( json_encode( $response ) );
-		wp_die();
 	}
 
 }
