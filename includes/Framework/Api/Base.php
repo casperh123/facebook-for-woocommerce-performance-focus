@@ -32,9 +32,6 @@ abstract class Base {
 	/** @var array request headers */
 	protected $request_headers = [];
 
-	/** @var string request user-agent */
-	protected $request_user_agent;
-
 	/** @var string request HTTP version, defaults to 1.0 */
 	protected $request_http_version = '2';
 
@@ -343,17 +340,6 @@ abstract class Base {
 	 */
 	protected function get_response_handler() {
 		return $this->response_handler;
-	}
-
-
-	/**
-	 * Get the response headers
-	 *
-	 * @since 2.2.0
-	 * @return array
-	 */
-	protected function get_response_headers() {
-		return $this->response_headers;
 	}
 
 

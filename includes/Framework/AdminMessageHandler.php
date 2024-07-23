@@ -138,30 +138,6 @@ class AdminMessageHandler {
 
 
 	/**
-	 * Adds a warning message.
-	 *
-	 * @since 5.1.0
-	 *
-	 * @param string $message warning message to add
-	 */
-	public function add_warning( $message ) {
-		$this->warnings[] = $message;
-	}
-
-
-	/**
-	 * Adds a info message.
-	 *
-	 * @since 5.1.0
-	 *
-	 * @param string $message info message to add
-	 */
-	public function add_info( $message ) {
-		$this->infos[] = $message;
-	}
-
-
-	/**
 	 * Add a message.
 	 *
 	 * @since 1.0.0
@@ -230,18 +206,6 @@ class AdminMessageHandler {
 
 
 	/**
-	 * Get an error message
-	 *
-	 * @since 1.0.0
-	 * @param int $index the error index
-	 * @return string the error message
-	 */
-	public function get_error( $index ) {
-		return isset( $this->errors[ $index ] ) ? $this->errors[ $index ] : '';
-	}
-
-
-	/**
 	 * Gets all warning messages.
 	 *
 	 * @since 5.1.0
@@ -250,19 +214,6 @@ class AdminMessageHandler {
 	 */
 	public function get_warnings() {
 		return $this->warnings;
-	}
-
-
-	/**
-	 * Gets a specific warning message.
-	 *
-	 * @since 5.1.0
-	 *
-	 * @param int $index warning message index
-	 * @return string
-	 */
-	public function get_warning( $index ) {
-		return isset( $this->warnings[ $index ] ) ? $this->warnings[ $index ] : '';
 	}
 
 
@@ -279,19 +230,6 @@ class AdminMessageHandler {
 
 
 	/**
-	 * Gets a specific info message.
-	 *
-	 * @since 5.0.0
-	 *
-	 * @param int $index info message index
-	 * @return string
-	 */
-	public function get_info( $index ) {
-		return isset( $this->infos[ $index ] ) ? $this->infos[ $index ] : '';
-	}
-
-
-	/**
 	 * Get messages
 	 *
 	 * @since 1.0.0
@@ -301,17 +239,6 @@ class AdminMessageHandler {
 		return $this->messages;
 	}
 
-
-	/**
-	 * Get a message
-	 *
-	 * @since 1.0.0
-	 * @param int $index the message index
-	 * @return string the message
-	 */
-	public function get_message( $index ) {
-		return isset( $this->messages[ $index ] ) ? $this->messages[ $index ] : '';
-	}
 
 
 	/**

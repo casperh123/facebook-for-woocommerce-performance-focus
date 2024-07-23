@@ -117,14 +117,6 @@ class WC_Facebookcommerce_Background_Process extends WP_Background_Process {
 			return false === $this->is_queue_empty();
 		}
 
-		/**
-		 * Is the processor running?
-		 *
-		 * @return boolean
-		 */
-		public function is_running() {
-			return $this->is_process_running();
-		}
 
 		/**
 		 * Process individual product

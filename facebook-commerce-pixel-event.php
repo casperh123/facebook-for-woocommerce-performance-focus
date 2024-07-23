@@ -299,51 +299,6 @@ class WC_Facebookcommerce_Pixel {
 			}
 		}
 
-		/**
-		 * Gets the JavaScript code to track a conditional event wrapped in <script> tag.
-		 *
-		 * @see \WC_Facebookcommerce_Pixel::get_event_code()
-		 *
-		 * @since 1.10.2
-		 *
-		 * @param string $event_name    The name of the event to track.
-		 * @param array  $params        Custom event parameters.
-		 * @param string $listener      Name of the JavaScript event to listen for.
-		 * @param string $jsonified_pii JavaScript code representing an object of data for Advanced Matching.
-		 * @return string
-		 */
-		public function get_conditional_event_script( $event_name, $params, $listener, $jsonified_pii ) {
-
-			$code             = self::build_event( $event_name, $params, 'track' );
-			$this->last_event = $event_name;
-
-			/**
-			 * TODO: use the settings stored by {@see \WC_Facebookcommerce_Integration}.
-			 * The use_pii setting here is currently always disabled regardless of
-			 * the value configured in the plugin settings page {WV-2020-01-02}.
-			 */
-
-			// Prepends fbq(...) with pii information to the injected code.
-			if ( $jsonified_pii && get_option( self::SETTINGS_KEY )[ self::USE_PII_KEY ] ) {
-				$this->user_info = '%s';
-				$code            = sprintf( $this->get_pixel_init_code(), '" || ' . $jsonified_pii . ' || "' ) . $code;
-			}
-
-			ob_start();
-
-			?>
-			<!-- Facebook Pixel Event Code -->
-			<script <?php echo self::get_script_attributes(); // phpcs:ignore WordPress.Security.EscapeOutput.Output ?>>
-				document.addEventListener( '<?php echo esc_js( $listener ); ?>', function (event) {
-					<?php echo $code; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				}, false );
-			</script>
-			<!-- End Facebook Pixel Event Code -->
-			<?php
-
-			return ob_get_clean();
-		}
-
 
 
 		/**

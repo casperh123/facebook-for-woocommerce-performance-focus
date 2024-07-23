@@ -43,13 +43,6 @@ class ProductValidator {
 	public const MAX_TITLE_LENGTH = 150;
 
 	/**
-	 * Maximum allowed attributes in a variation;
-	 *
-	 * @var int
-	 */
-	public const MAX_NUMBER_OF_ATTRIBUTES_IN_VARIATION = 4;
-
-	/**
 	 * The FB integration instance.
 	 *
 	 * @var WC_Facebookcommerce_Integration
@@ -227,22 +220,6 @@ class ProductValidator {
 		return true;
 	}
 
-	/**
-	 * Validate whether the product should be synced to Facebook, but skip the sync field validation.
-	 *
-	 * @return bool
-	 */
-	public function passes_all_checks_except_sync_field(): bool {
-		try {
-			$this->validate_but_skip_sync_field();
-		} catch ( ProductExcludedException $e ) {
-			return false;
-		} catch ( ProductInvalidException $e ) {
-			return false;
-		}
-
-		return true;
-	}
 
 	/**
 	 * Check whether product sync is globally disabled.
@@ -419,29 +396,4 @@ class ProductValidator {
 			throw new ProductInvalidException( __( 'Product title is too long. Maximum allowed length is 150 characters.', 'facebook-for-woocommerce' ) );
 		}
 	}
-
-	/**
-	 * Check if variation product has proper settings.
-	 *
-	 * @throws ProductInvalidException If product variation violates some requirements.
-	 */
-	protected function validate_variation_structure() {
-		// Check if we are dealing with a variation.
-		if ( ! $this->product->is_type( 'variation' ) ) {
-			return;
-		}
-		$attributes = $this->product->get_attributes();
-
-		$used_attributes_count = count(
-			array_filter(
-				$attributes
-			)
-		);
-
-		// No more than MAX_NUMBER_OF_ATTRIBUTES_IN_VARIATION ar allowed to be used.
-		if ( $used_attributes_count > self::MAX_NUMBER_OF_ATTRIBUTES_IN_VARIATION ) {
-			throw new ProductInvalidException( __( 'Too many attributes selected for product. Use 4 or less.', 'facebook-for-woocommerce' ) );
-		}
-	}
-
 }

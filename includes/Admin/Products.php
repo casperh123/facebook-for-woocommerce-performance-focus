@@ -28,18 +28,6 @@ class Products {
 	/** @var string Google Product category ID field */
 	const FIELD_GOOGLE_PRODUCT_CATEGORY_ID = 'wc_facebook_google_product_category_id';
 
-	/** @var string gender field */
-	const FIELD_GENDER = 'wc_facebook_gender';
-
-	/** @var string color field */
-	const FIELD_COLOR = 'wc_facebook_color';
-
-	/** @var string size field */
-	const FIELD_SIZE = 'wc_facebook_size';
-
-	/** @var string pattern field */
-	const FIELD_PATTERN = 'wc_facebook_pattern';
-
 	public static function render_google_product_category_fields_and_enhanced_attributes( \WC_Product $product ) {
 		?>
 		<div class='wc_facebook_commerce_fields'>
@@ -139,26 +127,6 @@ class Products {
 		<?php
 	}
 
-	/**
-	 * Gets a list of attribute names and labels that match any of the given words.
-	 *
-	 * @since 2.1.0
-	 *
-	 * @param \WC_Product $product the product object
-	 * @param array       $words a list of words used to filter attributes
-	 * @return array
-	 */
-	private static function filter_available_product_attribute_names( \WC_Product $product, $words ) {
-		$attributes = array();
-		foreach ( self::get_available_product_attribute_names( $product ) as $name => $label ) {
-			foreach ( $words as $word ) {
-				if ( Helper::str_exists( wc_strtolower( $label ), $word ) || Helper::str_exists( wc_strtolower( $name ), $word ) ) {
-					$attributes[ $name ] = $label;
-				}
-			}
-		}
-		return $attributes;
-	}
 
 	/**
 	 * Gets a indexed list of available product attributes with the name of the attribute as key and the label as the value.

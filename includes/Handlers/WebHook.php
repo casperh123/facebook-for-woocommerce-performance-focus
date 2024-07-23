@@ -20,9 +20,6 @@ defined( 'ABSPATH' ) or exit;
  */
 class WebHook {
 
-	/** @var string auth page ID */
-	const WEBHOOK_PAGE_ID = 'wc-facebook-webhook';
-
 	/**
 	 * Constructs a new WebHook.
 	 *

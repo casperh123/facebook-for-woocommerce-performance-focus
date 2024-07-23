@@ -118,42 +118,6 @@ class AAMSettings {
 	}
 
 	/**
-	 * Sets the enable automatic matching flag
-	 *
-	 * @since 2.0.3
-	 *
-	 * @return AAMSettings
-	 */
-	public function set_enable_automatic_matching( $enable_automatic_matching ) {
-		$this->enable_automatic_matching = $enable_automatic_matching;
-		return $this;
-	}
-
-	/**
-	 * Sets the enabled automatic matching fields flag
-	 *
-	 * @since 2.0.3
-	 *
-	 * @return AAMSettings
-	 */
-	public function set_enabled_automatic_matching_fields( $enabled_automatic_matching_fields ) {
-		$this->enabled_automatic_matching_fields = $enabled_automatic_matching_fields;
-		return $this;
-	}
-
-	/**
-	 * Sets the pixel id
-	 *
-	 * @since 2.0.3
-	 *
-	 * @return AAMSettings
-	 */
-	public function set_pixel_id( $pixel_id ) {
-		$this->pixel_id = $pixel_id;
-		return $this;
-	}
-
-	/**
 	 * Returns the json string representing this object
 	 *
 	 * @since 2.0.3

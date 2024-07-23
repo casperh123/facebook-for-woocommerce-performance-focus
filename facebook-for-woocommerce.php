@@ -53,8 +53,6 @@ class WC_Facebook_Loader {
 	// Minimum PHP version required by this plugin.
 	const MINIMUM_PHP_VERSION = '7.4.0';
 
-	// Minimum WordPress version required by this plugin.
-	const MINIMUM_WP_VERSION = '4.4';
 
 	// Minimum WooCommerce version required by this plugin.
 	const MINIMUM_WC_VERSION = '5.3';

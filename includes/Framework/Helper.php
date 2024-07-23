@@ -156,44 +156,6 @@ class Helper {
 	}
 
 
-	/** Array functions ***************************************************/
-
-
-	/**
-	 * Insert the given element after the given key in the array
-	 *
-	 * Sample usage:
-	 *
-	 * given
-	 *
-	 * array( 'item_1' => 'foo', 'item_2' => 'bar' )
-	 *
-	 * array_insert_after( $array, 'item_1', array( 'item_1.5' => 'w00t' ) )
-	 *
-	 * becomes
-	 *
-	 * array( 'item_1' => 'foo', 'item_1.5' => 'w00t', 'item_2' => 'bar' )
-	 *
-	 * @since 2.2.0
-	 * @param array $array array to insert the given element into
-	 * @param string $insert_key key to insert given element after
-	 * @param array $element element to insert into array
-	 * @return array
-	 */
-	public static function array_insert_after( Array $array, $insert_key, Array $element ) {
-		$new_array = [];
-		foreach ( $array as $key => $value ) {
-			$new_array[ $key ] = $value;
-			if ( $insert_key == $key ) {
-				foreach ( $element as $k => $v ) {
-					$new_array[ $k ] = $v;
-				}
-			}
-		}
-		return $new_array;
-	}
-
-
 	/** Number helper functions *******************************************/
 
 
@@ -264,26 +226,6 @@ class Helper {
 
 
 	/**
-	 * Get the count of notices added, either for all notices (default) or for one
-	 * particular notice type specified by $notice_type.
-	 *
-	 * WC notice functions are not available in the admin
-	 *
-	 * @since 3.0.2
-	 * @param string $notice_type The name of the notice type - either error, success or notice. [optional]
-	 * @return int
-	 */
-	public static function wc_notice_count( $notice_type = '' ) {
-
-		if ( function_exists( 'wc_notice_count' ) ) {
-			return wc_notice_count( $notice_type );
-		}
-
-		return 0;
-	}
-
-
-	/**
 	 * Add and store a notice.
 	 *
 	 * WC notice functions are not available in the admin
@@ -314,21 +256,6 @@ class Helper {
 		if ( function_exists( 'wc_print_notice' ) ) {
 			wc_print_notice( $message, $notice_type );
 		}
-	}
-
-
-	/**
-	 * Gets the current WordPress site name.
-	 *
-	 * This is helpful for retrieving the actual site name instead of the
-	 * network name on multisite installations.
-	 *
-	 * @since 4.6.0
-	 * @return string
-	 */
-	public static function get_site_name() {
-
-		return ( is_multisite() ) ? get_blog_details()->blogname : get_bloginfo( 'name' );
 	}
 
 
@@ -368,32 +295,4 @@ class Helper {
 
 		return isset( $current_screen->$prop ) && $id === $current_screen->$prop;
 	}
-
-
-	/**
-	 * Determines if the current request is for a WC REST API endpoint.
-	 *
-	 * @see \WooCommerce::is_rest_api_request()
-	 *
-	 * @since 5.9.0
-	 *
-	 * @return bool
-	 */
-	public static function is_rest_api_request() {
-
-		if ( is_callable( 'WC' ) && is_callable( [ WC(), 'is_rest_api_request' ] ) ) {
-			return (bool) WC()->is_rest_api_request();
-		}
-
-		if ( empty( $_SERVER['REQUEST_URI'] ) || ! function_exists( 'rest_get_url_prefix' ) ) {
-			return false;
-		}
-
-		$rest_prefix         = trailingslashit( rest_get_url_prefix() );
-		$is_rest_api_request = false !== strpos( wc_clean( wp_unslash( $_SERVER['REQUEST_URI'] ) ), $rest_prefix );
-
-		/* applies WooCommerce core filter */
-		return (bool) apply_filters( 'woocommerce_is_rest_api_request', $is_rest_api_request );
-	}
-
 }

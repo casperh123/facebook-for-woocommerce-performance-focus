@@ -308,23 +308,6 @@ class AdminNoticeHandler {
 
 
 	/**
-	 * Marks the identified admin notice as not dismissed for the identified user
-	 *
-	 * @since 3.0.0
-	 * @param string $message_id the message identifier
-	 * @param int $user_id optional user identifier, defaults to current user
-	 */
-	public function undismiss_notice( $message_id, $user_id = null ) {
-		if ( is_null( $user_id ) ) {
-			$user_id = get_current_user_id();
-		}
-		$dismissed_notices = $this->get_dismissed_notices( $user_id );
-		$dismissed_notices[ $message_id ] = false;
-		update_user_meta( $user_id, '_wc_plugin_framework_' . $this->get_plugin()->get_id() . '_dismissed_messages', $dismissed_notices );
-	}
-
-
-	/**
 	 * Returns true if the identified admin notice has been dismissed for the
 	 * given user
 	 *

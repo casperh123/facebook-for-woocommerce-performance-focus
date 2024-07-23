@@ -51,19 +51,6 @@ class Commerce {
 
 
 	/**
-	 * Updates the plugin-level fallback Google product category ID.
-	 *
-	 * @since 2.1.0
-	 *
-	 * @param string $id category ID
-	 */
-	public function update_default_google_product_category_id( $id ) {
-
-		update_option( self::OPTION_GOOGLE_PRODUCT_CATEGORY_ID, is_string( $id ) ? $id : '' );
-	}
-
-
-	/**
 	 * Determines whether Commerce features should be available.
 	 *
 	 * @since 2.1.0

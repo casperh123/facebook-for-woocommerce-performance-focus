@@ -312,28 +312,4 @@ class Event {
 	public function get_name() {
 		return ! empty( $this->data['event_name'] ) ? $this->data['event_name'] : '';
 	}
-
-
-	/**
-	 * Gets the user data.
-	 *
-	 * @since 2.0.0
-	 *
-	 * @return array
-	 */
-	public function get_user_data() {
-		return ! empty( $this->data['user_data'] ) ? $this->data['user_data'] : array();
-	}
-
-
-	/**
-	 * Gets the event custom data.
-	 *
-	 * @since 2.0.0
-	 *
-	 * @return array
-	 */
-	public function get_custom_data() {
-		return ! empty( $this->data['custom_data'] ) ? $this->data['custom_data'] : array();
-	}
 }

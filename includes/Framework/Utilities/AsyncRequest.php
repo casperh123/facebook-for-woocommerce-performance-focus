@@ -23,7 +23,6 @@ defined( 'ABSPATH' ) or exit;
  */
 abstract class AsyncRequest {
 
-
 	/** @var string request prefix */
 	protected $prefix = 'wp';
 

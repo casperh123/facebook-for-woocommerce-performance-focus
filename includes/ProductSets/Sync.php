@@ -20,21 +20,6 @@ defined( 'ABSPATH' ) || exit;
  */
 class Sync {
 
-
-	/**
-	 * Update action name
-	 *
-	 * @var string
-	 */
-	const ACTION_UPDATE = 'UPDATE';
-
-	/**
-	 * Delete action name
-	 *
-	 * @var string
-	 */
-	const ACTION_DELETE = 'DELETE';
-
 	/**
 	 * Requests array for sync schedule
 	 *

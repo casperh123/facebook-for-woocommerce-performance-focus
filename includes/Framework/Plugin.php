@@ -39,9 +39,6 @@ abstract class Plugin {
 	/** @var string plugin URL */
 	private $plugin_url;
 
-	/** @var string template path, without trailing slash */
-	private $template_path;
-
 	/** @var WC_Logger instance */
 	private $logger;
 
@@ -573,17 +570,6 @@ abstract class Plugin {
 
 
 	/**
-	 * Returns the plugin version name.  Defaults to wc_{plugin id}_version
-	 *
-	 * @since 2.0.0
-	 * @return string the plugin version name
-	 */
-	public function get_plugin_version_name() {
-		return 'wc_' . $this->get_id() . '_version';
-	}
-
-
-	/**
 	 * Returns the current version of the plugin
 	 *
 	 * @since 2.0.0
@@ -632,17 +618,6 @@ abstract class Plugin {
 
 
 	/**
-	 * Returns the admin configuration url for the admin general configuration page
-	 *
-	 * @since 3.0.0
-	 * @return string admin configuration url for the admin general configuration page
-	 */
-	public function get_general_configuration_url() {
-		return admin_url( 'admin.php?page=wc-settings&tab=general' );
-	}
-
-
-	/**
 	 * Gets the plugin documentation url, used for the 'Docs' plugin action
 	 *
 	 * @since 2.0.0
@@ -650,29 +625,6 @@ abstract class Plugin {
 	 */
 	public function get_documentation_url() {
 		return null;
-	}
-
-
-	/**
-	 * Gets the support URL, used for the 'Support' plugin action link
-	 *
-	 * @since 4.0.0
-	 * @return string support url
-	 */
-	public function get_support_url() {
-		return null;
-	}
-
-
-	/**
-	 * Gets the plugin sales page URL.
-	 *
-	 * @since 5.1.0
-	 *
-	 * @return string
-	 */
-	public function get_sales_page_url() {
-		return '';
 	}
 
 
@@ -733,29 +685,6 @@ abstract class Plugin {
 		return untrailingslashit( plugin_dir_path( $this->get_framework_file() ) );
 	}
 
-
-	/**
-	 * Gets the absolute path to the loaded framework image directory, without a trailing slash.
-	 *
-	 * @since 4.0.0
-	 *
-	 * @return string
-	 */
-	public function get_framework_assets_path() {
-		return $this->get_framework_path() . '/assets';
-	}
-
-
-	/**
-	 * Gets the loaded framework assets URL without a trailing slash.
-	 *
-	 * @since 4.0.0
-	 *
-	 * @return string
-	 */
-	public function get_framework_assets_url() {
-		return untrailingslashit( plugins_url( '/assets', $this->get_framework_file() ) );
-	}
 
 	/**
 	 * Determines whether a plugin is active.
