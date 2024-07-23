@@ -26,8 +26,6 @@ if ( ! class_exists( 'WC_Facebookcommerce_Utils' ) ) :
 		const FB_RETAILER_ID_PREFIX = 'wc_post_id_';
 		const PLUGIN_VERSION        = \WC_Facebookcommerce::VERSION; // TODO: remove this in v2.0.0 {CW 2020-02-06}
 
-		// TODO: this constant is no longer used and can probably be removed {WV 2020-01-21}
-		const FB_VARIANT_IMAGE   = 'fb_image';
 		const FB_VARIANT_SIZE    = 'size';
 		const FB_VARIANT_COLOR   = 'color';
 		const FB_VARIANT_COLOUR  = 'colour';
@@ -53,19 +51,6 @@ if ( ! class_exists( 'WC_Facebookcommerce_Utils' ) ) :
 		 */
 		private static $deferred_events = [];
 
-		/**
-		 * Prints deferred events into page header.
-		 *
-		 * @return void
-		 *
-		 * @since 3.1.6
-		 */
-		public static function print_deferred_events() {
-			$deferred_events = static::load_deferred_events();
-			if ( ! empty( $deferred_events ) ) {
-				echo '<script>' . implode( PHP_EOL, $deferred_events ) . '</script>'; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped --- Printing hardcoded JS tracking code.
-			}
-		}
 
 		/**
 		 * Loads deferred events from the storage and cleans the storage immediately after.
@@ -102,26 +87,6 @@ if ( ! class_exists( 'WC_Facebookcommerce_Utils' ) ) :
 			static::$deferred_events[] = $code;
 		}
 
-		/**
-		 * Saves deferred events into the storage.
-		 *
-		 * @return void
-		 *
-		 * @since 3.1.6
-		 */
-		public static function save_deferred_events() {
-			$transient_key = static::get_deferred_events_transient_key();
-			if ( ! $transient_key ) {
-				return;
-			}
-
-			$existing_events         = static::load_deferred_events();
-			static::$deferred_events = array_merge( $existing_events, static::$deferred_events );
-
-			if ( ! empty( static::$deferred_events ) ) {
-				set_transient( $transient_key, static::$deferred_events, DAY_IN_SECONDS );
-			}
-		}
 
 		/**
 		 * Returns the transient key for deferred events based on user session.
@@ -690,27 +655,6 @@ if ( ! class_exists( 'WC_Facebookcommerce_Utils' ) ) :
 			return version_compare( phpversion(), '5.6.0' ) >= 0
 			? json_decode( $json_string, $assoc, 512, JSON_BIGINT_AS_STRING )
 			: json_decode( $json_string, $assoc, 512 );
-		}
-
-		public static function set_test_fail_reason( $msg, $trace ) {
-			$reason_msg = get_transient( 'facebook_plugin_test_fail' );
-			if ( $reason_msg ) {
-				$msg = $reason_msg . PHP_EOL . $msg;
-			}
-			set_transient( 'facebook_plugin_test_fail', $msg );
-			set_transient( 'facebook_plugin_test_stack_trace', $trace );
-		}
-
-		/**
-		 * Helper function to check time cap.
-		 */
-		public static function check_time_cap( $from, $date_cap ) {
-			if ( $from == null ) {
-				return true;
-			}
-			$now         = new DateTime( current_time( 'mysql' ) );
-			$diff_in_day = $now->diff( new DateTime( $from ) )->format( '%a' );
-			return is_numeric( $diff_in_day ) && (int) $diff_in_day > $date_cap;
 		}
 
 		public static function get_cached_best_tip() {

@@ -26,11 +26,7 @@ class WC_Facebook_Product_Feed {
 	/** @var string product catalog feed file directory inside the uploads folder */
 	const UPLOADS_DIRECTORY              = 'facebook_for_woocommerce';
 	const FILE_NAME                      = 'product_catalog_%s.csv';
-	const FACEBOOK_CATALOG_FEED_FILENAME = 'fae_product_catalog.csv';
 	const FB_ADDITIONAL_IMAGES_FOR_FEED  = 5;
-	const FEED_NAME                      = 'Initial product sync from WooCommerce. DO NOT DELETE.';
-	const FB_PRODUCT_GROUP_ID            = 'fb_product_group_id';
-	const FB_VISIBILITY                  = 'fb_visibility';
 
 	private $has_default_product_count = 0;
 	private $no_default_product_count  = 0;
@@ -575,40 +571,6 @@ class WC_Facebook_Product_Feed {
 	private static function get_value_from_product_data( &$product_data, $index, $return_if_not_set = '' ) {
 
 		return isset( $product_data[ $index ] ) ? $product_data[ $index ] : $return_if_not_set;
-	}
-
-
-	/**
-	 * Gets the status of the configured feed upload.
-	 *
-	 * The status indicator is one of 'in progress', 'complete', or 'error'.
-	 *
-	 * @param array $settings
-	 * @return string
-	 */
-	public function is_upload_complete( &$settings ) {
-		try {
-			$upload_status = 'error';
-			$upload_id     = facebook_for_woocommerce()->get_integration()->get_upload_id();
-			$result        = facebook_for_woocommerce()->get_api()->read_upload( $upload_id );
-
-			if ( is_wp_error( $result ) || ! isset( $result['body'] ) ) {
-				$this->log_feed_progress( json_encode( $result ) );
-				return $upload_status;
-			}
-
-			if ( isset( $result->end_time ) ) {
-				$settings['upload_end_time'] = $result->end_time;
-				$upload_status = 'complete';
-			} elseif ( 200 === (int) wp_remote_retrieve_response_code( $result ) ) {
-				$upload_status = 'in progress';
-			}
-		} catch ( ApiException $e ) {
-			$message = sprintf( 'There was an error trying to upload the configured feed: %s', $e->getMessage() );
-			facebook_for_woocommerce()->log( $message );
-		}
-
-		return $upload_status;
 	}
 
 

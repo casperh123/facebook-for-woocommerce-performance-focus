@@ -37,7 +37,6 @@ class WC_Facebook_Product {
 	const FB_REMOVE_FROM_SYNC    = 'fb_remove_from_sync';
 
 	const MIN_DATE_1 = '1970-01-29';
-	const MIN_DATE_2 = '1970-01-30';
 	const MAX_DATE   = '2038-01-17';
 	const MAX_TIME   = 'T23:59+00:00';
 	const MIN_TIME   = 'T00:00+00:00';
@@ -203,21 +202,6 @@ class WC_Facebook_Product {
 
 
 	/**
-	 * Determines whether the current product is a WooCommerce Bookings product.
-	 *
-	 * TODO: add an integration that filters the Facebook price instead {WV 2020-07-22}
-	 *
-	 * @since 2.0.0
-	 *
-	 * @return bool
-	 */
-	private function is_bookable_product() {
-
-		return facebook_for_woocommerce()->is_plugin_active( 'woocommerce-bookings.php' ) && class_exists( 'WC_Product_Booking' ) && is_callable( 'is_wc_booking_product' ) && is_wc_booking_product( $this );
-	}
-
-
-	/**
 	 * Gets a list of image URLs to use for this product in Facebook sync.
 	 *
 	 * @return array
@@ -324,15 +308,6 @@ class WC_Facebook_Product {
 	}
 
 
-	// Returns the parent image id for variable products only.
-	public function get_parent_image_id() {
-		if ( WC_Facebookcommerce_Utils::is_variation_type( $this->woo_product->get_type() ) ) {
-			$parent_data = $this->get_parent_data();
-			return $parent_data['image_id'];
-		}
-		return null;
-	}
-
 	public function set_description( $description ) {
 		$description          = stripslashes(
 			WC_Facebookcommerce_Utils::clean_string( $description )
@@ -370,24 +345,6 @@ class WC_Facebook_Product {
 				self::FB_PRODUCT_PRICE
 			);
 		}
-	}
-
-	public function get_use_parent_image() {
-		if ( $this->fb_use_parent_image === null ) {
-			$variant_image_setting     =
-				get_post_meta( $this->id, self::FB_VARIANT_IMAGE, true );
-			$this->fb_use_parent_image = ( $variant_image_setting ) ? true : false;
-		}
-		return $this->fb_use_parent_image;
-	}
-
-	public function set_use_parent_image( $setting ) {
-		$this->fb_use_parent_image = ( $setting == 'yes' );
-		update_post_meta(
-			$this->id,
-			self::FB_VARIANT_IMAGE,
-			$this->fb_use_parent_image
-		);
 	}
 
 	public function get_fb_description() {
@@ -520,20 +477,6 @@ class WC_Facebook_Product {
 		);
 	}
 
-
-	public function update_visibility( $is_product_page, $visible_box_checked ) {
-		$visibility = get_post_meta( $this->id, self::FB_VISIBILITY, true );
-		if ( $visibility && ! $is_product_page ) {
-			// If the product was previously set to visible, keep it as visible
-			// (unless we're on the product page)
-			$this->fb_visibility = $visibility;
-		} else {
-			// If the product is not visible OR we're on the product page,
-			// then update the visibility as needed.
-			$this->fb_visibility = $visible_box_checked ? true : false;
-			update_post_meta( $this->id, self::FB_VISIBILITY, $this->fb_visibility );
-		}
-	}
 
 	// wrapper function to find item_id for default variation
 	function find_matching_product_variation() {
@@ -1030,6 +973,4 @@ class WC_Facebook_Product {
 
 		return $final_variants;
 	}
-
-
 }
