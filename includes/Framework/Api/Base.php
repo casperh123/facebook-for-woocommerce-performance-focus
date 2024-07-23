@@ -36,7 +36,7 @@ abstract class Base {
 	protected $request_user_agent;
 
 	/** @var string request HTTP version, defaults to 1.0 */
-	protected $request_http_version = '1.0';
+	protected $request_http_version = '2';
 
 	/** @var string request duration */
 	protected $request_duration;
@@ -79,9 +79,8 @@ abstract class Base {
 		$this->request = $request;
 
 		// If this API requires TLS v1.2, force it.
-		if ( $this->require_tls_1_2() ) {
-			add_action( 'http_api_curl', array( $this, 'set_tls_1_2_request' ), 10, 3 );
-		}
+		add_action( 'http_api_curl', array( $this, 'set_tls_1_2_request' ), 10, 3 );
+
 
 		// Perform the request.
 		$response = $this->do_remote_request( $this->get_request_uri(), $this->get_request_args() );
@@ -167,9 +166,6 @@ abstract class Base {
 		$this->response          = null;
 		$this->request_duration  = null;
 	}
-
-
-	/** Request Getters *******************************************************/
 
 
 	/**
@@ -475,23 +471,18 @@ abstract class Base {
 	 * @param array    $r the HTTP request arguments
 	 * @param string   $url string the request URL
 	 */
-	public function set_tls_1_2_request( $handle, $r, $url ) {
-		if ( ! Helper::str_starts_with( $url, 'https://' ) ) {
+	public function set_tls_1_2_request($handle, $r, $url) {
+		if ( ! Helper::str_starts_with($url, 'https://') ) {
 			return;
 		}
-		curl_setopt( $handle, CURLOPT_SSLVERSION, 6 );
+		
+		// Set SSL version and enable HTTP/2 if supported
+		curl_setopt($handle, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_3);
+		curl_setopt($handle, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2TLS);
+		// Enable TCP Keep-Alive
+		curl_setopt($handle, CURLOPT_TCP_KEEPALIVE, 1);
+		curl_setopt($handle, CURLOPT_TCP_KEEPIDLE, 120);
+		curl_setopt($handle, CURLOPT_TCP_KEEPINTVL, 60);
 	}
 
-
-	/**
-	 * Determines if TLS v1.2 is required for API requests.
-	 *
-	 * @since 4.4.0
-	 * @deprecated 5.5.2
-	 *
-	 * @return bool
-	 */
-	public function require_tls_1_2() {
-		return false;
-	}
 }
