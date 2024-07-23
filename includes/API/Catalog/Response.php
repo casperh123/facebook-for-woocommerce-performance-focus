@@ -1,9 +1,9 @@
 <?php
-declare( strict_types=1 );
+declare(strict_types=1);
 
 namespace WooCommerce\Facebook\API\Catalog;
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 use WooCommerce\Facebook\API\Response as ApiResponse;
 
@@ -13,4 +13,6 @@ use WooCommerce\Facebook\API\Response as ApiResponse;
  * @property-read string id   Facebook Catalog ID.
  * @property-read string name Facebook Catalog Name.
  */
-class Response extends ApiResponse {}
+class Response extends ApiResponse
+{
+}

@@ -1,5 +1,6 @@
 <?php
 // phpcs:ignoreFile
+
 /**
  * Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
  *
@@ -11,7 +12,7 @@
 
 namespace WooCommerce\Facebook\Products;
 
-defined( 'ABSPATH' ) or exit;
+defined('ABSPATH') or exit;
 
 use WooCommerce\Facebook\Products;
 
@@ -20,14 +21,16 @@ use WooCommerce\Facebook\Products;
  *
  * @since 2.0.5
  */
-class Stock {
+class Stock
+{
 
 	/**
 	 * Stock constructor.
 	 *
 	 * @since 2.0.5
 	 */
-	public function __construct() {
+	public function __construct()
+	{
 		$this->add_hooks();
 	}
 
@@ -37,27 +40,29 @@ class Stock {
 	 *
 	 * @since 2.0.5
 	 */
-	private function add_hooks() {
-		add_action( 'woocommerce_variation_set_stock', array( $this, 'set_product_stock' ) );
-		add_action( 'woocommerce_product_set_stock', array( $this, 'set_product_stock' ) );
+	private function add_hooks()
+	{
+		add_action('woocommerce_variation_set_stock', array($this, 'set_product_stock'));
+		add_action('woocommerce_product_set_stock', array($this, 'set_product_stock'));
 	}
 
 
 	/**
 	 * Attempts to sync a product when its stock changes.
 	 *
-	 * @internal
-	 *
+	 * @param \WC_Product $product the product that was updated
 	 * @since 2.0.5
 	 *
-	 * @param \WC_Product $product the product that was updated
+	 * @internal
+	 *
 	 */
-	public function set_product_stock( $product ) {
-		if ( ! $product instanceof \WC_Product ) {
+	public function set_product_stock($product)
+	{
+		if (!$product instanceof \WC_Product) {
 			return;
 		}
-		foreach ( $this->get_products_to_sync( $product ) as $item ) {
-			$this->maybe_sync_product_stock_status( $item );
+		foreach ($this->get_products_to_sync($product) as $item) {
+			$this->maybe_sync_product_stock_status($item);
 		}
 	}
 
@@ -68,21 +73,22 @@ class Stock {
 	 * This method returns the product variations of variable products, or the product itself for other product types.
 	 * Variable products cannot be synced through the Batch API as they are represented as Product Groups instead of Product Items on Facebook.
 	 *
-	 * @since 2.0.5
-	 *
 	 * @param \WC_Product $product a product object
 	 * @return \WC_Product[]
+	 * @since 2.0.5
+	 *
 	 */
-	private function get_products_to_sync( \WC_Product $product ) {
-		if ( $product->is_type( 'variable' ) ) {
+	private function get_products_to_sync(\WC_Product $product)
+	{
+		if ($product->is_type('variable')) {
 			return array_filter(
-				array_map( 'wc_get_product', $product->get_children() ),
-				function ( $item ) {
+				array_map('wc_get_product', $product->get_children()),
+				function ($item) {
 					return $item instanceof \WC_Product;
 				}
 			);
 		}
-		return array( $product );
+		return array($product);
 	}
 
 
@@ -91,15 +97,16 @@ class Stock {
 	 *
 	 * The product is removed from Facebook if it is out of stock and the plugin is configured to remove out of stock products from the catalog.
 	 *
+	 * @param \WC_Product $product a product object
 	 * @since 2.0.5
 	 *
-	 * @param \WC_Product $product a product object
 	 */
-	private function maybe_sync_product_stock_status( \WC_Product $product ) {
-		if ( Products::product_should_be_deleted( $product ) ) {
-			facebook_for_woocommerce()->get_integration()->delete_fb_product( $product );
+	private function maybe_sync_product_stock_status(\WC_Product $product)
+	{
+		if (Products::product_should_be_deleted($product)) {
+			facebook_for_woocommerce()->get_integration()->delete_fb_product($product);
 			return;
 		}
-		facebook_for_woocommerce()->get_products_sync_handler()->create_or_update_products( array( $product->get_id() ) );
+		facebook_for_woocommerce()->get_products_sync_handler()->create_or_update_products(array($product->get_id()));
 	}
 }

@@ -1,12 +1,13 @@
 <?php
 // phpcs:ignoreFile
+
 /**
  * Facebook for WooCommerce.
  */
 
 namespace WooCommerce\Facebook\Framework\Utilities;
 
-defined( 'ABSPATH' ) or exit;
+defined('ABSPATH') or exit;
 
 /**
  * SkyVerge Wordpress Async Request class
@@ -21,7 +22,8 @@ defined( 'ABSPATH' ) or exit;
  *
  * @since 4.4.0
  */
-abstract class AsyncRequest {
+abstract class AsyncRequest
+{
 
 
 	/** @var string request prefix */
@@ -42,22 +44,24 @@ abstract class AsyncRequest {
 	 *
 	 * @since 4.4.0
 	 */
-	public function __construct() {
+	public function __construct()
+	{
 		$this->identifier = $this->prefix . '_' . $this->action;
 
-		add_action( 'wp_ajax_' . $this->identifier,        array( $this, 'maybe_handle' ) );
-		add_action( 'wp_ajax_nopriv_' . $this->identifier, array( $this, 'maybe_handle' ) );
+		add_action('wp_ajax_' . $this->identifier, array($this, 'maybe_handle'));
+		add_action('wp_ajax_nopriv_' . $this->identifier, array($this, 'maybe_handle'));
 	}
 
 
 	/**
 	 * Set data used during the async request
 	 *
-	 * @since 4.4.0
 	 * @param array $data
 	 * @return AsyncRequest
+	 * @since 4.4.0
 	 */
-	public function set_data( $data ) {
+	public function set_data($data)
+	{
 		$this->data = $data;
 
 		return $this;
@@ -67,33 +71,35 @@ abstract class AsyncRequest {
 	/**
 	 * Dispatch the async request
 	 *
-	 * @since 4.4.0
 	 * @return array|\WP_Error
+	 * @since 4.4.0
 	 */
-	public function dispatch() {
+	public function dispatch()
+	{
 
-		$url  = add_query_arg( $this->get_query_args(), $this->get_query_url() );
+		$url = add_query_arg($this->get_query_args(), $this->get_query_url());
 		$args = $this->get_request_args();
 
-		return wp_safe_remote_get( esc_url( $url, null, 'db' ), $args );
+		return wp_safe_remote_get(esc_url($url, null, 'db'), $args);
 	}
 
 
 	/**
 	 * Get query args
 	 *
-	 * @since 4.4.0
 	 * @return array
+	 * @since 4.4.0
 	 */
-	protected function get_query_args() {
+	protected function get_query_args()
+	{
 
-		if ( property_exists( $this, 'query_args' ) ) {
+		if (property_exists($this, 'query_args')) {
 			return $this->query_args;
 		}
 
 		return array(
 			'action' => $this->identifier,
-			'nonce'  => wp_create_nonce( $this->identifier ),
+			'nonce' => wp_create_nonce($this->identifier),
 		);
 	}
 
@@ -101,16 +107,17 @@ abstract class AsyncRequest {
 	/**
 	 * Get query URL
 	 *
-	 * @since 4.4.0
 	 * @return string
+	 * @since 4.4.0
 	 */
-	protected function get_query_url() {
+	protected function get_query_url()
+	{
 
-		if ( property_exists( $this, 'query_url' ) ) {
+		if (property_exists($this, 'query_url')) {
 			return $this->query_url;
 		}
 
-		return admin_url( 'admin-ajax.php' );
+		return admin_url('admin-ajax.php');
 	}
 
 
@@ -119,21 +126,22 @@ abstract class AsyncRequest {
 	 *
 	 * In 4.6.3 renamed from get_post_args to get_request_args
 	 *
-	 * @since 4.4.0
 	 * @return array
+	 * @since 4.4.0
 	 */
-	protected function get_request_args() {
+	protected function get_request_args()
+	{
 
-		if ( property_exists( $this, 'request_args' ) ) {
+		if (property_exists($this, 'request_args')) {
 			return $this->request_args;
 		}
 
 		return array(
-			'timeout'   => 0.01,
-			'blocking'  => false,
-			'body'      => $this->data,
-			'cookies'   => $_COOKIE,
-			'sslverify' => apply_filters( 'https_local_ssl_verify', false ),
+			'timeout' => 0.01,
+			'blocking' => false,
+			'body' => $this->data,
+			'cookies' => $_COOKIE,
+			'sslverify' => apply_filters('https_local_ssl_verify', false),
 		);
 	}
 
@@ -144,8 +152,9 @@ abstract class AsyncRequest {
 	 * Check for correct nonce and pass to handler.
 	 * @since 4.4.0
 	 */
-	public function maybe_handle() {
-		check_ajax_referer( $this->identifier, 'nonce' );
+	public function maybe_handle()
+	{
+		check_ajax_referer($this->identifier, 'nonce');
 
 		$this->handle();
 

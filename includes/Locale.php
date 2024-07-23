@@ -1,5 +1,6 @@
 <?php
 // phpcs:ignoreFile
+
 /**
  * Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
  *
@@ -11,14 +12,15 @@
 
 namespace WooCommerce\Facebook;
 
-defined( 'ABSPATH' ) or exit;
+defined('ABSPATH') or exit;
 
 /**
  * Helper class with utility methods for handling locales in Facebook.
  *
  * @since 2.2.0
  */
-class Locale {
+class Locale
+{
 
 
 	/** @var string default locale */
@@ -142,17 +144,18 @@ class Locale {
 	 *
 	 * @return array associative array of locale identifiers and language labels
 	 */
-	public static function get_supported_locales() {
+	public static function get_supported_locales()
+	{
 
 		$locales = array();
 
-		if ( class_exists( 'Locale' ) ) {
+		if (class_exists('Locale')) {
 
-			foreach ( self::$supported_locales as $locale ) {
+			foreach (self::$supported_locales as $locale) {
 
-				if ( $name = \Locale::getDisplayName( $locale, substr( $locale, 0, 2 ) ) ) {
+				if ($name = \Locale::getDisplayName($locale, substr($locale, 0, 2))) {
 
-					$locales[ $locale ] = ucfirst( $name );
+					$locales[$locale] = ucfirst($name);
 				}
 			}
 		} else {
@@ -161,36 +164,36 @@ class Locale {
 
 			$translations = wp_get_available_translations();
 
-			foreach ( self::$supported_locales as $locale ) {
+			foreach (self::$supported_locales as $locale) {
 
-				if ( isset( $translations[ $locale ]['native_name'] ) ) {
+				if (isset($translations[$locale]['native_name'])) {
 
-					$locales[ $locale ] = $translations[ $locale ]['native_name'];
+					$locales[$locale] = $translations[$locale]['native_name'];
 
 				} else { // generic match e.g. <it>_IT, <it>_CH (any language in the the <it> group )
 
-					$matched_locale = substr( $locale, 0, 2 );
+					$matched_locale = substr($locale, 0, 2);
 
-					if ( isset( $translations[ $matched_locale ]['native_name'] ) ) {
-						$locales[ $locale ] = $translations[ $matched_locale ]['native_name'];
+					if (isset($translations[$matched_locale]['native_name'])) {
+						$locales[$locale] = $translations[$matched_locale]['native_name'];
 					}
 				}
 			}
 
 			// always include US English
-			$locales['en_US'] = _x( 'English (United States)', 'language', 'facebook-for-woocommerce' );
+			$locales['en_US'] = _x('English (United States)', 'language', 'facebook-for-woocommerce');
 		}
 
 		/**
 		 * Filters the locales supported by Facebook Messenger.
 		 *
+		 * @param array $locales locales supported by Facebook, in $locale => $name format
 		 * @since 1.10.0
 		 *
-		 * @param array $locales locales supported by Facebook, in $locale => $name format
 		 */
-		$locales = (array) apply_filters( 'wc_facebook_messenger_supported_locales', array_unique( $locales ) );
+		$locales = (array)apply_filters('wc_facebook_messenger_supported_locales', array_unique($locales));
 
-		natcasesort( $locales );
+		natcasesort($locales);
 
 		return $locales;
 	}
@@ -199,14 +202,15 @@ class Locale {
 	/**
 	 * Determines if a locale is supported by Facebook.
 	 *
-	 * @since 2.2.0
-	 *
 	 * @param string $locale a locale identifier
 	 * @return bool
+	 * @since 2.2.0
+	 *
 	 */
-	public static function is_supported_locale( $locale ) {
+	public static function is_supported_locale($locale)
+	{
 
-		return array_key_exists( $locale, self::get_supported_locales() );
+		return array_key_exists($locale, self::get_supported_locales());
 	}
 
 

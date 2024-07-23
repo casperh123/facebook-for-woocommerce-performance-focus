@@ -21,7 +21,8 @@ use WooCommerce\Facebook\Utilities\Background_Remove_Duplicate_Visibility_Meta;
 use WooCommerce\Facebook\Utilities\DebugTools;
 use WooCommerce\Facebook\Utilities\Heartbeat;
 
-class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
+class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin
+{
 	/** @var string the plugin version */
 	const VERSION = WC_Facebook_Loader::PLUGIN_VERSION;
 
@@ -109,11 +110,12 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	 *
 	 * @since 1.0.0
 	 */
-	public function __construct() {
+	public function __construct()
+	{
 		parent::__construct(
 			self::PLUGIN_ID,
 			self::VERSION,
-			[ 'text_domain' => 'facebook-for-woocommerce' ]
+			['text_domain' => 'facebook-for-woocommerce']
 		);
 		$this->init();
 		$this->init_admin();
@@ -126,11 +128,12 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	 * @return mixed
 	 * @since 3.0.32
 	 */
-	public function __get( $key ) {
+	public function __get($key)
+	{
 		// Add warning for private properties.
-		if ( in_array( $key, array( 'configuration_detection', 'fb_categories' ), true ) ) {
+		if (in_array($key, array('configuration_detection', 'fb_categories'), true)) {
 			/* translators: %s property name. */
-			_doing_it_wrong( __FUNCTION__, sprintf( esc_html__( 'The %s property is private and should not be accessed outside its class.', 'facebook-for-woocommerce' ), esc_html( $key ) ), '3.0.32' );
+			_doing_it_wrong(__FUNCTION__, sprintf(esc_html__('The %s property is private and should not be accessed outside its class.', 'facebook-for-woocommerce'), esc_html($key)), '3.0.32');
 			return $this->$key;
 		}
 
@@ -142,75 +145,76 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	 *
 	 * @internal
 	 */
-	public function init() {
+	public function init()
+	{
 
-		if ( ! WC_Facebookcommerce_Utils::isWoocommerceIntegration() ) {
+		if (!WC_Facebookcommerce_Utils::isWoocommerceIntegration()) {
 			return;
 		}
 
-		add_action( 'init', array( $this, 'get_integration' ) );
-		add_action( 'init', array( $this, 'register_custom_taxonomy' ) );
+		add_action('init', array($this, 'get_integration'));
+		add_action('init', array($this, 'register_custom_taxonomy'));
 
-		if ( is_admin() && ! wp_doing_ajax()) {
-			add_filter( 'fb_product_set_row_actions', array( $this, 'product_set_links' ) );
-			add_filter( 'manage_edit-fb_product_set_columns', array( $this, 'manage_fb_product_set_columns' ) );
+		if (is_admin() && !wp_doing_ajax()) {
+			add_filter('fb_product_set_row_actions', array($this, 'product_set_links'));
+			add_filter('manage_edit-fb_product_set_columns', array($this, 'manage_fb_product_set_columns'));
 
-			add_action( 'add_meta_boxes_product', array( $this, 'remove_product_fb_product_set_metabox' ), 50 );
+			add_action('add_meta_boxes_product', array($this, 'remove_product_fb_product_set_metabox'), 50);
 
 			// Product Set breadcrumb filters
-			add_filter( 'woocommerce_navigation_is_connected_page', array( $this, 'is_current_page_conected_filter' ), 99, 2 );
-			add_filter( 'woocommerce_navigation_get_breadcrumbs', array( $this, 'wc_page_breadcrumbs_filter' ), 99 );
+			add_filter('woocommerce_navigation_is_connected_page', array($this, 'is_current_page_conected_filter'), 99, 2);
+			add_filter('woocommerce_navigation_get_breadcrumbs', array($this, 'wc_page_breadcrumbs_filter'), 99);
 		}
 
 		// Hook the setup task. The hook admin_init is not triggered when the WC fetches the tasks using the endpoint: wp-json/wc-admin/onboarding/tasks and hence hooking into init.
-		add_action( 'init', array( $this, 'add_setup_task' ), 20 );
+		add_action('init', array($this, 'add_setup_task'), 20);
 
 		add_filter(
 			'wc_' . WC_Facebookcommerce::PLUGIN_ID . '_http_request_args',
-			array( $this, 'force_user_agent_in_latin' )
+			array($this, 'force_user_agent_in_latin')
 		);
 
 		include_once 'facebook-commerce.php';
 
 		require_once __DIR__ . '/includes/fbproductfeed.php';
 
-		$this->heartbeat = new Heartbeat( WC()->queue() );
+		$this->heartbeat = new Heartbeat(WC()->queue());
 		$this->heartbeat->init();
 
-		$this->product_feed              = new WooCommerce\Facebook\Products\Feed();
-		$this->products_stock_handler    = new WooCommerce\Facebook\Products\Stock();
-		$this->products_sync_handler     = new WooCommerce\Facebook\Products\Sync();
-		$this->sync_background_handler   = new WooCommerce\Facebook\Products\Sync\Background();
+		$this->product_feed = new WooCommerce\Facebook\Products\Feed();
+		$this->products_stock_handler = new WooCommerce\Facebook\Products\Stock();
+		$this->products_sync_handler = new WooCommerce\Facebook\Products\Sync();
+		$this->sync_background_handler = new WooCommerce\Facebook\Products\Sync\Background();
 		$this->product_sets_sync_handler = new WooCommerce\Facebook\ProductSets\Sync();
-		$this->commerce_handler          = new WooCommerce\Facebook\Commerce();
-		$this->fb_categories             = new WooCommerce\Facebook\Products\FBCategories();
+		$this->commerce_handler = new WooCommerce\Facebook\Commerce();
+		$this->fb_categories = new WooCommerce\Facebook\Products\FBCategories();
 
 		// Initialize AJAX handling for specific AJAX actions.
-		if ( wp_doing_ajax() && isset( $_REQUEST['action'] ) && $this->is_facebook_ajax_action( $_REQUEST['action'] ) ) {
+		if (wp_doing_ajax() && isset($_REQUEST['action']) && $this->is_facebook_ajax_action($_REQUEST['action'])) {
 			$this->ajax = new WooCommerce\Facebook\AJAX();
 		}
 
 
-		if ( 'yes' !== get_option( 'wc_facebook_background_handle_virtual_products_variations_complete', 'no' ) ) {
+		if ('yes' !== get_option('wc_facebook_background_handle_virtual_products_variations_complete', 'no')) {
 			$this->background_handle_virtual_products_variations = new Background_Handle_Virtual_Products_Variations();
 		}
 
-		if ( 'yes' !== get_option( 'wc_facebook_background_remove_duplicate_visibility_meta_complete', 'no' ) ) {
+		if ('yes' !== get_option('wc_facebook_background_remove_duplicate_visibility_meta_complete', 'no')) {
 			$this->background_remove_duplicate_visibility_meta = new Background_Remove_Duplicate_Visibility_Meta();
 		}
 
-		$this->connection_handler = new WooCommerce\Facebook\Handlers\Connection( $this );
-		$this->webhook_handler    = new WooCommerce\Facebook\Handlers\WebHook( $this );
+		$this->connection_handler = new WooCommerce\Facebook\Handlers\Connection($this);
+		$this->webhook_handler = new WooCommerce\Facebook\Handlers\WebHook($this);
 
 		// Init jobs
 		$this->job_manager = new WooCommerce\Facebook\Jobs\JobManager();
-		add_action( 'init', [ $this->job_manager, 'init' ] );
+		add_action('init', [$this->job_manager, 'init']);
 
 		// Instantiate the debug tools.
 		$this->debug_tools = new DebugTools();
 
-		if ( is_admin() ) {
-			$this->admin_settings = new WooCommerce\Facebook\Admin\Settings( $this->connection_handler->is_connected() );
+		if (is_admin()) {
+			$this->admin_settings = new WooCommerce\Facebook\Admin\Settings($this->connection_handler->is_connected());
 		}
 	}
 
@@ -222,7 +226,8 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	 *
 	 * @return bool True if it's a Facebook AJAX action, false otherwise.
 	 */
-	private function is_facebook_ajax_action( string $action ): bool {
+	private function is_facebook_ajax_action(string $action): bool
+	{
 		$facebook_ajax_actions = array(
 			'facebook_for_woocommerce_set_product_sync_bulk_action_prompt',
 			'facebook_for_woocommerce_set_excluded_terms_prompt',
@@ -231,7 +236,7 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 			WooCommerce\Facebook\AJAX::ACTION_SEARCH_PRODUCT_ATTRIBUTES,
 		);
 
-		return in_array( $action, $facebook_ajax_actions, true );
+		return in_array($action, $facebook_ajax_actions, true);
 	}
 
 
@@ -242,7 +247,8 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	 *
 	 * @since 1.10.0
 	 */
-	public function init_admin() {
+	public function init_admin()
+	{
 		add_action(
 			'admin_init',
 			function () {
@@ -258,11 +264,12 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	 *
 	 * @since 2.6.29
 	 */
-	public function add_setup_task() {
+	public function add_setup_task()
+	{
 		TaskLists::add_task(
 			'extended',
 			new Setup(
-				TaskLists::get_list( 'extended' )
+				TaskLists::get_list('extended')
 			)
 		);
 	}
@@ -271,45 +278,47 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	/**
 	 * Saves errors or messages to WooCommerce Log (woocommerce/logs/plugin-id-xxx.txt)
 	 *
-	 * @since 2.3.3
 	 * @param string $message error or message to save to log
 	 * @param string $log_id optional log id to segment the files by, defaults to plugin id
+	 * @since 2.3.3
 	 */
-	public function log( $message, $log_id = null ) {
+	public function log($message, $log_id = null)
+	{
 		// Bail if site is connected and user has disabled logging.
 		// If site is disconnected, force-enable logging so merchant can diagnose connection issues.
-		if ( ( ! $this->get_integration() || ! $this->get_integration()->is_debug_mode_enabled() ) && $this->get_connection_handler()->is_connected() ) {
+		if ((!$this->get_integration() || !$this->get_integration()->is_debug_mode_enabled()) && $this->get_connection_handler()->is_connected()) {
 			return;
 		}
 
-		parent::log( $message, $log_id );
+		parent::log($message, $log_id);
 	}
 
 	/**
 	 * Logs an API request.
 	 *
-	 * @since 2.0.0
-	 *
 	 * @param array $request request data
 	 * @param array $response response data
-	 * @param null  $log_id log ID
+	 * @param null $log_id log ID
+	 * @since 2.0.0
+	 *
 	 */
-	public function log_api_request( $request, $response, $log_id = null ) {
+	public function log_api_request($request, $response, $log_id = null)
+	{
 		// bail if logging isn't enabled
-		if ( ! $this->get_integration() || ! $this->get_integration()->is_debug_mode_enabled() ) {
+		if (!$this->get_integration() || !$this->get_integration()->is_debug_mode_enabled()) {
 			return;
 		}
 
 		// Maybe remove headers from the debug log.
-		if( ! $this->get_integration()->are_headers_requested_for_debug() ) {
-			unset( $request['headers'] );
-			unset( $response['headers'] );
+		if (!$this->get_integration()->are_headers_requested_for_debug()) {
+			unset($request['headers']);
+			unset($response['headers']);
 		}
 
-		$this->log( $this->get_api_log_message( $request ), $log_id );
+		$this->log($this->get_api_log_message($request), $log_id);
 
-		if ( ! empty( $response ) ) {
-			$this->log( $this->get_api_log_message( $response ), $log_id );
+		if (!empty($response)) {
+			$this->log($this->get_api_log_message($response), $log_id);
 		}
 	}
 
@@ -318,8 +327,9 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	 *
 	 * @since 2.3.0
 	 */
-	public function remove_product_fb_product_set_metabox() {
-		remove_meta_box( 'fb_product_setdiv', 'product', 'side' );
+	public function remove_product_fb_product_set_metabox()
+	{
+		remove_meta_box('fb_product_setdiv', 'product', 'side');
 	}
 
 	/**
@@ -327,53 +337,55 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	 *
 	 * @since 2.3.0
 	 */
-	public function register_custom_taxonomy() {
-		$plural   = esc_html__( 'Facebook Product Sets', 'facebook-for-woocommerce' );
-		$singular = esc_html__( 'Facebook Product Set', 'facebook-for-woocommerce' );
+	public function register_custom_taxonomy()
+	{
+		$plural = esc_html__('Facebook Product Sets', 'facebook-for-woocommerce');
+		$singular = esc_html__('Facebook Product Set', 'facebook-for-woocommerce');
 
 		$args = array(
-			'labels'            => array(
-				'name'                       => $plural,
-				'singular_name'              => $singular,
-				'menu_name'                  => $plural,
+			'labels' => array(
+				'name' => $plural,
+				'singular_name' => $singular,
+				'menu_name' => $plural,
 				// translators: Edit item label
-				'edit_item'                  => sprintf( esc_html__( 'Edit %s', 'facebook-for-woocommerce' ), $singular ),
+				'edit_item' => sprintf(esc_html__('Edit %s', 'facebook-for-woocommerce'), $singular),
 				// translators: Add new label
-				'add_new_item'               => sprintf( esc_html__( 'Add new %s', 'facebook-for-woocommerce' ), $singular ),
+				'add_new_item' => sprintf(esc_html__('Add new %s', 'facebook-for-woocommerce'), $singular),
 				// translators: No items found text
-				'not_found'                  => sprintf( esc_html__( 'No %s found.', 'facebook-for-woocommerce' ), $plural ),
+				'not_found' => sprintf(esc_html__('No %s found.', 'facebook-for-woocommerce'), $plural),
 				// translators: Search label
-				'search_items'               => sprintf( esc_html__( 'Search %s.', 'facebook-for-woocommerce' ), $plural ),
+				'search_items' => sprintf(esc_html__('Search %s.', 'facebook-for-woocommerce'), $plural),
 				// translators: Text label
-				'separate_items_with_commas' => sprintf( esc_html__( 'Separate %s with commas', 'facebook-for-woocommerce' ), $plural ),
+				'separate_items_with_commas' => sprintf(esc_html__('Separate %s with commas', 'facebook-for-woocommerce'), $plural),
 				// translators: Text label
-				'choose_from_most_used'      => sprintf( esc_html__( 'Choose from the most used %s', 'facebook-for-woocommerce' ), $plural ),
+				'choose_from_most_used' => sprintf(esc_html__('Choose from the most used %s', 'facebook-for-woocommerce'), $plural),
 				// translators: Backlink item label
-				'back_to_items'              => sprintf( esc_html__( '&larr; Go to %s', 'facebook-for-woocommerce' ), $plural ),
+				'back_to_items' => sprintf(esc_html__('&larr; Go to %s', 'facebook-for-woocommerce'), $plural),
 			),
-			'hierarchical'      => true,
-			'public'            => true,
+			'hierarchical' => true,
+			'public' => true,
 			'show_in_nav_menus' => false,
-			'show_tagcloud'     => false,
-			'show_in_menu'      => false,
+			'show_tagcloud' => false,
+			'show_in_menu' => false,
 		);
 
-		register_taxonomy( 'fb_product_set', array( 'product' ), $args );
+		register_taxonomy('fb_product_set', array('product'), $args);
 	}
 
 
 	/**
 	 * Filter Facebook Product Set Taxonomy table links
 	 *
-	 * @since 2.3.0
-	 *
 	 * @param array $actions Item Actions.
 	 *
 	 * @return array
+	 * @since 2.3.0
+	 *
 	 */
-	public function product_set_links( $actions ) {
-		unset( $actions['inline hide-if-no-js'] );
-		unset( $actions['view'] );
+	public function product_set_links($actions)
+	{
+		unset($actions['inline hide-if-no-js']);
+		unset($actions['view']);
 		return $actions;
 	}
 
@@ -381,14 +393,15 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	/**
 	 * Remove posts count column from Facebook Product Set custom taxonomy
 	 *
-	 * @since 2.3.0
-	 *
 	 * @param array $columns Taxonomy columns.
 	 *
 	 * @return array
+	 * @since 2.3.0
+	 *
 	 */
-	public function manage_fb_product_set_columns( $columns ) {
-		unset( $columns['posts'] );
+	public function manage_fb_product_set_columns($columns)
+	{
+		unset($columns['posts']);
 		return $columns;
 	}
 
@@ -396,29 +409,30 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	/**
 	 * Filter WC Breadcrumbs when the page is Facebook Product Sets
 	 *
-	 * @since 2.3.0
-	 *
 	 * @param array $breadcrumbs Page breadcrumbs.
 	 *
 	 * @return array
+	 * @since 2.3.0
+	 *
 	 */
-	public function wc_page_breadcrumbs_filter( $breadcrumbs ) {
+	public function wc_page_breadcrumbs_filter($breadcrumbs)
+	{
 
-		if ( 'edit-fb_product_set' !== $this->get_current_page_id() ) {
+		if ('edit-fb_product_set' !== $this->get_current_page_id()) {
 			return $breadcrumbs;
 		}
 
 		$breadcrumbs = array(
-			array( 'admin.php?page=wc-admin', 'WooCommerce' ),
-			array( 'edit.php?post_type=product', 'Products' ),
+			array('admin.php?page=wc-admin', 'WooCommerce'),
+			array('edit.php?post_type=product', 'Products'),
 		);
 
-		$term_id = empty( $_GET['tag_ID'] ) ? '' : wc_clean( wp_unslash( $_GET['tag_ID'] ) ); //phpcs:ignore WordPress.Security
-		if ( ! empty( $term_id ) ) {
-			$breadcrumbs[] = array( 'edit-tags.php?taxonomy=fb_product_set&post_type=product', 'Products Sets' );
+		$term_id = empty($_GET['tag_ID']) ? '' : wc_clean(wp_unslash($_GET['tag_ID'])); //phpcs:ignore WordPress.Security
+		if (!empty($term_id)) {
+			$breadcrumbs[] = array('edit-tags.php?taxonomy=fb_product_set&post_type=product', 'Products Sets');
 		}
 
-		$breadcrumbs[] = ( empty( $term_id ) ? 'Product Sets' : 'Edit Product Set' );
+		$breadcrumbs[] = (empty($term_id) ? 'Product Sets' : 'Edit Product Set');
 		return $breadcrumbs;
 	}
 
@@ -426,14 +440,15 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	/**
 	 * Return that Facebook Product Set page is a WC Conected Page
 	 *
-	 * @since 2.3.0
-	 *
 	 * @param boolean $is_conected If it's connected or not.
 	 *
 	 * @return boolean
+	 * @since 2.3.0
+	 *
 	 */
-	public function is_current_page_conected_filter( $is_conected ) {
-		if ( 'edit-fb_product_set' === $this->get_current_page_id() ) {
+	public function is_current_page_conected_filter($is_conected)
+	{
+		if ('edit-fb_product_set' === $this->get_current_page_id()) {
 			return true;
 		}
 
@@ -451,13 +466,14 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	 * @param array $http_request_headers - http request headers
 	 * @return array
 	 */
-	public function force_user_agent_in_latin( array $http_request_headers ) {
-		if ( isset( $http_request_headers['user-agent'] ) ) {
+	public function force_user_agent_in_latin(array $http_request_headers)
+	{
+		if (isset($http_request_headers['user-agent'])) {
 			$http_request_headers['user-agent'] = sprintf(
 				'%s/%s (WooCommerce/%s; WordPress/%s)',
 				WC_Facebookcommerce::PLUGIN_USER_AGENT_NAME,
 				WC_Facebookcommerce::PLUGIN_VERSION,
-				defined( 'WC_VERSION' ) ? WC_VERSION : WC_Facebook_Loader::MINIMUM_WC_VERSION,
+				defined('WC_VERSION') ? WC_VERSION : WC_Facebook_Loader::MINIMUM_WC_VERSION,
 				$GLOBALS['wp_version']
 			);
 		}
@@ -471,24 +487,25 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	/**
 	 * Gets the API instance.
 	 *
-	 * @since 2.0.0
-	 *
 	 * @param string $access_token access token to use for this API request
 	 * @return WooCommerce\Facebook\API
 	 * @throws ApiException
+	 * @since 2.0.0
+	 *
 	 */
-	public function get_api( string $access_token = '' ): WooCommerce\Facebook\API {
+	public function get_api(string $access_token = ''): WooCommerce\Facebook\API
+	{
 		// if none provided, use the general access token
-		if ( ! $access_token ) {
+		if (!$access_token) {
 			$access_token = $this->get_connection_handler()->get_access_token();
 		}
-		if ( ! is_object( $this->api ) ) {
-			if ( ! $access_token ) {
-				throw new ApiException( __( 'Cannot create the API instance because the access token is missing.', 'facebook-for-woocommerce' ) );
+		if (!is_object($this->api)) {
+			if (!$access_token) {
+				throw new ApiException(__('Cannot create the API instance because the access token is missing.', 'facebook-for-woocommerce'));
 			}
-			$this->api = new WooCommerce\Facebook\API( $access_token );
+			$this->api = new WooCommerce\Facebook\API($access_token);
 		} else {
-			$this->api->set_access_token( $access_token );
+			$this->api->set_access_token($access_token);
 		}
 		return $this->api;
 	}
@@ -496,22 +513,24 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	/**
 	 * Gets the category handler.
 	 *
+	 * @return WooCommerce\Facebook\Products\FBCategories
 	 * @since 1.11.0
 	 *
-	 * @return WooCommerce\Facebook\Products\FBCategories
 	 */
-	public function get_facebook_category_handler() {
+	public function get_facebook_category_handler()
+	{
 		return $this->fb_categories;
 	}
 
 	/**
 	 * Gets the background handle virtual products and variations handler instance.
 	 *
+	 * @return Background_Handle_Virtual_Products_Variations
 	 * @since 2.0.0
 	 *
-	 * @return Background_Handle_Virtual_Products_Variations
 	 */
-	public function get_background_handle_virtual_products_variations_instance() {
+	public function get_background_handle_virtual_products_variations_instance()
+	{
 		return $this->background_handle_virtual_products_variations;
 	}
 
@@ -519,11 +538,12 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	/**
 	 * Gets the background remove duplicate visibility meta data handler instance.
 	 *
+	 * @return Background_Remove_Duplicate_Visibility_Meta
 	 * @since 2.0.3
 	 *
-	 * @return Background_Remove_Duplicate_Visibility_Meta
 	 */
-	public function get_background_remove_duplicate_visibility_meta_instance() {
+	public function get_background_remove_duplicate_visibility_meta_instance()
+	{
 		return $this->background_remove_duplicate_visibility_meta;
 	}
 
@@ -531,11 +551,12 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	/**
 	 * Gets the products sync handler.
 	 *
+	 * @return WooCommerce\Facebook\Products\Sync
 	 * @since 2.0.0
 	 *
-	 * @return WooCommerce\Facebook\Products\Sync
 	 */
-	public function get_products_sync_handler() {
+	public function get_products_sync_handler()
+	{
 		return $this->products_sync_handler;
 	}
 
@@ -543,11 +564,12 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	/**
 	 * Gets the products sync background handler.
 	 *
+	 * @return WooCommerce\Facebook\Products\Sync\Background
 	 * @since 2.0.0
 	 *
-	 * @return WooCommerce\Facebook\Products\Sync\Background
 	 */
-	public function get_products_sync_background_handler() {
+	public function get_products_sync_background_handler()
+	{
 		return $this->sync_background_handler;
 	}
 
@@ -555,11 +577,12 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	/**
 	 * Gets the connection handler.
 	 *
+	 * @return WooCommerce\Facebook\Handlers\Connection
 	 * @since 2.0.0
 	 *
-	 * @return WooCommerce\Facebook\Handlers\Connection
 	 */
-	public function get_connection_handler() {
+	public function get_connection_handler()
+	{
 		return $this->connection_handler;
 	}
 
@@ -567,13 +590,14 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	/**
 	 * Gets the integration instance.
 	 *
+	 * @return WC_Facebookcommerce_Integration instance
 	 * @since 1.10.0
 	 *
-	 * @return WC_Facebookcommerce_Integration instance
 	 */
-	public function get_integration() {
-		if ( null === $this->integration ) {
-			$this->integration = new WC_Facebookcommerce_Integration( $this );
+	public function get_integration()
+	{
+		if (null === $this->integration) {
+			$this->integration = new WC_Facebookcommerce_Integration($this);
 		}
 
 		return $this->integration;
@@ -583,11 +607,12 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	/**
 	 * Gets the commerce handler instance.
 	 *
+	 * @return WooCommerce\Facebook\Commerce commerce handler instance
 	 * @since 2.1.0
 	 *
-	 * @return WooCommerce\Facebook\Commerce commerce handler instance
 	 */
-	public function get_commerce_handler() {
+	public function get_commerce_handler()
+	{
 		return $this->commerce_handler;
 	}
 
@@ -597,11 +622,12 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	 *
 	 * @return WooCommerce\Facebook\Debug\ProfilingLogger
 	 */
-	public function get_profiling_logger() {
+	public function get_profiling_logger()
+	{
 		static $instance = null;
-		if ( null === $instance ) {
-			$is_enabled = defined( 'FACEBOOK_FOR_WOOCOMMERCE_PROFILING_LOG_ENABLED' ) && FACEBOOK_FOR_WOOCOMMERCE_PROFILING_LOG_ENABLED;
-			$instance   = new WooCommerce\Facebook\Debug\ProfilingLogger( $is_enabled );
+		if (null === $instance) {
+			$is_enabled = defined('FACEBOOK_FOR_WOOCOMMERCE_PROFILING_LOG_ENABLED') && FACEBOOK_FOR_WOOCOMMERCE_PROFILING_LOG_ENABLED;
+			$instance = new WooCommerce\Facebook\Debug\ProfilingLogger($is_enabled);
 		}
 
 		return $instance;
@@ -614,53 +640,58 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	 *
 	 * @return ProductSyncValidator
 	 */
-	public function get_product_sync_validator( WC_Product $product ) {
-		return new ProductSyncValidator( $this->get_integration(), $product );
+	public function get_product_sync_validator(WC_Product $product)
+	{
+		return new ProductSyncValidator($this->get_integration(), $product);
 	}
 
 	/**
 	 * Gets the advertise tab page URL.
 	 *
+	 * @return string
 	 * @since 2.6.29
 	 *
-	 * @return string
 	 */
-	public function get_advertise_tab_url() {
-		return admin_url( 'admin.php?page=wc-facebook&tab=advertise' );
+	public function get_advertise_tab_url()
+	{
+		return admin_url('admin.php?page=wc-facebook&tab=advertise');
 	}
 
 	/**
 	 * Gets the settings page URL.
 	 *
-	 * @since 1.10.0
-	 *
 	 * @param null $plugin_id unused
 	 * @return string
+	 * @since 1.10.0
+	 *
 	 */
-	public function get_settings_url( $plugin_id = null ) {
-		return admin_url( 'admin.php?page=wc-facebook' );
+	public function get_settings_url($plugin_id = null)
+	{
+		return admin_url('admin.php?page=wc-facebook');
 	}
 
 
 	/**
 	 * Gets the plugin name.
 	 *
+	 * @return string
 	 * @since 1.10.0
 	 *
-	 * @return string
 	 */
-	public function get_plugin_name() {
-		return __( 'Facebook for WooCommerce', 'facebook-for-woocommerce' );
+	public function get_plugin_name()
+	{
+		return __('Facebook for WooCommerce', 'facebook-for-woocommerce');
 	}
 
 	/**
 	 * Gets the url for the assets build directory.
 	 *
+	 * @return string
 	 * @since 2.3.4
 	 *
-	 * @return string
 	 */
-	public function get_asset_build_dir_url() {
+	public function get_asset_build_dir_url()
+	{
 		return $this->get_plugin_url() . '/assets/build';
 	}
 
@@ -671,12 +702,13 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	/**
 	 * Determines if viewing the plugin settings in the admin.
 	 *
+	 * @return bool
 	 * @since 1.10.0
 	 *
-	 * @return bool
 	 */
-	public function is_plugin_settings() {
-		return is_admin() && WooCommerce\Facebook\Admin\Settings::PAGE_ID === Helper::get_requested_value( 'page' );
+	public function is_plugin_settings()
+	{
+		return is_admin() && WooCommerce\Facebook\Admin\Settings::PAGE_ID === Helper::get_requested_value('page');
 	}
 
 
@@ -686,14 +718,15 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	/**
 	 * Gets the plugin singleton instance.
 	 *
-	 * @see \facebook_for_woocommerce()
-	 *
+	 * @return \WC_Facebookcommerce the plugin singleton instance
 	 * @since 1.10.0
 	 *
-	 * @return \WC_Facebookcommerce the plugin singleton instance
+	 * @see \facebook_for_woocommerce()
+	 *
 	 */
-	public static function instance() {
-		if ( null === self::$instance ) {
+	public static function instance()
+	{
+		if (null === self::$instance) {
 			self::$instance = new self();
 		}
 		return self::$instance;
@@ -703,11 +736,12 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	/**
 	 * Gets the plugin file.
 	 *
+	 * @return string
 	 * @since 1.10.0
 	 *
-	 * @return string
 	 */
-	protected function get_file() {
+	protected function get_file()
+	{
 		return __FILE__;
 	}
 
@@ -715,14 +749,15 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 	/**
 	 * Return current page ID
 	 *
+	 * @return string
 	 * @since 2.3.0
 	 *
-	 * @return string
 	 */
-	protected function get_current_page_id(): string {
+	protected function get_current_page_id(): string
+	{
 		$current_screen_id = '';
-		$current_screen    = get_current_screen();
-		if ( ! empty( $current_screen ) ) {
+		$current_screen = get_current_screen();
+		if (!empty($current_screen)) {
 			$current_screen_id = $current_screen->id;
 		}
 		return $current_screen_id;
@@ -733,10 +768,11 @@ class WC_Facebookcommerce extends WooCommerce\Facebook\Framework\Plugin {
 /**
  * Gets the Facebook for WooCommerce plugin instance.
  *
+ * @return \WC_Facebookcommerce instance of the plugin
  * @since 1.10.0
  *
- * @return \WC_Facebookcommerce instance of the plugin
  */
-function facebook_for_woocommerce() {
+function facebook_for_woocommerce()
+{
 	return \WC_Facebookcommerce::instance();
 }

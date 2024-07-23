@@ -9,4 +9,6 @@ use Exception;
  *
  * Exception for when a product is excluded from Facebook product sync.
  */
-class ProductExcludedException extends Exception {}
+class ProductExcludedException extends Exception
+{
+}

@@ -10,14 +10,15 @@
 
 namespace WooCommerce\Facebook\API\Traits;
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 /**
  * Idempotent request trait.
  *
  * @since 2.1.0
  */
-trait Idempotent_Request {
+trait Idempotent_Request
+{
 
 
 	/** @var string holds the request's idempotency key */
@@ -27,13 +28,14 @@ trait Idempotent_Request {
 	/**
 	 * Gets the value of idempotency key.
 	 *
+	 * @return string
 	 * @since 2.1.0
 	 *
-	 * @return string
 	 */
-	public function get_idempotency_key() {
+	public function get_idempotency_key()
+	{
 
-		if ( empty( $this->idempotency_key ) ) {
+		if (empty($this->idempotency_key)) {
 
 			$this->idempotency_key = wp_generate_uuid4();
 		}

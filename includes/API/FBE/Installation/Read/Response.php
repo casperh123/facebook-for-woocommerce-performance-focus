@@ -1,24 +1,26 @@
 <?php
-declare( strict_types=1 );
+declare(strict_types=1);
 
 namespace WooCommerce\Facebook\API\FBE\Installation\Read;
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 use WooCommerce\Facebook\API;
 
 /**
  * FBE Installation API read response object.
  */
-class Response extends API\Response {
+class Response extends API\Response
+{
 	/**
 	 * Gets the pixel ID.
 	 *
+	 * @return string
 	 * @since 2.0.0
 	 *
-	 * @return string
 	 */
-	public function get_pixel_id() {
+	public function get_pixel_id()
+	{
 		return $this->get_data()['pixel_id'] ?? '';
 	}
 
@@ -26,11 +28,12 @@ class Response extends API\Response {
 	/**
 	 * Gets the business manager ID.
 	 *
+	 * @return string
 	 * @since 2.0.0
 	 *
-	 * @return string
 	 */
-	public function get_business_manager_id() {
+	public function get_business_manager_id()
+	{
 		return $this->get_data()['business_manager_id'] ?? '';
 	}
 
@@ -38,11 +41,12 @@ class Response extends API\Response {
 	/**
 	 * Gets the ad account ID.
 	 *
+	 * @return string
 	 * @since 2.0.0
 	 *
-	 * @return string
 	 */
-	public function get_ad_account_id() {
+	public function get_ad_account_id()
+	{
 		return $this->get_data()['ad_account_id'] ?? '';
 	}
 
@@ -52,7 +56,8 @@ class Response extends API\Response {
 	 *
 	 * @return string
 	 */
-	public function get_catalog_id(): string {
+	public function get_catalog_id(): string
+	{
 		return $this->get_data()['catalog_id'] ?? '';
 	}
 
@@ -62,36 +67,39 @@ class Response extends API\Response {
 	 *
 	 * @return string
 	 */
-	public function get_page_id(): string {
+	public function get_page_id(): string
+	{
 		$pages = $this->get_data()['pages'] ?? '';
-		return is_array( $pages ) ? current( $pages ) : '';
+		return is_array($pages) ? current($pages) : '';
 	}
 
 
 	/**
 	 * Gets Instagram Business ID.
 	 *
+	 * @return string
 	 * @since 2.1.5
 	 *
-	 * @return string
 	 */
-	public function get_instagram_business_id() {
+	public function get_instagram_business_id()
+	{
 		$instagram_profiles = $this->get_data()['instagram_profiles'] ?? '';
-		if ( empty( $instagram_profiles ) ) {
+		if (empty($instagram_profiles)) {
 			return '';
 		}
-		return is_array( $instagram_profiles ) ? current( $instagram_profiles ) : $instagram_profiles;
+		return is_array($instagram_profiles) ? current($instagram_profiles) : $instagram_profiles;
 	}
 
 
 	/**
 	 * Gets the commerce merchant settings ID.
 	 *
+	 * @return string
 	 * @since 2.1.5
 	 *
-	 * @return string
 	 */
-	public function get_commerce_merchant_settings_id() {
+	public function get_commerce_merchant_settings_id()
+	{
 		return $this->get_data()['commerce_merchant_settings_id'] ?? '';
 	}
 
@@ -99,11 +107,12 @@ class Response extends API\Response {
 	/**
 	 * Gets the profiles.
 	 *
+	 * @return string[]
 	 * @since 2.0.0
 	 *
-	 * @return string[]
 	 */
-	public function get_profiles() {
+	public function get_profiles()
+	{
 		return $this->get_data()['profiles'] ?? [];
 	}
 
@@ -113,7 +122,8 @@ class Response extends API\Response {
 	 *
 	 * @return array
 	 */
-	public function get_data() {
+	public function get_data()
+	{
 		return $this->response_data['data'][0] ?? [];
 	}
 }

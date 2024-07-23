@@ -1,5 +1,6 @@
 <?php
 // phpcs:ignoreFile
+
 /**
  * Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
  *
@@ -11,14 +12,15 @@
 
 namespace WooCommerce\Facebook\Handlers;
 
-defined( 'ABSPATH' ) or exit;
+defined('ABSPATH') or exit;
 
 /**
  * The WebHook handler.
  *
  * @since 2.3.0
  */
-class WebHook {
+class WebHook
+{
 
 	/** @var string auth page ID */
 	const WEBHOOK_PAGE_ID = 'wc-facebook-webhook';
@@ -30,8 +32,9 @@ class WebHook {
 	 *
 	 * @since 2.3.0
 	 */
-	public function __construct( \WC_Facebookcommerce $plugin ) {
-		add_action( 'rest_api_init', array( $this, 'init_webhook_endpoint' ) );
+	public function __construct(\WC_Facebookcommerce $plugin)
+	{
+		add_action('rest_api_init', array($this, 'init_webhook_endpoint'));
 	}
 
 
@@ -40,15 +43,16 @@ class WebHook {
 	 *
 	 * @since 2.3.0
 	 */
-	public function init_webhook_endpoint() {
+	public function init_webhook_endpoint()
+	{
 		register_rest_route(
 			'wc-facebook/v1',
 			'webhook',
 			array(
 				array(
-					'methods'             => array( 'GET', 'POST' ),
-					'callback'            => array( $this, 'webhook_callback' ),
-					'permission_callback' => array( $this, 'permission_callback' ),
+					'methods' => array('GET', 'POST'),
+					'callback' => array($this, 'webhook_callback'),
+					'permission_callback' => array($this, 'permission_callback'),
 				),
 			)
 		);
@@ -59,30 +63,32 @@ class WebHook {
 	 * Endpoint permissions
 	 * Woo Connect Bridge is sending the WebHook request using generated key.
 	 *
+	 * @return boolean
 	 * @since 2.3.0
 	 *
-	 * @return boolean
 	 */
-	public function permission_callback() {
-		return current_user_can( 'manage_woocommerce' );
+	public function permission_callback()
+	{
+		return current_user_can('manage_woocommerce');
 	}
 
 
 	/**
 	 * WebHook Listener
 	 *
+	 * @param \WP_REST_Request $request The request.
+	 * @return \WP_REST_Response
 	 * @since 2.3.0
 	 * @see Connection
 	 *
-	 * @param \WP_REST_Request $request The request.
-	 * @return \WP_REST_Response
 	 */
-	public function webhook_callback( \WP_REST_Request $request ) {
-		$request_body = json_decode( $request->get_body() );
-		if ( empty( $request_body ) ) {
-			return new \WP_REST_Response( null, 204 );
+	public function webhook_callback(\WP_REST_Request $request)
+	{
+		$request_body = json_decode($request->get_body());
+		if (empty($request_body)) {
+			return new \WP_REST_Response(null, 204);
 		}
-		do_action( 'fbe_webhook', $request_body );
-		return new \WP_REST_Response( null, 200 );
+		do_action('fbe_webhook', $request_body);
+		return new \WP_REST_Response(null, 200);
 	}
 }

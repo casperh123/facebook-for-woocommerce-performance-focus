@@ -1,5 +1,6 @@
 <?php
 // phpcs:ignoreFile
+
 /**
  * Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
  *
@@ -11,14 +12,15 @@
 
 namespace WooCommerce\Facebook\Events;
 
-defined( 'ABSPATH' ) or exit;
+defined('ABSPATH') or exit;
 
 /**
  * Event object.
  *
  * @since 2.0.0
  */
-class Event {
+class Event
+{
 
 
 	/**
@@ -33,15 +35,16 @@ class Event {
 	 * Gets version information for pixel events.
 	 *
 	 * @return array {
-	 *     @type string source 'woocommerce'
-	 *     @type string version WooCommerce's version
-	 *     @type string pluginVersion Facebook for WooCommerce's version
+	 * @type string source 'woocommerce'
+	 * @type string version WooCommerce's version
+	 * @type string pluginVersion Facebook for WooCommerce's version
 	 * }
 	 */
-	public static function get_version_info() {
+	public static function get_version_info()
+	{
 		return array(
-			'source'        => 'woocommerce',
-			'version'       => WC()->version,
+			'source' => 'woocommerce',
+			'version' => WC()->version,
 			'pluginVersion' => facebook_for_woocommerce()->get_version(),
 		);
 	}
@@ -52,7 +55,8 @@ class Event {
 	 *
 	 * @return string
 	 */
-	public static function get_platform_identifier() {
+	public static function get_platform_identifier()
+	{
 		$info = self::get_version_info();
 		return "{$info['source']}-{$info['version']}-{$info['pluginVersion']}";
 	}
@@ -67,8 +71,9 @@ class Event {
 	 *
 	 * @param array $data event data
 	 */
-	public function __construct( $data = array() ) {
-		$this->prepare_data( $data );
+	public function __construct($data = array())
+	{
+		$this->prepare_data($data);
 	}
 
 
@@ -82,20 +87,21 @@ class Event {
 	 *
 	 * @param array $data event data
 	 */
-	protected function prepare_data( $data ) {
+	protected function prepare_data($data)
+	{
 		$this->data = wp_parse_args(
 			$data,
 			array(
-				'action_source'    => 'website',
-				'event_time'       => time(),
-				'event_id'         => $this->generate_event_id(),
+				'action_source' => 'website',
+				'event_time' => time(),
+				'event_id' => $this->generate_event_id(),
 				'event_source_url' => $this->get_current_url(),
-				'custom_data'      => array(),
-				'user_data'        => array(),
+				'custom_data' => array(),
+				'user_data' => array(),
 			)
 		);
 
-		$this->prepare_user_data( $this->data['user_data'] );
+		$this->prepare_user_data($this->data['user_data']);
 	}
 
 
@@ -108,26 +114,27 @@ class Event {
 	 *
 	 * @param array $data user data
 	 */
-	protected function prepare_user_data( $data ) {
+	protected function prepare_user_data($data)
+	{
 		$this->data['user_data'] = wp_parse_args(
 			$data,
 			array(
 				'client_ip_address' => $this->get_client_ip(),
 				'client_user_agent' => $this->get_client_user_agent(),
-				'click_id'          => $this->get_click_id(),
-				'browser_id'        => $this->get_browser_id(),
+				'click_id' => $this->get_click_id(),
+				'browser_id' => $this->get_browser_id(),
 			)
 		);
 		// Country key is not the same in pixel and CAPI events, see:
 		// https://developers.facebook.com/docs/facebook-pixel/advanced/advanced-matching
 		// https://developers.facebook.com/docs/marketing-api/conversions-api/parameters
-		if ( array_key_exists( 'cn', $this->data['user_data'] ) ) {
-			$country                            = $this->data['user_data']['cn'];
+		if (array_key_exists('cn', $this->data['user_data'])) {
+			$country = $this->data['user_data']['cn'];
 			$this->data['user_data']['country'] = $country;
-			unset( $this->data['user_data']['cn'] );
+			unset($this->data['user_data']['cn']);
 		}
-		$this->data['user_data'] = Normalizer::normalize_array( $this->data['user_data'], false );
-		$this->data['user_data'] = $this->hash_pii_data( $this->data['user_data'] );
+		$this->data['user_data'] = Normalizer::normalize_array($this->data['user_data'], false);
+		$this->data['user_data'] = $this->hash_pii_data($this->data['user_data']);
 	}
 
 	/**
@@ -141,11 +148,12 @@ class Event {
 	 *
 	 * @return array
 	 */
-	protected function hash_pii_data( $user_data ) {
-		$keys_to_hash = array( 'em', 'fn', 'ln', 'ph', 'ct', 'st', 'zp', 'country', 'external_id' );
-		foreach ( $keys_to_hash as $key ) {
-			if ( array_key_exists( $key, $user_data ) ) {
-				$user_data[ $key ] = hash( 'sha256', $user_data[ $key ], false );
+	protected function hash_pii_data($user_data)
+	{
+		$keys_to_hash = array('em', 'fn', 'ln', 'ph', 'ct', 'st', 'zp', 'country', 'external_id');
+		foreach ($keys_to_hash as $key) {
+			if (array_key_exists($key, $user_data)) {
+				$user_data[$key] = hash('sha256', $user_data[$key], false);
 			}
 		}
 		return $user_data;
@@ -160,32 +168,33 @@ class Event {
 	 *
 	 * @return string
 	 */
-	protected function generate_event_id() {
+	protected function generate_event_id()
+	{
 		try {
-			$data = random_bytes( 16 );
-			$data[6] = chr( ord( $data[6] ) & 0x0f | 0x40 ); // set version to 0100
-			$data[8] = chr( ord( $data[8] ) & 0x3f | 0x80 ); // set bits 6-7 to 10
-			return vsprintf( '%s%s-%s-%s-%s-%s%s%s', str_split( bin2hex( $data ), 4 ) );
-		} catch ( \Exception $e ) {
+			$data = random_bytes(16);
+			$data[6] = chr(ord($data[6]) & 0x0f | 0x40); // set version to 0100
+			$data[8] = chr(ord($data[8]) & 0x3f | 0x80); // set bits 6-7 to 10
+			return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+		} catch (\Exception $e) {
 			// fall back to mt_rand if random_bytes is unavailable
 			return sprintf(
 				'%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
 				// 32 bits for "time_low"
-				mt_rand( 0, 0xffff ),
-				mt_rand( 0, 0xffff ),
+				mt_rand(0, 0xffff),
+				mt_rand(0, 0xffff),
 				// 16 bits for "time_mid"
-				mt_rand( 0, 0xffff ),
+				mt_rand(0, 0xffff),
 				// 16 bits for "time_hi_and_version",
 				// four most significant bits holds version number 4
-				mt_rand( 0, 0x0fff ) | 0x4000,
+				mt_rand(0, 0x0fff) | 0x4000,
 				// 16 bits, 8 bits for "clk_seq_hi_res",
 				// 8 bits for "clk_seq_low",
 				// two most significant bits holds zero and one for variant DCE1.1
-				mt_rand( 0, 0x3fff ) | 0x8000,
+				mt_rand(0, 0x3fff) | 0x8000,
 				// 48 bits for "node"
-				mt_rand( 0, 0xffff ),
-				mt_rand( 0, 0xffff ),
-				mt_rand( 0, 0xffff )
+				mt_rand(0, 0xffff),
+				mt_rand(0, 0xffff),
+				mt_rand(0, 0xffff)
 			);
 		}
 	}
@@ -194,12 +203,13 @@ class Event {
 	/**
 	 * Gets the current URL.
 	 *
+	 * @return string
 	 * @since 2.0.0
 	 *
-	 * @return string
 	 */
-	protected function get_current_url() {
-		if ( wp_doing_ajax() ) {
+	protected function get_current_url()
+	{
+		if (wp_doing_ajax()) {
 			$url = wp_get_raw_referer();
 		} else {
 			/**
@@ -209,8 +219,8 @@ class Event {
 			 * using Forward with the WooCommerce Dev Helper plugin.
 			 */
 			$url = home_url();
-			if ( isset( $_SERVER['REQUEST_URI'] ) ) {
-				$url .= wc_clean( wp_unslash( $_SERVER['REQUEST_URI'] ) );
+			if (isset($_SERVER['REQUEST_URI'])) {
+				$url .= wc_clean(wp_unslash($_SERVER['REQUEST_URI']));
 			}
 		}
 		return $url;
@@ -220,11 +230,12 @@ class Event {
 	/**
 	 * Gets the client IP address.
 	 *
+	 * @return string
 	 * @since 2.0.0
 	 *
-	 * @return string
 	 */
-	protected function get_client_ip() {
+	protected function get_client_ip()
+	{
 		return \WC_Geolocation::get_ip_address();
 	}
 
@@ -232,12 +243,13 @@ class Event {
 	/**
 	 * Gets the client user agent.
 	 *
+	 * @return string
 	 * @since 2.0.0
 	 *
-	 * @return string
 	 */
-	protected function get_client_user_agent() {
-		return ! empty( $_SERVER['HTTP_USER_AGENT'] ) ? wc_clean( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
+	protected function get_client_user_agent()
+	{
+		return !empty($_SERVER['HTTP_USER_AGENT']) ? wc_clean(wp_unslash($_SERVER['HTTP_USER_AGENT'])) : '';
 	}
 
 
@@ -250,17 +262,18 @@ class Event {
 	 *
 	 * @return string
 	 */
-	protected function get_click_id() {
+	protected function get_click_id()
+	{
 		$click_id = '';
-		if ( ! empty( $_COOKIE['_fbc'] ) ) {
-			$click_id = wc_clean( wp_unslash( $_COOKIE['_fbc'] ) );
-		} elseif ( ! empty( $_REQUEST['fbclid'] ) ) {
+		if (!empty($_COOKIE['_fbc'])) {
+			$click_id = wc_clean(wp_unslash($_COOKIE['_fbc']));
+		} elseif (!empty($_REQUEST['fbclid'])) {
 			// generate the click ID based on the query parameter
-			$version         = 'fb';
+			$version = 'fb';
 			$subdomain_index = 1;
-			$creation_time   = time();
-			$fbclid          = wc_clean( wp_unslash( $_REQUEST['fbclid'] ) );
-			$click_id        = "{$version}.{$subdomain_index}.{$creation_time}.{$fbclid}";
+			$creation_time = time();
+			$fbclid = wc_clean(wp_unslash($_REQUEST['fbclid']));
+			$click_id = "{$version}.{$subdomain_index}.{$creation_time}.{$fbclid}";
 		}
 		return $click_id;
 	}
@@ -269,23 +282,25 @@ class Event {
 	/**
 	 * Gets the browser ID from the cookie.
 	 *
+	 * @return string
 	 * @since 2.0.0
 	 *
-	 * @return string
 	 */
-	protected function get_browser_id() {
-		return ! empty( $_COOKIE['_fbp'] ) ? wc_clean( wp_unslash( $_COOKIE['_fbp'] ) ) : '';
+	protected function get_browser_id()
+	{
+		return !empty($_COOKIE['_fbp']) ? wc_clean(wp_unslash($_COOKIE['_fbp'])) : '';
 	}
 
 
 	/**
 	 * Gets the data.
 	 *
+	 * @return array
 	 * @since 2.0.0
 	 *
-	 * @return array
 	 */
-	public function get_data() {
+	public function get_data()
+	{
 		return $this->data;
 	}
 
@@ -293,47 +308,51 @@ class Event {
 	/**
 	 * Gets the event ID.
 	 *
+	 * @return string
 	 * @since 2.0.0
 	 *
-	 * @return string
 	 */
-	public function get_id() {
-		return ! empty( $this->data['event_id'] ) ? $this->data['event_id'] : '';
+	public function get_id()
+	{
+		return !empty($this->data['event_id']) ? $this->data['event_id'] : '';
 	}
 
 
 	/**
 	 * Gets the event name.
 	 *
+	 * @return string
 	 * @since 2.0.0
 	 *
-	 * @return string
 	 */
-	public function get_name() {
-		return ! empty( $this->data['event_name'] ) ? $this->data['event_name'] : '';
+	public function get_name()
+	{
+		return !empty($this->data['event_name']) ? $this->data['event_name'] : '';
 	}
 
 
 	/**
 	 * Gets the user data.
 	 *
+	 * @return array
 	 * @since 2.0.0
 	 *
-	 * @return array
 	 */
-	public function get_user_data() {
-		return ! empty( $this->data['user_data'] ) ? $this->data['user_data'] : array();
+	public function get_user_data()
+	{
+		return !empty($this->data['user_data']) ? $this->data['user_data'] : array();
 	}
 
 
 	/**
 	 * Gets the event custom data.
 	 *
+	 * @return array
 	 * @since 2.0.0
 	 *
-	 * @return array
 	 */
-	public function get_custom_data() {
-		return ! empty( $this->data['custom_data'] ) ? $this->data['custom_data'] : array();
+	public function get_custom_data()
+	{
+		return !empty($this->data['custom_data']) ? $this->data['custom_data'] : array();
 	}
 }

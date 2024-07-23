@@ -1,11 +1,11 @@
 <?php
-declare( strict_types=1 );
+declare(strict_types=1);
 
 namespace WooCommerce\Facebook\API\ProductCatalog\Products\Delete;
 
 use WooCommerce\Facebook\API\Response as ApiResponse;
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 /**
  * Response object for Product Catalog > Product Groups > Delete Graph Api.
@@ -13,4 +13,6 @@ defined( 'ABSPATH' ) || exit;
  * @link https://developers.facebook.com/docs/marketing-api/reference/product-group/#Deleting
  * @property-read bool $success
  */
-class Response extends ApiResponse {}
+class Response extends ApiResponse
+{
+}

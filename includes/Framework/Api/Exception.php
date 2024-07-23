@@ -5,9 +5,11 @@
 
 namespace WooCommerce\Facebook\Framework\Api;
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 /**
  * Plugin Framework API Exception - generic API Exception
  */
-class Exception extends \WooCommerce\Facebook\Framework\Plugin\Exception { }
+class Exception extends \WooCommerce\Facebook\Framework\Plugin\Exception
+{
+}

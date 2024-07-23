@@ -5,12 +5,13 @@
 
 namespace WooCommerce\Facebook\Framework\Api;
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 /**
  * Base JSON API request class.
  */
-abstract class JSONRequest implements Request {
+abstract class JSONRequest implements Request
+{
 
 	/** @var string The request method, one of HEAD, GET, PUT, PATCH, POST, DELETE */
 	protected $method;
@@ -27,67 +28,73 @@ abstract class JSONRequest implements Request {
 	/**
 	 * Get the request method.
 	 *
-	 * @since 4.3.0
-	 * @see Request::get_method()
 	 * @return string
+	 * @see Request::get_method()
+	 * @since 4.3.0
 	 */
-	public function get_method() {
+	public function get_method()
+	{
 		return $this->method;
 	}
 
 	/**
 	 * Get the request path.
 	 *
-	 * @since 4.3.0
-	 * @see Request::get_path()
 	 * @return string
+	 * @see Request::get_path()
+	 * @since 4.3.0
 	 */
-	public function get_path() {
+	public function get_path()
+	{
 		return $this->path;
 	}
 
 	/**
 	 * Get the request parameters.
 	 *
-	 * @since 4.3.0
-	 * @see Request::get_params()
 	 * @return array
+	 * @see Request::get_params()
+	 * @since 4.3.0
 	 */
-	public function get_params() {
+	public function get_params()
+	{
 		return $this->params;
 	}
 
 	/**
 	 * Get the request data.
 	 *
-	 * @since 4.5.0
 	 * @return array
+	 * @since 4.5.0
 	 */
-	public function get_data() {
+	public function get_data()
+	{
 		return $this->data;
 	}
 
 	/**
 	 * Get the string representation of this request.
 	 *
-	 * @since 4.3.0
-	 * @see Request::to_string()
 	 * @return string
+	 * @see Request::to_string()
+	 * @since 4.3.0
 	 */
-	public function to_string() {
+	public function to_string()
+	{
 		$data = $this->get_data();
-		return ! empty( $data ) ? wp_json_encode( $data ) : '';
+		return !empty($data) ? wp_json_encode($data) : '';
 	}
 
 	/**
 	 * Get the string representation of this request with any and all sensitive elements masked
 	 * or removed.
 	 *
-	 * @since 4.3.0
-	 * @see Request::to_string_safe()
 	 * @return string
+	 * @see Request::to_string_safe()
+	 * @since 4.3.0
 	 */
-	public function to_string_safe() {
+	public function to_string_safe()
+	{
 		return $this->to_string();
 	}
 }

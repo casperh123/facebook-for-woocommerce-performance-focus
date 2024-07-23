@@ -1,11 +1,11 @@
 <?php
-declare( strict_types=1 );
+declare(strict_types=1);
 
 namespace WooCommerce\Facebook\Jobs;
 
 use WooCommerce\Facebook\Utilities\Heartbeat;
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 /**
  * Class CleanupSkyvergeFrameworkJobOptions
@@ -19,14 +19,16 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.6.0
  */
-class CleanupSkyvergeFrameworkJobOptions {
+class CleanupSkyvergeFrameworkJobOptions
+{
 
 	/**
 	 * Add hooks.
 	 */
-	public function init() {
+	public function init()
+	{
 		// Register our cleanup routine to run regularly.
-		add_action( Heartbeat::DAILY, [ $this, 'clean_up_old_completed_options' ] );
+		add_action(Heartbeat::DAILY, [$this, 'clean_up_old_completed_options']);
 	}
 
 	/**
@@ -37,7 +39,8 @@ class CleanupSkyvergeFrameworkJobOptions {
 	 * @see BackgroundJobHandler
 	 * @see Products\Sync\Background
 	 */
-	public function clean_up_old_completed_options() {
+	public function clean_up_old_completed_options()
+	{
 		global $wpdb;
 
 		/**

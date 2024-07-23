@@ -11,4 +11,6 @@ use Exception;
  * There are limitations that will exclude product from Facebook catalog. We want to inform
  * user as early as possible.
  */
-class ProductInvalidException extends Exception {}
+class ProductInvalidException extends Exception
+{
+}

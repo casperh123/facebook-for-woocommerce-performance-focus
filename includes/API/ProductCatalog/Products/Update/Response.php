@@ -1,11 +1,11 @@
 <?php
-declare( strict_types=1 );
+declare(strict_types=1);
 
 namespace WooCommerce\Facebook\API\ProductCatalog\Products\Update;
 
 use WooCommerce\Facebook\API\Response as ApiResponse;
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 /**
  * Response object for Product Catalog > Product Groups > Update Graph Api.
@@ -13,4 +13,6 @@ defined( 'ABSPATH' ) || exit;
  * @link https://developers.facebook.com/docs/marketing-api/reference/product-group/products/
  * @property-read bool $success Either request was successful or not.
  */
-class Response extends ApiResponse {}
+class Response extends ApiResponse
+{
+}

@@ -1,5 +1,6 @@
 <?php
 // phpcs:ignoreFile
+
 /**
  * Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
  *
@@ -11,7 +12,7 @@
 
 namespace WooCommerce\Facebook\Utilities;
 
-defined( 'ABSPATH' ) or exit;
+defined('ABSPATH') or exit;
 
 use WooCommerce\Facebook\Framework\Utilities\BackgroundJobHandler;
 
@@ -22,7 +23,8 @@ use WooCommerce\Facebook\Framework\Utilities\BackgroundJobHandler;
  *
  * @since 2.0.3
  */
-class Background_Remove_Duplicate_Visibility_Meta extends BackgroundJobHandler {
+class Background_Remove_Duplicate_Visibility_Meta extends BackgroundJobHandler
+{
 
 
 	/**
@@ -30,7 +32,8 @@ class Background_Remove_Duplicate_Visibility_Meta extends BackgroundJobHandler {
 	 *
 	 * @since 2.0.3
 	 */
-	public function __construct() {
+	public function __construct()
+	{
 
 		$this->prefix = 'wc_facebook';
 		$this->action = 'background_remove_duplicate_visibility_meta';
@@ -45,47 +48,48 @@ class Background_Remove_Duplicate_Visibility_Meta extends BackgroundJobHandler {
 	 * This job continues to update products and product variations meta data until we run out of memory
 	 * or exceed the time limit. There is no list of items to loop over.
 	 *
+	 * @param object $job
+	 * @param int $items_per_batch number of items to process in a single request. Defaults to unlimited.
+	 * @return object
 	 * @since 2.0.3
 	 *
-	 * @param object $job
-	 * @param int    $items_per_batch number of items to process in a single request. Defaults to unlimited.
-	 * @return object
 	 */
-	public function process_job( $job, $items_per_batch = null ) {
+	public function process_job($job, $items_per_batch = null)
+	{
 
 		// don't do anything until the job used to hide virtual variations is done
 		$handler = facebook_for_woocommerce()->get_background_handle_virtual_products_variations_instance();
 
-		if ( $handler && $handler->get_jobs( array( 'status' => array( 'processing', 'queued' ) ) ) ) {
+		if ($handler && $handler->get_jobs(array('status' => array('processing', 'queued')))) {
 			return $job;
 		}
 
-		if ( ! isset( $job->total ) ) {
+		if (!isset($job->total)) {
 			$job->total = $this->count_remaining_products();
 		}
 
-		if ( ! isset( $job->progress ) ) {
+		if (!isset($job->progress)) {
 			$job->progress = 0;
 		}
 
-		while ( $job->progress < $job->total ) {
+		while ($job->progress < $job->total) {
 
 			$job->progress += $this->remove_duplicates();
 
 			// update job progress
-			$job = $this->update_job( $job );
+			$job = $this->update_job($job);
 
-			if ( $this->time_exceeded() || $this->memory_exceeded() ) {
+			if ($this->time_exceeded() || $this->memory_exceeded()) {
 				break;
 			}
 		}
 
 		// job complete! :)
-		if ( $this->count_remaining_products() === 0 ) {
+		if ($this->count_remaining_products() === 0) {
 
-			update_option( 'wc_facebook_background_remove_duplicate_visibility_meta_complete', 'yes' );
+			update_option('wc_facebook_background_remove_duplicate_visibility_meta_complete', 'yes');
 
-			$this->complete_job( $job );
+			$this->complete_job($job);
 		}
 
 		return $job;
@@ -95,11 +99,12 @@ class Background_Remove_Duplicate_Visibility_Meta extends BackgroundJobHandler {
 	/**
 	 * Counts the number of virtual products or product variations with sync enabled and visible.
 	 *
+	 * @return bool
 	 * @since 2.0.3
 	 *
-	 * @return bool
 	 */
-	private function count_remaining_products() {
+	private function count_remaining_products()
+	{
 		global $wpdb;
 
 		$sql = "
@@ -113,34 +118,35 @@ class Background_Remove_Duplicate_Visibility_Meta extends BackgroundJobHandler {
 			) AS duplicate_entries
 		";
 
-		return (int) $wpdb->get_var( $sql );
+		return (int)$wpdb->get_var($sql);
 	}
 
 
 	/**
 	 * Removes duplicate visibility meta data entries for products.
 	 *
+	 * @return int
 	 * @since 2.0.3
 	 *
-	 * @return int
 	 */
-	private function remove_duplicates() {
+	private function remove_duplicates()
+	{
 		global $wpdb;
 
 		$results = $this->get_posts_to_update();
 
-		if ( empty( $results ) ) {
-			facebook_for_woocommerce()->log( 'There are no products or products variations with duplicate visibility meta data.' );
+		if (empty($results)) {
+			facebook_for_woocommerce()->log('There are no products or products variations with duplicate visibility meta data.');
 			return 0;
 		}
 
 		$products_updated = 0;
 
-		foreach ( $results as $result ) {
+		foreach ($results as $result) {
 
 			$sql = "DELETE FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = 'fb_visibility' AND meta_id != %d";
 
-			if ( false === $wpdb->query( $wpdb->prepare( $sql, $result->post_id, $result->last_meta_id ) ) ) {
+			if (false === $wpdb->query($wpdb->prepare($sql, $result->post_id, $result->last_meta_id))) {
 
 				facebook_for_woocommerce()->log(
 					sprintf(
@@ -164,11 +170,12 @@ class Background_Remove_Duplicate_Visibility_Meta extends BackgroundJobHandler {
 	 *
 	 * The method also returns the number of meta data entries and ID of the last meta data entry for each product.
 	 *
+	 * @return array|null
 	 * @since 2.0.3
 	 *
-	 * @return array|null
 	 */
-	private function get_posts_to_update() {
+	private function get_posts_to_update()
+	{
 		global $wpdb;
 
 		$sql = "
@@ -179,7 +186,7 @@ class Background_Remove_Duplicate_Visibility_Meta extends BackgroundJobHandler {
 			HAVING entries > 1
 		";
 
-		return $wpdb->get_results( $sql );
+		return $wpdb->get_results($sql);
 	}
 
 
@@ -188,7 +195,8 @@ class Background_Remove_Duplicate_Visibility_Meta extends BackgroundJobHandler {
 	 *
 	 * @since 2.0.3
 	 */
-	protected function process_item( $item, $job ) {
+	protected function process_item($item, $job)
+	{
 		// void
 	}
 

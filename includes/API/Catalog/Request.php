@@ -10,7 +10,7 @@
 
 namespace WooCommerce\Facebook\API\Catalog;
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 use WooCommerce\Facebook\API\Request as ApiRequest;
 
@@ -19,13 +19,15 @@ use WooCommerce\Facebook\API\Request as ApiRequest;
  *
  * @link https://developers.facebook.com/docs/marketing-api/reference/product-catalog/v13.0
  */
-class Request extends ApiRequest {
+class Request extends ApiRequest
+{
 	/**
 	 * Gets the rate limit ID.
 	 *
 	 * @return string
 	 */
-	public static function get_rate_limit_id(): string {
+	public static function get_rate_limit_id(): string
+	{
 		return 'ads_management';
 	}
 
@@ -35,7 +37,8 @@ class Request extends ApiRequest {
 	 *
 	 * @param string $catalog_id catalog ID
 	 */
-	public function __construct( string $catalog_id ) {
-		parent::__construct( "/{$catalog_id}?fields=name", 'GET' );
+	public function __construct(string $catalog_id)
+	{
+		parent::__construct("/{$catalog_id}?fields=name", 'GET');
 	}
 }

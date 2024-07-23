@@ -10,7 +10,7 @@
 
 namespace WooCommerce\Facebook\API\FBE\Configuration\Update;
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 use WooCommerce\Facebook\API\FBE\Configuration;
 
@@ -19,18 +19,20 @@ use WooCommerce\Facebook\API\FBE\Configuration;
  *
  * @since 2.0.0
  */
-class Request extends Configuration\Request {
+class Request extends Configuration\Request
+{
 
 
 	/**
 	 * API request constructor.
 	 *
+	 * @param string $external_business_id external business ID
 	 * @since 2.0.0
 	 *
-	 * @param string $external_business_id external business ID
 	 */
-	public function __construct( $external_business_id ) {
-		parent::__construct( $external_business_id, 'POST' );
+	public function __construct($external_business_id)
+	{
+		parent::__construct($external_business_id, 'POST');
 		// include the business ID in the request body
 		$this->data['fbe_external_business_id'] = $external_business_id;
 	}
@@ -39,11 +41,12 @@ class Request extends Configuration\Request {
 	/**
 	 * Sets the plugin version for configuration update request.
 	 *
+	 * @param string $plugin_version current plugin version.
 	 * @since 3.0.10
 	 *
-	 * @param string $plugin_version current plugin version.
 	 */
-	public function set_plugin_version( string $plugin_version ) {
+	public function set_plugin_version(string $plugin_version)
+	{
 
 		$this->data['business_config'] = array(
 			'external_client' =>

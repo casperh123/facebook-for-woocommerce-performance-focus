@@ -7,7 +7,7 @@
  * @package FacebookCommerce
  */
 
-jQuery( document ).ready( ( $ ) => {
+jQuery(document).ready(($) => {
 
 	'use strict';
 
@@ -36,20 +36,20 @@ jQuery( document ).ready( ( $ ) => {
 
 			this.input_id = input_id;
 
-			var $input = $( '#' + this.input_id );
+			var $input = $('#' + this.input_id);
 
-			$( '<div id="wc-facebook-google-product-category-fields"></div>' )
-				.insertBefore( $input )
-				.on( 'change', 'select.wc-facebook-google-product-category-select', ( event ) => {
-					this.onChange( $( event.target ) );
-				} );
+			$('<div id="wc-facebook-google-product-category-fields"></div>')
+				.insertBefore($input)
+				.on('change', 'select.wc-facebook-google-product-category-select', (event) => {
+					this.onChange($(event.target));
+				});
 
-			this.addInitialSelects( $input.val() );
+			this.addInitialSelects($input.val());
 			var optionalSelectorID = this.globalsHolder().enhanced_attribute_optional_selector;
 
-			if(typeof(optionalSelectorID) !== 'undefined') {
+			if (typeof (optionalSelectorID) !== 'undefined') {
 				// Initial trigger for the optional attributes selector
-				$( '#' + optionalSelectorID ).on('change', function(){
+				$('#' + optionalSelectorID).on('change', function () {
 					$('.wc-facebook-enhanced-catalog-attribute-optional-row')
 						.toggleClass('hidden', !$(this).prop("checked"));
 				});
@@ -57,18 +57,18 @@ jQuery( document ).ready( ( $ ) => {
 		}
 
 		globalsHolder() {
-			if(typeof(facebook_for_woocommerce_product_categories) !== 'undefined'){
+			if (typeof (facebook_for_woocommerce_product_categories) !== 'undefined') {
 				return facebook_for_woocommerce_product_categories;
-			} else if(typeof(facebook_for_woocommerce_settings_sync) !== 'undefined'){
+			} else if (typeof (facebook_for_woocommerce_settings_sync) !== 'undefined') {
 				return facebook_for_woocommerce_settings_sync;
 			} else {
 				return facebook_for_woocommerce_products_admin;
 			}
 		}
 
-		getPageType(){
-			if(typeof(facebook_for_woocommerce_product_categories) !== 'undefined'){
-				if( $( 'input[name=tag_ID]' ).length === 0){
+		getPageType() {
+			if (typeof (facebook_for_woocommerce_product_categories) !== 'undefined') {
+				if ($('input[name=tag_ID]').length === 0) {
 					return this.globalsHolder().enhanced_attribute_page_type_add_category;
 				} else {
 					return this.globalsHolder().enhanced_attribute_page_type_edit_category;
@@ -86,24 +86,24 @@ jQuery( document ).ready( ( $ ) => {
 		 *
 		 * @param {string} categoryId the selected google product category
 		 */
-		addInitialSelects( categoryId ) {
+		addInitialSelects(categoryId) {
 
-			if ( categoryId ) {
+			if (categoryId) {
 
-				this.getSelectedCategoryIds( categoryId ).forEach( ( pair ) => {
-					this.addSelect( this.getOptions( pair[1] ), pair[0] );
-				} );
+				this.getSelectedCategoryIds(categoryId).forEach((pair) => {
+					this.addSelect(this.getOptions(pair[1]), pair[0]);
+				});
 
-				var options = this.getOptions( categoryId );
+				var options = this.getOptions(categoryId);
 
-				if ( Object.keys( options ).length ) {
-					this.addSelect( options );
+				if (Object.keys(options).length) {
+					this.addSelect(options);
 				}
 
 			} else {
 
-				this.addSelect( this.getOptions() );
-				this.addSelect( {} );
+				this.addSelect(this.getOptions());
+				this.addSelect({});
 			}
 		}
 
@@ -116,33 +116,33 @@ jQuery( document ).ready( ( $ ) => {
 			// enhanced attributes on this page, (for example it may be the
 			// product sync page)
 			var canShowEnhancedAttributesID = 'wc_facebook_can_show_enhanced_catalog_attributes_id';
-			if($( '#'+canShowEnhancedAttributesID ).val() !== 'true'){
+			if ($('#' + canShowEnhancedAttributesID).val() !== 'true') {
 				return;
 			}
 
 			$('.wc-facebook-enhanced-catalog-attribute-row').remove();
 
-			if(this.isValid()) {
+			if (this.isValid()) {
 				var inputSelector = '#' + this.input_id;
-				var $inputParent = $( inputSelector ).parents('div.form-field');
+				var $inputParent = $(inputSelector).parents('div.form-field');
 				var optionalSelectorID = this.globalsHolder().enhanced_attribute_optional_selector;
-				if( this.getPageType() === this.globalsHolder().enhanced_attribute_page_type_edit_category ){
-					$inputParent = $( inputSelector ).parents('tr.form-field');
-				} else if( this.getPageType() === this.globalsHolder().enhanced_attribute_page_type_edit_product ) {
-					$inputParent = $( inputSelector ).parents('p.form-field');
+				if (this.getPageType() === this.globalsHolder().enhanced_attribute_page_type_edit_category) {
+					$inputParent = $(inputSelector).parents('tr.form-field');
+				} else if (this.getPageType() === this.globalsHolder().enhanced_attribute_page_type_edit_product) {
+					$inputParent = $(inputSelector).parents('p.form-field');
 				}
-			  $.get( this.globalsHolder().ajax_url, {
-					action:   'wc_facebook_enhanced_catalog_attributes',
+				$.get(this.globalsHolder().ajax_url, {
+					action: 'wc_facebook_enhanced_catalog_attributes',
 					security: '',
-					selected_category:  $( inputSelector ).val(),
-					tag_id:  parseInt($( 'input[name=tag_ID]' ).val(), 10),
-					taxonomy:  $( 'input[name=taxonomy]' ).val(),
-					item_id: parseInt( $( 'input[name=post_ID]' ).val(), 10 ),
+					selected_category: $(inputSelector).val(),
+					tag_id: parseInt($('input[name=tag_ID]').val(), 10),
+					taxonomy: $('input[name=taxonomy]').val(),
+					item_id: parseInt($('input[name=post_ID]').val(), 10),
 					page_type: this.getPageType(),
-				}, function( response ) {
+				}, function (response) {
 					var $response = $(response);
 
-					$( '#' + optionalSelectorID, $response ).on('change', function(){
+					$('#' + optionalSelectorID, $response).on('change', function () {
 						$('.wc-facebook-enhanced-catalog-attribute-optional-row')
 							.toggleClass('hidden', !$(this).prop("checked"));
 					});
@@ -162,35 +162,35 @@ jQuery( document ).ready( ( $ ) => {
 		onChange(element) {
 
 			// remove following select fields if their options depended on the value of the current select field
-			if ( element.hasClass( 'locked' ) ) {
-				element.closest( '.wc-facebook-google-product-category-field' ).nextAll().remove();
+			if (element.hasClass('locked')) {
+				element.closest('.wc-facebook-google-product-category-field').nextAll().remove();
 			}
 
 			var categoryId = element.val();
 
-			if ( categoryId ) {
+			if (categoryId) {
 
-				var options = this.getOptions( categoryId );
+				var options = this.getOptions(categoryId);
 
-				if ( Object.keys( options ).length ) {
-					this.addSelect( options );
+				if (Object.keys(options).length) {
+					this.addSelect(options);
 				}
 
 			} else {
 
 				// use category ID from the last select field that has a selected value
-				categoryId = element.closest( '#wc-facebook-google-product-category-fields' )
-					.find( '.wc-facebook-google-product-category-select' )
-						.not( element )
-							.last()
-								.val();
+				categoryId = element.closest('#wc-facebook-google-product-category-fields')
+					.find('.wc-facebook-google-product-category-select')
+					.not(element)
+					.last()
+					.val();
 
-				if ( ! categoryId ) {
-					this.addSelect( {} );
+				if (!categoryId) {
+					this.addSelect({});
 				}
 			}
 
-			$( '#' + this.input_id ).val( categoryId );
+			$('#' + this.input_id).val(categoryId);
 			this.requestAttributesIfValid();
 		}
 
@@ -201,8 +201,10 @@ jQuery( document ).ready( ( $ ) => {
 		 */
 		isValid() {
 			var selectsWithValueCount = $('.wc-facebook-google-product-category-select')
-				.filter(function(_i, el) { return $(el).val() !== ""; })
-					.length;
+				.filter(function (_i, el) {
+					return $(el).val() !== "";
+				})
+				.length;
 			return selectsWithValueCount >= 2;
 		}
 
@@ -214,23 +216,23 @@ jQuery( document ).ready( ( $ ) => {
 		 * @param {Object.<string, string>} options an object with option IDs as keys and option labels as values
 		 * @param {string} selected the selected option ID
 		 */
-		addSelect( options, selected ) {
+		addSelect(options, selected) {
 
-			var $container = $( '#wc-facebook-google-product-category-fields' );
-			var $otherSelects = $container.find( '.wc-facebook-google-product-category-select' );
-			var $select = $( '<select class="wc-facebook-google-product-category-select"></select>' );
+			var $container = $('#wc-facebook-google-product-category-fields');
+			var $otherSelects = $container.find('.wc-facebook-google-product-category-select');
+			var $select = $('<select class="wc-facebook-google-product-category-select"></select>');
 
-			$otherSelects.addClass( 'locked' );
+			$otherSelects.addClass('locked');
 
-			$container.append( $( '<div class="wc-facebook-google-product-category-field" style="margin-bottom: 16px">' ).append( $select ) );
+			$container.append($('<div class="wc-facebook-google-product-category-field" style="margin-bottom: 16px">').append($select));
 
-			$select.attr( 'data-placeholder', this.getSelectPlaceholder( $otherSelects, options ) ).append( $( '<option value=""></option>' ) );
+			$select.attr('data-placeholder', this.getSelectPlaceholder($otherSelects, options)).append($('<option value=""></option>'));
 
-			Object.keys( options ).forEach( ( key ) => {
-				$select.append( $( '<option value="' + key + '">' + options[ key ] + '</option>' ) );
-			} );
+			Object.keys(options).forEach((key) => {
+				$select.append($('<option value="' + key + '">' + options[key] + '</option>'));
+			});
 
-			$select.val( selected ).select2( { allowClear: true } );
+			$select.val(selected).select2({allowClear: true});
 		}
 
 
@@ -243,13 +245,13 @@ jQuery( document ).ready( ( $ ) => {
 		 * @param {Object.<string, string>} options an object with option IDs as keys and option labels as values
 		 * @return {string}
 		 */
-		getSelectPlaceholder( $otherSelects, options ) {
+		getSelectPlaceholder($otherSelects, options) {
 
-			if ( 0 === $otherSelects.length ) {
+			if (0 === $otherSelects.length) {
 				return facebook_for_woocommerce_google_product_category.i18n.top_level_dropdown_placeholder;
 			}
 
-			if ( 1 === $otherSelects.length && 0 === Object.keys( options ).length ) {
+			if (1 === $otherSelects.length && 0 === Object.keys(options).length) {
 				return facebook_for_woocommerce_google_product_category.i18n.second_level_empty_dropdown_placeholder;
 			}
 
@@ -267,19 +269,19 @@ jQuery( document ).ready( ( $ ) => {
 		 */
 		getOptions(category_id) {
 
-			if ( 'undefined' === typeof category_id || '' === category_id ) {
+			if ('undefined' === typeof category_id || '' === category_id) {
 				return this.getTopLevelOptions();
 			}
 
-			if ( 'undefined' === typeof this.categories[ category_id ] ) {
+			if ('undefined' === typeof this.categories[category_id]) {
 				return [];
 			}
 
-			if ( 'undefined' === typeof this.categories[ category_id ]['options'] ) {
+			if ('undefined' === typeof this.categories[category_id]['options']) {
 				return [];
 			}
 
-			return this.categories[ category_id ]['options'];
+			return this.categories[category_id]['options'];
 		}
 
 
@@ -290,18 +292,18 @@ jQuery( document ).ready( ( $ ) => {
 		 *
 		 * @return {Object.<string, string>} an object with option IDs as keys and option labels as values
 		 */
-		getTopLevelOptions() {
+		getTopLevelOptions() {
 
 			let options = {};
 
-			Object.keys( this.categories ).forEach( ( key ) => {
+			Object.keys(this.categories).forEach((key) => {
 
-				if ( this.categories[ key ].parent ) {
+				if (this.categories[key].parent) {
 					return;
 				}
 
-				options[ key ] = this.categories[ key ].label;
-			} );
+				options[key] = this.categories[key].label;
+			});
 
 			return options;
 		}
@@ -319,18 +321,18 @@ jQuery( document ).ready( ( $ ) => {
 		 * @param {string} categoryId
 		 * @param {Array.<string[]>} categoryId
 		 */
-		getSelectedCategoryIds( categoryId ) {
+		getSelectedCategoryIds(categoryId) {
 
 			var options = [];
 
 			do {
-				if ( 'undefined' !== typeof this.categories[ categoryId ] ) {
+				if ('undefined' !== typeof this.categories[categoryId]) {
 
-					options.push( [ categoryId, this.categories[ categoryId ].parent ] );
+					options.push([categoryId, this.categories[categoryId].parent]);
 
-					categoryId = this.categories[ categoryId ].parent;
+					categoryId = this.categories[categoryId].parent;
 				}
-			} while ( '' !== categoryId );
+			} while ('' !== categoryId);
 
 			return options.reverse();
 		}
@@ -339,4 +341,4 @@ jQuery( document ).ready( ( $ ) => {
 	}
 
 
-} );
+});

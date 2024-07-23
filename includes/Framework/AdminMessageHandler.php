@@ -1,12 +1,13 @@
 <?php
 // phpcs:ignoreFile
+
 /**
  * Facebook for WooCommerce.
  */
 
 namespace WooCommerce\Facebook\Framework;
 
-defined( 'ABSPATH' ) or exit;
+defined('ABSPATH') or exit;
 
 /**
  * Admin Message Handler Class
@@ -31,7 +32,8 @@ defined( 'ABSPATH' ) or exit;
  *
  * @version 1.0.1
  */
-class AdminMessageHandler {
+class AdminMessageHandler
+{
 
 
 	/** transient message prefix */
@@ -60,33 +62,35 @@ class AdminMessageHandler {
 	/**
 	 * Construct and initialize the admin message handler class
 	 *
-	 * @since 1.0.0
 	 * @param string $message_id optional message id.  Best practice is to set
 	 *        this to a unique identifier based on the client plugin, such as __FILE__
+	 * @since 1.0.0
 	 */
-	public function __construct( $message_id = null ) {
+	public function __construct($message_id = null)
+	{
 		$this->message_id = $message_id;
 		// load any available messages
 		$this->load_messages();
-		add_filter( 'wp_redirect', array( $this, 'redirect' ), 1, 2 );
+		add_filter('wp_redirect', array($this, 'redirect'), 1, 2);
 	}
 
 
 	/**
 	 * Persist messages
 	 *
-	 * @since 1.0.0
 	 * @return boolean true if any messages were set, false otherwise
+	 * @since 1.0.0
 	 */
-	public function set_messages() {
+	public function set_messages()
+	{
 		// any messages to persist?
-		if ( $this->message_count() > 0 || $this->info_count() > 0 || $this->warning_count() > 0 || $this->error_count() > 0 ) {
+		if ($this->message_count() > 0 || $this->info_count() > 0 || $this->warning_count() > 0 || $this->error_count() > 0) {
 			set_transient(
 				self::MESSAGE_TRANSIENT_PREFIX . $this->get_message_id(),
 				array(
-					'errors'   => $this->errors,
+					'errors' => $this->errors,
 					'warnings' => $this->warnings,
-					'infos'    => $this->infos,
+					'infos' => $this->infos,
 					'messages' => $this->messages,
 				),
 				60 * 60
@@ -102,15 +106,16 @@ class AdminMessageHandler {
 	 *
 	 * @since 1.0.0
 	 */
-	public function load_messages() {
-		$message_id_get_name = isset( $_GET[ self::MESSAGE_ID_GET_NAME ] ) ? wc_clean( wp_unslash( $_GET[ self::MESSAGE_ID_GET_NAME ] ) ) : false;
-		if ( $message_id_get_name && $this->get_message_id() == $message_id_get_name ) {
-			$memo = get_transient( self::MESSAGE_TRANSIENT_PREFIX . $message_id_get_name );
-			if ( isset( $memo['errors'] ) )   $this->errors   = $memo['errors'];
-			if ( isset( $memo['warnings'] ) ) $this->warnings = $memo['warnings'];
-			if ( isset( $memo['infos'] ) )    $this->infos    = $memo['infos'];
-			if ( isset( $memo['messages'] ) ) $this->messages = $memo['messages'];
-			$this->clear_messages( $message_id_get_name );
+	public function load_messages()
+	{
+		$message_id_get_name = isset($_GET[self::MESSAGE_ID_GET_NAME]) ? wc_clean(wp_unslash($_GET[self::MESSAGE_ID_GET_NAME])) : false;
+		if ($message_id_get_name && $this->get_message_id() == $message_id_get_name) {
+			$memo = get_transient(self::MESSAGE_TRANSIENT_PREFIX . $message_id_get_name);
+			if (isset($memo['errors'])) $this->errors = $memo['errors'];
+			if (isset($memo['warnings'])) $this->warnings = $memo['warnings'];
+			if (isset($memo['infos'])) $this->infos = $memo['infos'];
+			if (isset($memo['messages'])) $this->messages = $memo['messages'];
+			$this->clear_messages($message_id_get_name);
 		}
 	}
 
@@ -118,21 +123,23 @@ class AdminMessageHandler {
 	/**
 	 * Clear messages and errors
 	 *
-	 * @since 1.0.0
 	 * @param string $id the messages identifier
+	 * @since 1.0.0
 	 */
-	public function clear_messages( $id ) {
-		delete_transient( self::MESSAGE_TRANSIENT_PREFIX . $id );
+	public function clear_messages($id)
+	{
+		delete_transient(self::MESSAGE_TRANSIENT_PREFIX . $id);
 	}
 
 
 	/**
 	 * Add an error message.
 	 *
-	 * @since 1.0.0
 	 * @param string $error error message
+	 * @since 1.0.0
 	 */
-	public function add_error( $error ) {
+	public function add_error($error)
+	{
 		$this->errors[] = $error;
 	}
 
@@ -140,11 +147,12 @@ class AdminMessageHandler {
 	/**
 	 * Adds a warning message.
 	 *
+	 * @param string $message warning message to add
 	 * @since 5.1.0
 	 *
-	 * @param string $message warning message to add
 	 */
-	public function add_warning( $message ) {
+	public function add_warning($message)
+	{
 		$this->warnings[] = $message;
 	}
 
@@ -152,11 +160,12 @@ class AdminMessageHandler {
 	/**
 	 * Adds a info message.
 	 *
+	 * @param string $message info message to add
 	 * @since 5.1.0
 	 *
-	 * @param string $message info message to add
 	 */
-	public function add_info( $message ) {
+	public function add_info($message)
+	{
 		$this->infos[] = $message;
 	}
 
@@ -164,10 +173,11 @@ class AdminMessageHandler {
 	/**
 	 * Add a message.
 	 *
-	 * @since 1.0.0
 	 * @param string $message the message to add
+	 * @since 1.0.0
 	 */
-	public function add_message( $message ) {
+	public function add_message($message)
+	{
 		$this->messages[] = $message;
 	}
 
@@ -175,56 +185,61 @@ class AdminMessageHandler {
 	/**
 	 * Get error count.
 	 *
-	 * @since 1.0.0
 	 * @return int error message count
+	 * @since 1.0.0
 	 */
-	public function error_count() {
-		return sizeof( $this->errors );
+	public function error_count()
+	{
+		return sizeof($this->errors);
 	}
 
 
 	/**
 	 * Gets the warning message count.
 	 *
+	 * @return int warning message count
 	 * @since 5.1.0
 	 *
-	 * @return int warning message count
 	 */
-	public function warning_count() {
-		return sizeof( $this->warnings );
+	public function warning_count()
+	{
+		return sizeof($this->warnings);
 	}
 
 
 	/**
 	 * Gets the info message count.
 	 *
+	 * @return int info message count
 	 * @since 5.1.0
 	 *
-	 * @return int info message count
 	 */
-	public function info_count() {
-		return sizeof( $this->infos );
+	public function info_count()
+	{
+		return sizeof($this->infos);
 	}
 
 
 	/**
 	 * Get message count.
 	 *
-	 * @since 1.0.0
 	 * @return int message count
+	 * @since 1.0.0
 	 */
-	public function message_count() {
-		return sizeof( $this->messages );
+	public function message_count()
+	{
+		return sizeof($this->messages);
 	}
 
 
 	/**
 	 * Get error messages
 	 *
-	 * @since 1.0.0
 	 * @return array of error message strings
+	 * @since 1.0.0
 	 */
-	public function get_errors() {
+	public function get_errors()
+	{
 		return $this->errors;
 	}
 
@@ -232,23 +247,25 @@ class AdminMessageHandler {
 	/**
 	 * Get an error message
 	 *
-	 * @since 1.0.0
 	 * @param int $index the error index
 	 * @return string the error message
+	 * @since 1.0.0
 	 */
-	public function get_error( $index ) {
-		return isset( $this->errors[ $index ] ) ? $this->errors[ $index ] : '';
+	public function get_error($index)
+	{
+		return isset($this->errors[$index]) ? $this->errors[$index] : '';
 	}
 
 
 	/**
 	 * Gets all warning messages.
 	 *
+	 * @return array
 	 * @since 5.1.0
 	 *
-	 * @return array
 	 */
-	public function get_warnings() {
+	public function get_warnings()
+	{
 		return $this->warnings;
 	}
 
@@ -256,24 +273,26 @@ class AdminMessageHandler {
 	/**
 	 * Gets a specific warning message.
 	 *
-	 * @since 5.1.0
-	 *
 	 * @param int $index warning message index
 	 * @return string
+	 * @since 5.1.0
+	 *
 	 */
-	public function get_warning( $index ) {
-		return isset( $this->warnings[ $index ] ) ? $this->warnings[ $index ] : '';
+	public function get_warning($index)
+	{
+		return isset($this->warnings[$index]) ? $this->warnings[$index] : '';
 	}
 
 
 	/**
 	 * Gets all info messages.
 	 *
+	 * @return array
 	 * @since 5.1.0
 	 *
-	 * @return array
 	 */
-	public function get_infos() {
+	public function get_infos()
+	{
 		return $this->infos;
 	}
 
@@ -281,23 +300,25 @@ class AdminMessageHandler {
 	/**
 	 * Gets a specific info message.
 	 *
-	 * @since 5.0.0
-	 *
 	 * @param int $index info message index
 	 * @return string
+	 * @since 5.0.0
+	 *
 	 */
-	public function get_info( $index ) {
-		return isset( $this->infos[ $index ] ) ? $this->infos[ $index ] : '';
+	public function get_info($index)
+	{
+		return isset($this->infos[$index]) ? $this->infos[$index] : '';
 	}
 
 
 	/**
 	 * Get messages
 	 *
-	 * @since 1.0.0
 	 * @return array of message strings
+	 * @since 1.0.0
 	 */
-	public function get_messages() {
+	public function get_messages()
+	{
 		return $this->messages;
 	}
 
@@ -305,70 +326,73 @@ class AdminMessageHandler {
 	/**
 	 * Get a message
 	 *
-	 * @since 1.0.0
 	 * @param int $index the message index
 	 * @return string the message
+	 * @since 1.0.0
 	 */
-	public function get_message( $index ) {
-		return isset( $this->messages[ $index ] ) ? $this->messages[ $index ] : '';
+	public function get_message($index)
+	{
+		return isset($this->messages[$index]) ? $this->messages[$index] : '';
 	}
 
 
 	/**
 	 * Render the errors and messages.
 	 *
-	 * @since 1.0.0
 	 * @param array $params {
 	 *     Optional parameters.
 	 *
-	 *     @type array $capabilities Any user capabilities to check if the user is allowed to view the messages,
+	 * @type array $capabilities Any user capabilities to check if the user is allowed to view the messages,
 	 *                               default: `manage_woocommerce`
 	 * }
+	 * @since 1.0.0
 	 */
-	public function show_messages( $params = [] ) {
-		$params = wp_parse_args( $params, array(
+	public function show_messages($params = [])
+	{
+		$params = wp_parse_args($params, array(
 			'capabilities' => array(
 				'manage_woocommerce',
 			),
-		) );
+		));
 		$check_user_capabilities = [];
 		// check if user has at least one capability that allows to see messages
-		foreach ( $params['capabilities'] as $capability ) {
-			$check_user_capabilities[] = current_user_can( $capability );
+		foreach ($params['capabilities'] as $capability) {
+			$check_user_capabilities[] = current_user_can($capability);
 		}
 		// bail out if user has no minimum capabilities to see messages
-		if ( ! in_array( true, $check_user_capabilities, true ) ) {
+		if (!in_array(true, $check_user_capabilities, true)) {
 			return;
 		}
 		$output = '';
-		if ( $this->error_count() > 0 ) {
-			$output .= '<div id="wp-admin-message-handler-error" class="notice-error notice"><ul><li><strong>' . implode( '</strong></li><li><strong>', $this->get_errors() ) . '</strong></li></ul></div>';
+		if ($this->error_count() > 0) {
+			$output .= '<div id="wp-admin-message-handler-error" class="notice-error notice"><ul><li><strong>' . implode('</strong></li><li><strong>', $this->get_errors()) . '</strong></li></ul></div>';
 		}
-		if ( $this->warning_count() > 0 ) {
-			$output .= '<div id="wp-admin-message-handler-warning"  class="notice-warning notice"><ul><li><strong>' . implode( '</strong></li><li><strong>', $this->get_warnings() ) . '</strong></li></ul></div>';
+		if ($this->warning_count() > 0) {
+			$output .= '<div id="wp-admin-message-handler-warning"  class="notice-warning notice"><ul><li><strong>' . implode('</strong></li><li><strong>', $this->get_warnings()) . '</strong></li></ul></div>';
 		}
-		if ( $this->info_count() > 0 ) {
-			$output .= '<div id="wp-admin-message-handler-warning"  class="notice-info notice"><ul><li><strong>' . implode( '</strong></li><li><strong>', $this->get_infos() ) . '</strong></li></ul></div>';
+		if ($this->info_count() > 0) {
+			$output .= '<div id="wp-admin-message-handler-warning"  class="notice-info notice"><ul><li><strong>' . implode('</strong></li><li><strong>', $this->get_infos()) . '</strong></li></ul></div>';
 		}
-		if ( $this->message_count() > 0 ) {
-			$output .= '<div id="wp-admin-message-handler-message"  class="notice-success notice"><ul><li><strong>' . implode( '</strong></li><li><strong>', $this->get_messages() ) . '</strong></li></ul></div>';
+		if ($this->message_count() > 0) {
+			$output .= '<div id="wp-admin-message-handler-message"  class="notice-success notice"><ul><li><strong>' . implode('</strong></li><li><strong>', $this->get_messages()) . '</strong></li></ul></div>';
 		}
-		echo wp_kses_post( $output );
+		echo wp_kses_post($output);
 	}
 
 
 	/**
 	 * Redirection hook which persists messages into session data.
 	 *
-	 * @since 1.0.0
 	 * @param string $location the URL to redirect to
 	 * @param int $status the http status
 	 * @return string the URL to redirect to
+	 * @since 1.0.0
 	 */
-	public function redirect( $location, $status ) {
+	public function redirect($location, $status)
+	{
 		// add the admin message id param to the
-		if ( $this->set_messages() ) {
-			$location = add_query_arg( self::MESSAGE_ID_GET_NAME, $this->get_message_id(), $location );
+		if ($this->set_messages()) {
+			$location = add_query_arg(self::MESSAGE_ID_GET_NAME, $this->get_message_id(), $location);
 		}
 
 		// nosemgrep: audit.php.wp.security.xss.query-arg
@@ -379,11 +403,12 @@ class AdminMessageHandler {
 	/**
 	 * Generate a unique id to identify the messages
 	 *
-	 * @since 1.0.0
 	 * @return string unique identifier
+	 * @since 1.0.0
 	 */
-	protected function get_message_id() {
-		if ( ! isset( $this->message_id ) ) $this->message_id = __FILE__;
-		return wp_create_nonce( $this->message_id );
+	protected function get_message_id()
+	{
+		if (!isset($this->message_id)) $this->message_id = __FILE__;
+		return wp_create_nonce($this->message_id);
 	}
 }

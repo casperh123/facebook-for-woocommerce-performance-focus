@@ -2,7 +2,7 @@
 
 namespace WooCommerce\Facebook\API\Exceptions;
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 /**
  * Class Connect_WC_API_Exception.
@@ -10,4 +10,6 @@ defined( 'ABSPATH' ) || exit;
  *
  * @package WooCommerce\Facebook\API\Exceptions
  */
-class ConnectApiException extends \Exception {}
+class ConnectApiException extends \Exception
+{
+}

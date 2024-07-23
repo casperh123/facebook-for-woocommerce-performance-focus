@@ -10,7 +10,7 @@
 
 namespace WooCommerce\Facebook\API\Catalog\Product_Group\Products\Read;
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 use WooCommerce\Facebook\API;
 
@@ -19,7 +19,8 @@ use WooCommerce\Facebook\API;
  *
  * @since 2.0.0
  */
-class Response extends API\Response {
+class Response extends API\Response
+{
 
 
 	use API\Traits\Paginated_Response;
@@ -28,16 +29,17 @@ class Response extends API\Response {
 	/**
 	 * Gets the Product Item IDs indexed by the retailer ID.
 	 *
+	 * @return array
 	 * @since 2.0.0
 	 *
-	 * @return array
 	 */
-	public function get_ids() {
+	public function get_ids()
+	{
 
 		$product_item_ids = array();
 
-		foreach ( $this->get_data() as $entry ) {
-			$product_item_ids[ $entry->retailer_id ] = $entry->id;
+		foreach ($this->get_data() as $entry) {
+			$product_item_ids[$entry->retailer_id] = $entry->id;
 		}
 
 		return $product_item_ids;

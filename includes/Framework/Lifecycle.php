@@ -1,12 +1,13 @@
 <?php
 // phpcs:ignoreFile
+
 /**
  * Facebook for WooCommerce.
  */
 
 namespace WooCommerce\Facebook\Framework;
 
-defined( 'ABSPATH' ) or exit;
+defined('ABSPATH') or exit;
 
 /**
  * Plugin lifecycle handler.
@@ -14,7 +15,8 @@ defined( 'ABSPATH' ) or exit;
  * Registers and displays milestone notice prompts and eventually the plugin
  * install, upgrade, activation, and deactivation routines.
  */
-class Lifecycle {
+class Lifecycle
+{
 
 	/** @var Plugin plugin instance */
 	private $plugin;
@@ -22,11 +24,12 @@ class Lifecycle {
 	/**
 	 * Constructs the class.
 	 *
+	 * @param Plugin $plugin plugin instance
 	 * @since 5.1.0
 	 *
-	 * @param Plugin $plugin plugin instance
 	 */
-	public function __construct( Plugin $plugin ) {
+	public function __construct(Plugin $plugin)
+	{
 		$this->plugin = $plugin;
 		$this->add_hooks();
 	}
@@ -37,9 +40,10 @@ class Lifecycle {
 	 *
 	 * @since 5.1.0
 	 */
-	protected function add_hooks() {
-		add_action( 'admin_init', array( $this, 'handle_activation' ) );
-		add_action( 'deactivate_' . $this->get_plugin()->get_plugin_file(), array( $this, 'handle_deactivation' ) );
+	protected function add_hooks()
+	{
+		add_action('admin_init', array($this, 'handle_activation'));
+		add_action('deactivate_' . $this->get_plugin()->get_plugin_file(), array($this, 'handle_deactivation'));
 	}
 
 
@@ -56,15 +60,16 @@ class Lifecycle {
 	 *
 	 * @since 5.2.0
 	 */
-	public function handle_activation() {
-		if ( ! get_option( 'wc_' . $this->get_plugin()->get_id() . '_is_active', false ) ) {
+	public function handle_activation()
+	{
+		if (!get_option('wc_' . $this->get_plugin()->get_id() . '_is_active', false)) {
 			/**
 			 * Fires when the plugin is activated.
 			 *
 			 * @since 5.2.0
 			 */
-			do_action( 'wc_' . $this->get_plugin()->get_id() . '_activated' );
-			update_option( 'wc_' . $this->get_plugin()->get_id() . '_is_active', 'yes' );
+			do_action('wc_' . $this->get_plugin()->get_id() . '_activated');
+			update_option('wc_' . $this->get_plugin()->get_id() . '_is_active', 'yes');
 		}
 	}
 
@@ -76,14 +81,15 @@ class Lifecycle {
 	 *
 	 * @since 5.2.0
 	 */
-	public function handle_deactivation() {
+	public function handle_deactivation()
+	{
 		/**
 		 * Fires when the plugin is deactivated.
 		 *
 		 * @since 5.2.0
 		 */
-		do_action( 'wc_' . $this->get_plugin()->get_id() . '_deactivated' );
-		delete_option( 'wc_' . $this->get_plugin()->get_id() . '_is_active' );
+		do_action('wc_' . $this->get_plugin()->get_id() . '_deactivated');
+		delete_option('wc_' . $this->get_plugin()->get_id() . '_is_active');
 	}
 
 
@@ -92,7 +98,8 @@ class Lifecycle {
 	 *
 	 * @return Plugin
 	 */
-	protected function get_plugin() {
+	protected function get_plugin()
+	{
 		return $this->plugin;
 	}
 }

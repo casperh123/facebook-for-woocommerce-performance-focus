@@ -7,14 +7,15 @@ namespace WooCommerce\Facebook\Framework\Api;
 
 use ArrayAccess;
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 /**
  * Base JSON API response class.
  *
  * @since 4.3.0
  */
-abstract class JSONResponse implements Response, ArrayAccess {
+abstract class JSONResponse implements Response, ArrayAccess
+{
 
 	/** @var string string representation of this response */
 	protected $raw_response_json;
@@ -25,37 +26,40 @@ abstract class JSONResponse implements Response, ArrayAccess {
 	/**
 	 * Build the data object from the raw JSON.
 	 *
+	 * @param string $raw_response_json The raw JSON
 	 * @since 4.3.0
 	 *
-	 * @param string $raw_response_json The raw JSON
 	 */
-	public function __construct( string $raw_response_json ) {
+	public function __construct(string $raw_response_json)
+	{
 		$this->raw_response_json = $raw_response_json;
-		$this->response_data     = json_decode( $raw_response_json, true );
+		$this->response_data = json_decode($raw_response_json, true);
 	}
 
 	/**
 	 * Magic accessor for response data attributes
 	 *
-	 * @since 4.3.0
-	 *
 	 * @param string $name The attribute name to get.
 	 *
 	 * @return mixed The attribute value
+	 * @since 4.3.0
+	 *
 	 */
-	public function __get( string $name ) {
+	public function __get(string $name)
+	{
 		// accessing the response_data object indirectly via attribute (useful when it's a class)
-		return $this->response_data[ $name ] ?? null;
+		return $this->response_data[$name] ?? null;
 	}
 
 	/**
 	 * Get the string representation of this response.
 	 *
-	 * @since 4.3.0
 	 * @return string
+	 * @since 4.3.0
 	 * @see   SV_Response::to_string()
 	 */
-	public function to_string() {
+	public function to_string()
+	{
 		return $this->raw_response_json;
 	}
 
@@ -63,65 +67,70 @@ abstract class JSONResponse implements Response, ArrayAccess {
 	 * Get the string representation of this response with any and all sensitive elements masked
 	 * or removed.
 	 *
-	 * @since 4.3.0
 	 * @return string
+	 * @since 4.3.0
 	 * @see   Response::to_string_safe()
 	 */
-	public function to_string_safe() {
+	public function to_string_safe()
+	{
 		return $this->to_string();
 	}
 
 	/**
 	 * Determine whether the given offset exists.
 	 *
-	 * @since 3.0.2
-	 *
 	 * @param int|string $offset The offset key.
 	 *
 	 * @return bool Whether the offset exists.
+	 * @since 3.0.2
+	 *
 	 */
-	public function offsetExists( $offset ): bool {
-		return array_key_exists( $offset, $this->response_data );
+	public function offsetExists($offset): bool
+	{
+		return array_key_exists($offset, $this->response_data);
 	}
 
 	/**
 	 * Get the given offset.
 	 *
-	 * @since 3.0.2
-	 *
 	 * @param int|string $offset The offset key.
 	 *
 	 * @return mixed The offset value.
+	 * @since 3.0.2
+	 *
 	 */
 	#[\ReturnTypeWillChange]
-	public function offsetGet( $offset ) {
-		return $this->response_data[ $offset ];
+	public function offsetGet($offset)
+	{
+		return $this->response_data[$offset];
 	}
 
 	/**
 	 * Set the offset to the given value.
 	 *
-	 * @since 3.0.2
-	 *
 	 * @param int|string $offset The offset key.
-	 * @param mixed      $value  The offset value.
+	 * @param mixed $value The offset value.
 	 *
 	 * @return void
+	 * @since 3.0.2
+	 *
 	 */
-	public function offsetSet( $offset, $value ): void {
-		$this->response_data[ $offset ] = $value;
+	public function offsetSet($offset, $value): void
+	{
+		$this->response_data[$offset] = $value;
 	}
 
 	/**
 	 * Unset the given offset.
 	 *
-	 * @since 3.0.2
-	 *
 	 * @param int|string $offset The offset key.
 	 *
 	 * @return void
+	 * @since 3.0.2
+	 *
 	 */
-	public function offsetUnset( $offset ): void {
-		unset( $this->response_data[ $offset ] );
+	public function offsetUnset($offset): void
+	{
+		unset($this->response_data[$offset]);
 	}
 }

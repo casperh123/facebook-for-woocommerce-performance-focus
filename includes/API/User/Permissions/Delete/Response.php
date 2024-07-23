@@ -1,9 +1,9 @@
 <?php
-declare( strict_types=1 );
+declare(strict_types=1);
 
 namespace WooCommerce\Facebook\API\User\Permissions\Delete;
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 use WooCommerce\Facebook\API;
 
@@ -12,4 +12,6 @@ use WooCommerce\Facebook\API;
  *
  * @property-read bool success Facebook User ID.
  */
-class Response extends API\Response {}
+class Response extends API\Response
+{
+}

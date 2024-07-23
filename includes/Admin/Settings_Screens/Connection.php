@@ -1,5 +1,6 @@
 <?php
 // phpcs:ignoreFile
+
 /**
  * Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
  *
@@ -11,7 +12,7 @@
 
 namespace WooCommerce\Facebook\Admin\Settings_Screens;
 
-defined( 'ABSPATH' ) or exit;
+defined('ABSPATH') or exit;
 
 use WooCommerce\Facebook\Admin\Abstract_Settings_Screen;
 use WooCommerce\Facebook\Framework\Api\Exception as ApiException;
@@ -19,7 +20,8 @@ use WooCommerce\Facebook\Framework\Api\Exception as ApiException;
 /**
  * The Connection settings screen object.
  */
-class Connection extends Abstract_Settings_Screen {
+class Connection extends Abstract_Settings_Screen
+{
 
 
 	/** @var string screen ID */
@@ -29,15 +31,16 @@ class Connection extends Abstract_Settings_Screen {
 	/**
 	 * Connection constructor.
 	 */
-	public function __construct() {
+	public function __construct()
+	{
 
-		$this->id    = self::ID;
-		$this->label = __( 'Connection', 'facebook-for-woocommerce' );
-		$this->title = __( 'Connection', 'facebook-for-woocommerce' );
+		$this->id = self::ID;
+		$this->label = __('Connection', 'facebook-for-woocommerce');
+		$this->title = __('Connection', 'facebook-for-woocommerce');
 
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+		add_action('admin_enqueue_scripts', array($this, 'enqueue_assets'));
 
-		add_action( 'admin_notices', array( $this, 'add_notices' ) );
+		add_action('admin_notices', array($this, 'add_notices'));
 	}
 
 
@@ -48,17 +51,18 @@ class Connection extends Abstract_Settings_Screen {
 	 *
 	 * @since 2.0.0
 	 */
-	public function add_notices() {
+	public function add_notices()
+	{
 
 		// display a notice if the connection has previously failed
-		if ( get_transient( 'wc_facebook_connection_failed' ) ) {
+		if (get_transient('wc_facebook_connection_failed')) {
 
 			$message = sprintf(
-				/* translators: Placeholders: %1$s - <strong> tag, %2$s - </strong> tag, %3$s - <a> tag, %4$s - </a> tag, %5$s - <a> tag, %6$s - </a> tag */
-				__( '%1$sHeads up!%2$s It looks like there was a problem with reconnecting your site to Facebook. Please %3$sclick here%4$s to try again.', 'facebook-for-woocommerce' ),
+			/* translators: Placeholders: %1$s - <strong> tag, %2$s - </strong> tag, %3$s - <a> tag, %4$s - </a> tag, %5$s - <a> tag, %6$s - </a> tag */
+				__('%1$sHeads up!%2$s It looks like there was a problem with reconnecting your site to Facebook. Please %3$sclick here%4$s to try again.', 'facebook-for-woocommerce'),
 				'<strong>',
 				'</strong>',
-				'<a href="' . esc_url( facebook_for_woocommerce()->get_connection_handler()->get_connect_url() ) . '">',
+				'<a href="' . esc_url(facebook_for_woocommerce()->get_connection_handler()->get_connect_url()) . '">',
 				'</a>'
 			);
 
@@ -70,7 +74,7 @@ class Connection extends Abstract_Settings_Screen {
 				)
 			);
 
-			delete_transient( 'wc_facebook_connection_failed' );
+			delete_transient('wc_facebook_connection_failed');
 		}
 	}
 
@@ -82,13 +86,14 @@ class Connection extends Abstract_Settings_Screen {
 	 *
 	 * @since 2.0.0
 	 */
-	public function enqueue_assets() {
+	public function enqueue_assets()
+	{
 
-		if ( ! $this->is_current_screen_page() ) {
+		if (!$this->is_current_screen_page()) {
 			return;
 		}
 
-		wp_enqueue_style( 'wc-facebook-admin-connection-settings', facebook_for_woocommerce()->get_plugin_url() . '/assets/css/admin/facebook-for-woocommerce-connection.css', array(), \WC_Facebookcommerce::VERSION );
+		wp_enqueue_style('wc-facebook-admin-connection-settings', facebook_for_woocommerce()->get_plugin_url() . '/assets/css/admin/facebook-for-woocommerce-connection.css', array(), \WC_Facebookcommerce::VERSION);
 	}
 
 
@@ -97,15 +102,16 @@ class Connection extends Abstract_Settings_Screen {
 	 *
 	 * @since 2.0.0
 	 */
-	public function render() {
+	public function render()
+	{
 
 		$is_connected = facebook_for_woocommerce()->get_connection_handler()->is_connected();
 
 		// always render the CTA box
-		$this->render_facebook_box( $is_connected );
+		$this->render_facebook_box($is_connected);
 
 		// don't proceed further if not connected
-		if ( ! $is_connected ) {
+		if (!$is_connected) {
 			return;
 		}
 
@@ -125,48 +131,48 @@ class Connection extends Abstract_Settings_Screen {
 		 * TODO: add the page name and link when we gain the manage_pages permission
 		 */
 		$static_items = array(
-			'page'                          => array(
-				'label' => __( 'Page', 'facebook-for-woocommerce' ),
+			'page' => array(
+				'label' => __('Page', 'facebook-for-woocommerce'),
 				'value' => facebook_for_woocommerce()->get_integration()->get_facebook_page_id(),
 			),
-			'pixel'                         => array(
-				'label' => __( 'Pixel', 'facebook-for-woocommerce' ),
+			'pixel' => array(
+				'label' => __('Pixel', 'facebook-for-woocommerce'),
 				'value' => facebook_for_woocommerce()->get_integration()->get_facebook_pixel_id(),
 			),
-			'catalog'                       => array(
-				'label' => __( 'Catalog', 'facebook-for-woocommerce' ),
+			'catalog' => array(
+				'label' => __('Catalog', 'facebook-for-woocommerce'),
 				'value' => facebook_for_woocommerce()->get_integration()->get_product_catalog_id(),
-				'url'   => 'https://facebook.com/products',
+				'url' => 'https://facebook.com/products',
 			),
-			'business-manager'              => array(
-				'label' => __( 'Business Manager account', 'facebook-for-woocommerce' ),
+			'business-manager' => array(
+				'label' => __('Business Manager account', 'facebook-for-woocommerce'),
 				'value' => facebook_for_woocommerce()->get_connection_handler()->get_business_manager_id(),
 			),
-			'ad-account'                    => array(
-				'label' => __( 'Ad Manager account', 'facebook-for-woocommerce' ),
+			'ad-account' => array(
+				'label' => __('Ad Manager account', 'facebook-for-woocommerce'),
 				'value' => facebook_for_woocommerce()->get_connection_handler()->get_ad_account_id(),
 			),
-			'instagram-business-id'         => array(
-				'label' => __( 'Instagram Business ID', 'facebook-for-woocommerce' ),
+			'instagram-business-id' => array(
+				'label' => __('Instagram Business ID', 'facebook-for-woocommerce'),
 				'value' => facebook_for_woocommerce()->get_connection_handler()->get_instagram_business_id(),
 			),
 			'commerce-merchant-settings-id' => array(
-				'label' => __( 'Commerce Merchant Settings ID', 'facebook-for-woocommerce' ),
+				'label' => __('Commerce Merchant Settings ID', 'facebook-for-woocommerce'),
 				'value' => facebook_for_woocommerce()->get_connection_handler()->get_commerce_merchant_settings_id(),
 			),
 		);
 
 		// if the catalog ID is set, update the URL and try to get its name for display
-		if ( $catalog_id = $static_items['catalog']['value'] ) {
+		if ($catalog_id = $static_items['catalog']['value']) {
 
 			$static_items['catalog']['url'] = "https://facebook.com/products/catalogs/{$catalog_id}";
 
 			try {
-				$response = facebook_for_woocommerce()->get_api()->get_catalog( $catalog_id );
-				if ( $name = $response->name ) {
+				$response = facebook_for_woocommerce()->get_api()->get_catalog($catalog_id);
+				if ($name = $response->name) {
 					$static_items['catalog']['value'] = $name;
 				}
-			} catch ( ApiException $exception ) {
+			} catch (ApiException $exception) {
 			}
 		}
 
@@ -175,59 +181,59 @@ class Connection extends Abstract_Settings_Screen {
 		<table class="form-table">
 			<tbody>
 
-				<?php
-				foreach ( $static_items as $id => $item ) :
+			<?php
+			foreach ($static_items as $id => $item) :
 
-					$item = wp_parse_args(
-						$item,
-						array(
-							'label' => '',
-							'value' => '',
-							'url'   => '',
-						)
-					);
+				$item = wp_parse_args(
+					$item,
+					array(
+						'label' => '',
+						'value' => '',
+						'url' => '',
+					)
+				);
 
-					?>
+				?>
 
-					<tr valign="top" class="wc-facebook-connected-<?php echo esc_attr( $id ); ?>">
+				<tr valign="top" class="wc-facebook-connected-<?php echo esc_attr($id); ?>">
 
-						<th scope="row" class="titledesc">
-							<?php echo esc_html( $item['label'] ); ?>
-						</th>
+					<th scope="row" class="titledesc">
+						<?php echo esc_html($item['label']); ?>
+					</th>
 
-						<td class="forminp">
+					<td class="forminp">
 
-							<?php if ( $item['url'] ) : ?>
+						<?php if ($item['url']) : ?>
 
-								<a href="<?php echo esc_url( $item['url'] ); ?>" target="_blank">
+							<a href="<?php echo esc_url($item['url']); ?>" target="_blank">
 
-									<?php echo esc_html( $item['value'] ); ?>
+								<?php echo esc_html($item['value']); ?>
 
-									<span
-										class="dashicons dashicons-external"
-										style="margin-right: 8px; vertical-align: bottom; text-decoration: none;"
-									></span>
+								<span
+									class="dashicons dashicons-external"
+									style="margin-right: 8px; vertical-align: bottom; text-decoration: none;"
+								></span>
 
-								</a>
+							</a>
 
-							<?php elseif ( is_numeric( $item['value'] ) ) : ?>
+						<?php elseif (is_numeric($item['value'])) : ?>
 
-								<code><?php echo esc_html( $item['value'] ); ?></code>
+							<code><?php echo esc_html($item['value']); ?></code>
 
-							<?php elseif ( ! empty( $item['value'] ) ) : ?>
+						<?php elseif (!empty($item['value'])) : ?>
 
-								<?php echo esc_html( $item['value'] ); ?>
+							<?php echo esc_html($item['value']); ?>
 
-							<?php else : ?>
+						<?php else : ?>
 
-								<?php echo '-'; ?>
+							<?php echo '-'; ?>
 
-							<?php endif; ?>
+						<?php endif; ?>
 
-						</td>
-					</tr>
+					</td>
+				</tr>
 
-				<?php endforeach; ?>
+			<?php endforeach; ?>
 
 			</tbody>
 		</table>
@@ -241,23 +247,24 @@ class Connection extends Abstract_Settings_Screen {
 	/**
 	 * Renders the Facebook CTA box.
 	 *
+	 * @param bool $is_connected whether the plugin is connected
 	 * @since 2.0.0
 	 *
-	 * @param bool $is_connected whether the plugin is connected
 	 */
-	private function render_facebook_box( $is_connected ) {
+	private function render_facebook_box($is_connected)
+	{
 
-		if ( $is_connected ) {
-			$title = __( 'Reach the Right People and Sell More Online', 'facebook-for-woocommerce' );
+		if ($is_connected) {
+			$title = __('Reach the Right People and Sell More Online', 'facebook-for-woocommerce');
 		} else {
-			$title = __( 'Grow your business on Facebook', 'facebook-for-woocommerce' );
+			$title = __('Grow your business on Facebook', 'facebook-for-woocommerce');
 		}
 
-		$subtitle = __( 'Use this WooCommerce and Facebook integration to:', 'facebook-for-woocommerce' );
+		$subtitle = __('Use this WooCommerce and Facebook integration to:', 'facebook-for-woocommerce');
 		$benefits = array(
-			__( 'Create an ad in a few steps', 'facebook-for-woocommerce' ),
-			__( 'Use built-in best practices for online sales', 'facebook-for-woocommerce' ),
-			__( 'Get reporting on sales and revenue', 'facebook-for-woocommerce' ),
+			__('Create an ad in a few steps', 'facebook-for-woocommerce'),
+			__('Use built-in best practices for online sales', 'facebook-for-woocommerce'),
+			__('Get reporting on sales and revenue', 'facebook-for-woocommerce'),
 		);
 
 		?>
@@ -266,31 +273,34 @@ class Connection extends Abstract_Settings_Screen {
 
 			<div class="logo"></div>
 
-			<h1><?php echo esc_html( $title ); ?></h1>
-			<h2><?php echo esc_html( $subtitle ); ?></h2>
+			<h1><?php echo esc_html($title); ?></h1>
+			<h2><?php echo esc_html($subtitle); ?></h2>
 
 			<ul class="benefits">
-				<?php foreach ( $benefits as $key => $benefit ) : ?>
-					<li class="benefit benefit-<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $benefit ); ?></li>
+				<?php foreach ($benefits as $key => $benefit) : ?>
+					<li class="benefit benefit-<?php echo esc_attr($key); ?>"><?php echo esc_html($benefit); ?></li>
 				<?php endforeach; ?>
 			</ul>
 
 			<div class="actions">
 
-				<?php if ( $is_connected ) : ?>
+				<?php if ($is_connected) : ?>
 
-					<a href="<?php echo esc_url( facebook_for_woocommerce()->get_connection_handler()->get_manage_url() ); ?>" class="button button-primary">
-						<?php esc_html_e( 'Manage Connection', 'facebook-for-woocommerce' ); ?>
+					<a href="<?php echo esc_url(facebook_for_woocommerce()->get_connection_handler()->get_manage_url()); ?>"
+					   class="button button-primary">
+						<?php esc_html_e('Manage Connection', 'facebook-for-woocommerce'); ?>
 					</a>
 
-					<a href="<?php echo esc_url( facebook_for_woocommerce()->get_connection_handler()->get_disconnect_url() ); ?>" class="uninstall">
-						<?php esc_html_e( 'Disconnect', 'facebook-for-woocommerce' ); ?>
+					<a href="<?php echo esc_url(facebook_for_woocommerce()->get_connection_handler()->get_disconnect_url()); ?>"
+					   class="uninstall">
+						<?php esc_html_e('Disconnect', 'facebook-for-woocommerce'); ?>
 					</a>
 
 				<?php else : ?>
 
-					<a href="<?php echo esc_url( facebook_for_woocommerce()->get_connection_handler()->get_connect_url() ); ?>" class="button button-primary">
-						<?php esc_html_e( 'Get Started', 'facebook-for-woocommerce' ); ?>
+					<a href="<?php echo esc_url(facebook_for_woocommerce()->get_connection_handler()->get_connect_url()); ?>"
+					   class="button button-primary">
+						<?php esc_html_e('Get Started', 'facebook-for-woocommerce'); ?>
 					</a>
 
 				<?php endif; ?>
@@ -306,38 +316,39 @@ class Connection extends Abstract_Settings_Screen {
 	/**
 	 * Gets the screen settings.
 	 *
+	 * @return array
 	 * @since 2.0.0
 	 *
-	 * @return array
 	 */
-	public function get_settings() {
+	public function get_settings()
+	{
 
 		return array(
 
 			array(
-				'title' => __( 'Debug', 'facebook-for-woocommerce' ),
-				'type'  => 'title',
+				'title' => __('Debug', 'facebook-for-woocommerce'),
+				'type' => 'title',
 			),
 
 			array(
-				'id'       => \WC_Facebookcommerce_Integration::SETTING_ENABLE_DEBUG_MODE,
-				'title'    => __( 'Enable debug mode', 'facebook-for-woocommerce' ),
-				'type'     => 'checkbox',
-				'desc'     => __( 'Log plugin events for debugging.', 'facebook-for-woocommerce' ),
-				'desc_tip' => __( 'Only enable this if you are experiencing problems with the plugin.', 'facebook-for-woocommerce' ),
-				'default'  => 'no',
+				'id' => \WC_Facebookcommerce_Integration::SETTING_ENABLE_DEBUG_MODE,
+				'title' => __('Enable debug mode', 'facebook-for-woocommerce'),
+				'type' => 'checkbox',
+				'desc' => __('Log plugin events for debugging.', 'facebook-for-woocommerce'),
+				'desc_tip' => __('Only enable this if you are experiencing problems with the plugin.', 'facebook-for-woocommerce'),
+				'default' => 'no',
 			),
 
 			array(
-				'id'       => \WC_Facebookcommerce_Integration::SETTING_ENABLE_NEW_STYLE_FEED_GENERATOR,
-				'title'    => __( 'Experimental! Enable new style feed generation', 'facebook-for-woocommerce' ),
-				'type'     => 'checkbox',
-				'desc'     => __( 'Use new, memory improved, feed generation process.', 'facebook-for-woocommerce' ),
-				'desc_tip' => __( 'Experimental feature. Only enable this if you are experiencing problems with feed generation. This is an experimental feature in testing phase.', 'facebook-for-woocommerce' ),
-				'default'  => 'no',
+				'id' => \WC_Facebookcommerce_Integration::SETTING_ENABLE_NEW_STYLE_FEED_GENERATOR,
+				'title' => __('Experimental! Enable new style feed generation', 'facebook-for-woocommerce'),
+				'type' => 'checkbox',
+				'desc' => __('Use new, memory improved, feed generation process.', 'facebook-for-woocommerce'),
+				'desc_tip' => __('Experimental feature. Only enable this if you are experiencing problems with feed generation. This is an experimental feature in testing phase.', 'facebook-for-woocommerce'),
+				'default' => 'no',
 			),
 
-			array( 'type' => 'sectionend' ),
+			array('type' => 'sectionend'),
 
 		);
 	}

@@ -1,9 +1,9 @@
 <?php
-declare( strict_types=1 );
+declare(strict_types=1);
 
 namespace WooCommerce\Facebook\API\Pages\Read;
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 use WooCommerce\Facebook\API;
 
@@ -12,13 +12,15 @@ use WooCommerce\Facebook\API;
  *
  * @since 2.0.0
  */
-class Request extends API\Request {
+class Request extends API\Request
+{
 	/**
 	 * API request constructor.
 	 *
 	 * @param string $page_id Facebook Page ID.
 	 */
-	public function __construct( $page_id ) {
-		parent::__construct( "/{$page_id}/?fields=name,link", 'GET' );
+	public function __construct($page_id)
+	{
+		parent::__construct("/{$page_id}/?fields=name,link", 'GET');
 	}
 }

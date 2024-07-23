@@ -10,7 +10,7 @@
 
 namespace WooCommerce\Facebook\API\Catalog\Product_Item\Find;
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 use WooCommerce\Facebook\API;
 
@@ -19,17 +19,19 @@ use WooCommerce\Facebook\API;
  *
  * @since 2.0.0
  */
-class Request extends API\Request {
+class Request extends API\Request
+{
 
 
 	/**
 	 * Gets the rate limit ID.
 	 *
+	 * @return string
 	 * @since 2.0.0
 	 *
-	 * @return string
 	 */
-	public static function get_rate_limit_id() {
+	public static function get_rate_limit_id()
+	{
 
 		return 'ads_management';
 	}
@@ -38,27 +40,29 @@ class Request extends API\Request {
 	/**
 	 * API request constructor.
 	 *
-	 * @since 2.0.0
-	 *
 	 * @param string $catalog_id catalog ID
 	 * @param string $retailer_id retailer ID of the product
+	 * @since 2.0.0
+	 *
 	 */
-	public function __construct( $catalog_id, $retailer_id ) {
+	public function __construct($catalog_id, $retailer_id)
+	{
 
-		parent::__construct( "catalog:{$catalog_id}:" . base64_encode( $retailer_id ), 'GET' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		parent::__construct("catalog:{$catalog_id}:" . base64_encode($retailer_id), 'GET'); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 	}
 
 
 	/**
 	 * Gets the request parameters.
 	 *
+	 * @return array
 	 * @since 2.0.0
 	 *
-	 * @return array
 	 */
-	public function get_params() {
+	public function get_params()
+	{
 
-		return array( 'fields' => 'id,product_group{id}' );
+		return array('fields' => 'id,product_group{id}');
 	}
 
 
